@@ -67,8 +67,8 @@ describe('indexing', function(){
     });
     it('should report errors', function(done){
       Tweet.search({queriez:'jamescarr'}, function(err, results) {
-        results.total.should.eql(1)
-        results.hits[0].message.should.eql('I like Riak better')
+        err.message.should.match(/SearchPhaseExecutionException/);
+        should.not.exist(results)
         done()
       });
     });
