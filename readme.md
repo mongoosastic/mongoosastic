@@ -33,7 +33,7 @@ var User = new Schema({
   , city: String
 })
 
-User.plugin(mongoosastic)
+User.plugin(mongoosastic, {index:'users', type:'user'})
 ```
 This will still use the document id as the index but only the name field
 will be indexed for searching. 
