@@ -7,6 +7,8 @@ var mongoose  = require('mongoose')
   , mongoosastic = require('../lib/mongoosastic')
   , esClient  = new(require('elastical').Client)
 
+
+// -- simplest indexing... index all fields
 var TweetSchema = new Schema({
     user: String
   , post_date: Date
@@ -20,8 +22,21 @@ TweetSchema.plugin(mongoosastic, {
 })
 var Tweet = mongoose.model('Tweet', TweetSchema);
 
+// -- Only index specific field
+var TalkSchema = new Schema({
+    speaker: String
+  , title: {type:String, es_indexed:true}
+  , abstract: {type:String, es_indexed:true}
+  , bio: String
+});
+TalkSchema.plugin(mongoosastic, {
+    index:'tweets' // keep it simple for now. in the real world don't do this
+  , type: 'tweet'
+})
 
+var Talk = mongoose.model("Talk", TalkSchema);
 
+// -- alright let's test this shiznit!
 describe('indexing', function(){
   before(function(done){
     mongoose.connect(config.mongoUrl, function(){
@@ -72,6 +87,49 @@ describe('indexing', function(){
         done()
       });
     });
+  });
+
+  describe('Subset of Fields', function(){
+    before(function(done){
+      var talk = new Talk({
+          speaker: 'James Carr'
+        , title: "Node.js Rocks"
+        , abstract: "I told you node.js was cool. Listen to me!"
+        , bio: 'One awesome dude.'
+      });
+      talk.save(function(){
+        talk.on('es-indexed', function(err, res){
+          setTimeout(done, 1000)
+        });
+      });
+    });
+
+    it('should only return indexed fields', function(done){
+      Talk.search({query:'cool'}, function(err, res) {
+        res.total.should.eql(1)
+
+        var talk = res.hits[0]
+        talk.should.have.property('title')
+        talk.should.have.property('abstract')
+        talk.should.not.have.property('speaker')
+        talk.should.not.have.property('bio')
+        done()
+      });
+    });
+    /*
+    it('should hydrate returned documents if desired', function(done){
+      Talk.search({query:'cool'}, {hydrate:true}, function(err, res) {
+        res.total.should.eql(1)
+
+        var talk = res.hits[0]
+        talk.should.have.property('title')
+        talk.should.have.property('abstract')
+        talk.should.have.property('speaker')
+        talk.should.have.property('bio')
+        done()
+      });
+    });
+   */
   });
 });
 
