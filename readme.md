@@ -56,7 +56,7 @@ User.search("john", function(err, results) {
 
 Options are:
 
+* `index` - the index in elastic search to use (required)
+* `type`  - the type this model represents in elastic search (required)
 * `host` - the host elastic search is running on
-* `collection` - the collection name to use. Defaults to the mongodb
-  collection name
 
