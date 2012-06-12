@@ -6,7 +6,7 @@ var mongoose  = require('mongoose')
   , ObjectId  = Schema.ObjectId
   , mongoosastic = require('../lib/mongoosastic')
   , esClient  = new(require('elastical').Client)
-
+  , async = require('async')
 
 // -- simplest indexing... index all fields
 var TweetSchema = new Schema({
@@ -16,10 +16,7 @@ var TweetSchema = new Schema({
 });
 
 
-TweetSchema.plugin(mongoosastic, {
-    index:'tweets'
-  , type: 'tweet'
-})
+TweetSchema.plugin(mongoosastic)
 var Tweet = mongoose.model('Tweet', TweetSchema);
 
 // -- Only index specific field
@@ -29,10 +26,7 @@ var TalkSchema = new Schema({
   , abstract: {type:String, es_indexed:true}
   , bio: String
 });
-TalkSchema.plugin(mongoosastic, {
-    index:'tweets' // keep it simple for now. in the real world don't do this
-  , type: 'tweet'
-})
+TalkSchema.plugin(mongoosastic)
 
 var Talk = mongoose.model("Talk", TalkSchema);
 
@@ -41,7 +35,7 @@ describe('indexing', function(){
   before(function(done){
     mongoose.connect(config.mongoUrl, function(){
       Tweet.remove(function(){
-        deleteIndexIfExists('tweets', done)
+        deleteIndexIfExists(['tweets', 'talks'], done)
       });
     });
   });
@@ -89,6 +83,44 @@ describe('indexing', function(){
     });
   });
 
+  describe('Isolated Models', function(){
+    before(function(done){
+      var talk = new Talk({
+          speaker: ''
+        , title: "Dude"
+        , abstract: ""
+        , bio: ''
+      });
+      var tweet = new Tweet({
+          user: 'Dude'
+        , message: "Go see the big lebowski"
+        , post_date: new Date()
+      });
+      tweet.save(function(){
+        talk.save(function(){
+          talk.on('es-indexed', function(err, res){
+            setTimeout(done, 1000);
+          });
+        });
+      });
+    });   
+
+    it('should only find models of type Tweet', function(done){
+      Tweet.search({query:'Dude'}, function(err, res){
+        res.total.should.eql(1);
+        res.hits[0].user.should.eql('Dude');
+        done();
+      });
+    });
+    it('should only find models of type Talk', function(done){
+      Talk.search({query:'Dude'}, function(err, res){
+        res.total.should.eql(1);
+        res.hits[0].title.should.eql('Dude');
+        done();
+      });
+    });
+  });
+
   describe('Subset of Fields', function(){
     before(function(done){
       var talk = new Talk({
@@ -99,24 +131,24 @@ describe('indexing', function(){
       });
       talk.save(function(){
         talk.on('es-indexed', function(err, res){
-          setTimeout(done, 1000)
+          setTimeout(done, 1000);
         });
       });
     });
 
     it('should only return indexed fields', function(done){
       Talk.search({query:'cool'}, function(err, res) {
-        res.total.should.eql(1)
+        res.total.should.eql(1);
 
-        var talk = res.hits[0]
-        talk.should.have.property('title')
-        talk.should.have.property('abstract')
-        talk.should.not.have.property('speaker')
-        talk.should.not.have.property('bio')
-        done()
+        var talk = res.hits[0];
+        talk.should.have.property('title');
+        talk.should.have.property('abstract');
+        talk.should.not.have.property('speaker');
+        talk.should.not.have.property('bio');
+        done();
       });
     });
-    /*
+
     it('should hydrate returned documents if desired', function(done){
       Talk.search({query:'cool'}, {hydrate:true}, function(err, res) {
         res.total.should.eql(1)
@@ -129,17 +161,19 @@ describe('indexing', function(){
         done()
       });
     });
-   */
   });
 });
 
 
-function deleteIndexIfExists(index, cb){
-  esClient.indexExists(index, function(err, exists){
-    if(exists){
-      esClient.deleteIndex(index, cb);
-    }else{
-      cb()
-    }
-  });
+function deleteIndexIfExists(indexes, done){
+  async.forEach(indexes, function(index, cb){
+    esClient.indexExists(index, function(err, exists){
+      if(exists){
+        console.log('deleting index %s', index);
+        esClient.deleteIndex(index, cb);
+      }else{
+        cb();
+      }
+    });
+  }, done);
 }
