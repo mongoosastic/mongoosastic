@@ -5,8 +5,6 @@ var mongoose  = require('mongoose')
   , Schema    = mongoose.Schema
   , ObjectId  = Schema.ObjectId
   , mongoosastic = require('../lib/mongoosastic')
-  , esClient  = new(require('elastical').Client)
-  , async = require('async')
 
 // -- simplest indexing... index all fields
 var TweetSchema = new Schema({
@@ -14,7 +12,6 @@ var TweetSchema = new Schema({
   , post_date: Date
   , message: String
 });
-
 
 TweetSchema.plugin(mongoosastic)
 var Tweet = mongoose.model('Tweet', TweetSchema);
@@ -35,7 +32,7 @@ describe('indexing', function(){
   before(function(done){
     mongoose.connect(config.mongoUrl, function(){
       Tweet.remove(function(){
-        deleteIndexIfExists(['tweets', 'talks'], done)
+        config.deleteIndexIfExists(['tweets', 'talks'], done)
       });
     });
   });
@@ -82,7 +79,41 @@ describe('indexing', function(){
       });
     });
   });
+  describe('Removing', function(){
+    var tweet = new Tweet({
+      user:'jamescarr'
+    , message: 'Saying something I shouldnt'
+    });
+    before(function(done){
+      tweet.save();
+      tweet.on('es-indexed', function(){
+        setTimeout(done, 1100);
+      });
+    });
+    it('should remove from index when model is removed', function(done){
+      tweet.remove(function(){
+        setTimeout(function(){
+          Tweet.search({query:'shouldnt'}, function(err, res){
+            res.total.should.eql(0);
+            done();
+          });
+        }, 1100);
+      });
+    });
+    it('should queue for later removal if not in index', function(done){
+      // behavior here is to try 3 times and then give up.
+      var tweet = new Tweet({
+        user:'jamescarr'
+      , message: 'ABBA'
+      });
 
+      tweet.save(function(){
+        tweet.remove();
+      });
+      tweet.on('es-removed', done);
+    });
+
+  });
   describe('Isolated Models', function(){
     before(function(done){
       var talk = new Talk({
@@ -165,15 +196,3 @@ describe('indexing', function(){
 });
 
 
-function deleteIndexIfExists(indexes, done){
-  async.forEach(indexes, function(index, cb){
-    esClient.indexExists(index, function(err, exists){
-      if(exists){
-        console.log('deleting index %s', index);
-        esClient.deleteIndex(index, cb);
-      }else{
-        cb();
-      }
-    });
-  }, done);
-}
