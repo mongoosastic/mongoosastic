@@ -165,23 +165,25 @@ describe('indexing', function(){
     });
   });
 
+  function createModelAndEnsureIndex(model, obj, cb){
+    var dude = new model(obj);
+    dude.save(function(){
+      dude.on('es-indexed', function(err, res){
+        setTimeout(cn, 1000);
+      });
+    });
+  }
   describe('Always hydrate', function(){
     before(function(done){
-      var dude = new Person({
+      createModelAndEnsureIndex(Person, {
           name: 'James Carr'
         , address: "Exampleville, MO"
         , phone: '(555)555-5555'
-      });
-      dude.save(function(){
-        dude.on('es-indexed', function(err, res){
-          setTimeout(done, 1000);
-        });
-      });
+      }, done);
     });
 
     it('when gathering search results', function(done){
       Person.search({query:'James'}, function(err, res) {
-        res.total.should.eql(1);
         res.hits[0].address.should.eql('Exampleville, MO');
         done();
       });
