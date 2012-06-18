@@ -27,12 +27,25 @@ TalkSchema.plugin(mongoosastic)
 
 var Talk = mongoose.model("Talk", TalkSchema);
 
+var PersonSchema = new Schema({
+    name: {type:String, es_indexed:true}
+  , phone: {type:String, es_indexed:true}
+  , address: String
+});
+PersonSchema.plugin(mongoosastic, {
+  index:'people'
+, type: 'dude'
+, hydrate: true
+});
+
+var Person = mongoose.model("Person", PersonSchema);
+
 // -- alright let's test this shiznit!
 describe('indexing', function(){
   before(function(done){
     mongoose.connect(config.mongoUrl, function(){
       Tweet.remove(function(){
-        config.deleteIndexIfExists(['tweets', 'talks'], done)
+        config.deleteIndexIfExists(['tweets', 'talks', 'people'], done)
       });
     });
   });
@@ -152,6 +165,28 @@ describe('indexing', function(){
     });
   });
 
+  describe('Always hydrate', function(){
+    before(function(done){
+      var dude = new Person({
+          name: 'James Carr'
+        , address: "Exampleville, MO"
+        , phone: '(555)555-5555'
+      });
+      dude.save(function(){
+        dude.on('es-indexed', function(err, res){
+          setTimeout(done, 1000);
+        });
+      });
+    });
+
+    it('when gathering search results', function(done){
+      Person.search({query:'James'}, function(err, res) {
+        res.total.should.eql(1);
+        res.hits[0].address.should.eql('Exampleville, MO');
+        done();
+      });
+    });
+  });
   describe('Subset of Fields', function(){
     before(function(done){
       var talk = new Talk({
@@ -189,7 +224,7 @@ describe('indexing', function(){
         talk.should.have.property('abstract')
         talk.should.have.property('speaker')
         talk.should.have.property('bio')
-        done()
+        done();
       });
     });
   });
