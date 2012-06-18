@@ -59,16 +59,11 @@ describe('indexing', function(){
 
   describe('Default plugin', function(){
     before(function(done){
-      var tweet = new Tweet({
+      createModelAndEnsureIndex(Tweet, {
           user: 'jamescarr'
         , message: "I like Riak better"
         , post_date: new Date()
-      });
-      tweet.save(function(){
-        tweet.on('es-indexed', function(err, res){
-          setTimeout(done, 1100)
-        });
-      });
+      }, done);
     });
     it('should be able to execute a simple query', function(done){
       Tweet.search({query:'Riak'}, function(err, results) {
@@ -98,10 +93,7 @@ describe('indexing', function(){
     , message: 'Saying something I shouldnt'
     });
     before(function(done){
-      tweet.save();
-      tweet.on('es-indexed', function(){
-        setTimeout(done, 1100);
-      });
+      createModelAndEnsureIndex(Tweet, tweet, done);
     });
     it('should remove from index when model is removed', function(done){
       tweet.remove(function(){
@@ -165,14 +157,6 @@ describe('indexing', function(){
     });
   });
 
-  function createModelAndEnsureIndex(model, obj, cb){
-    var dude = new model(obj);
-    dude.save(function(){
-      dude.on('es-indexed', function(err, res){
-        setTimeout(cn, 1000);
-      });
-    });
-  }
   describe('Always hydrate', function(){
     before(function(done){
       createModelAndEnsureIndex(Person, {
@@ -191,17 +175,12 @@ describe('indexing', function(){
   });
   describe('Subset of Fields', function(){
     before(function(done){
-      var talk = new Talk({
+      createModelAndEnsureIndex(Talk,{
           speaker: 'James Carr'
         , title: "Node.js Rocks"
         , abstract: "I told you node.js was cool. Listen to me!"
         , bio: 'One awesome dude.'
-      });
-      talk.save(function(){
-        talk.on('es-indexed', function(err, res){
-          setTimeout(done, 1000);
-        });
-      });
+      }, done);
     });
 
     it('should only return indexed fields', function(done){
@@ -233,3 +212,11 @@ describe('indexing', function(){
 });
 
 
+function createModelAndEnsureIndex(model, obj, cb){
+  var dude = new model(obj);
+  dude.save(function(){
+    dude.on('es-indexed', function(err, res){
+      setTimeout(cb, 1000);
+    });
+  });
+}
