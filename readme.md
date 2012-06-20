@@ -126,7 +126,9 @@ var User = new Schema({
   , city: String
 })
 
-User.plugin(mongoosastic, {index:'users', type:'user', hydrate:true})
+User.plugin(mongoosastic, {hydrate:true})
+```
+
 
 ### Model.plugin(mongoosastic, options)
 
