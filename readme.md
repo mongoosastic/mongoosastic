@@ -1,5 +1,5 @@
 # Mongoosastic
-A [mongoose](http://mongoosejs.com/) plugin that indexes models into elastic search. I kept
+A [mongoose](http://mongoosejs.com/) plugin that indexes models into [elasticsearch](http://www.elasticsearch.org/). I kept
 running into cases where I needed full text search capabilities in my
 mongodb based models only to discover mongodb has none. In addition to
 full text search, I also needed the ability to filter ranges of data
