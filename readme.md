@@ -70,6 +70,8 @@ Person.search({
 
 ```
 
+See the elasticsearch [Query DSL](http://www.elasticsearch.org/guide/reference/query-dsl/) docs for more information.
+
 ### Hydration
 By default objects returned from performing a search will be the objects
 as is in elastic search. This is useful in cases where only what was
