@@ -35,9 +35,16 @@ var User = new Schema({
 User.plugin(mongoosastic)
 ```
 
-This will by default simply use the document id as the index and index
-all of the fields into elastic search. This can be a little wasteful so
-you should consider opting to index only certain fields:
+This will by default simply use the pluralization of the model name as the index 
+while using the model name itself as the type. So if you create a new
+User object and save it, you can see it by navigating to
+http://localhost:9200/users/user/_search (this assumes elasticsearch is
+running locally on port 9200). 
+
+The default behavior is all fields get indexed into elasticsearch. This can be a little wasteful especially considering that
+the document is now just being duplicated between mongodb and
+elasticsearch so you should consider opting to index only certain fields by specifying ''es_indexed'' on the 
+fields you want to store:
 
 
 ```javascript
@@ -47,9 +54,10 @@ var User = new Schema({
   , city: String
 })
 
-User.plugin(mongoosastic, {index:'users', type:'user'})
+User.plugin(mongoosastic)
 ```
-This will still use the document id as the index but only the name field
+
+In this case only the name field
 will be indexed for searching. 
 
 Finally, adding the plugin will add a new method to the model called
@@ -131,4 +139,20 @@ Options are:
 * `host` - the host elastic search is running on
 * `hydrate` - whether or not to lookup results in mongodb before
   returning results from a search. Defaults to false.
+
+#### Specifying Different Index and Type
+Perhaps you have an existing index and you want to specify the index and
+type used to index your document? No problem!!
+
+```javascript
+var SupervisorSchema = new Schema({
+  name: String
+, department: String
+});
+
+SupervisorSchema.plugin(mongoosastic, {index: 'employees', type:'manager'});
+
+var Supervisor = mongoose.model('supervisor', SupervisorSchema);
+
+```
 
