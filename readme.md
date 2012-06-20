@@ -1,6 +1,20 @@
 # Mongoosastic
-A mongoose plugin that indexes models into elastic search
+A [mongoose](http://mongoosejs.com/) plugin that indexes models into elastic search. I kept
+running into cases where I needed full text search capabilities in my
+mongodb based models only to discover mongodb has none. In addition to
+full text search, I also needed the ability to filter ranges of data
+points in the searches and even highlight matches. For these reasons,
+elastic search was a perfect fit and hence this project. 
 
+
+## Installation
+
+```bash
+npm install mongoosastic
+
+```
+
+Or add it to your package.json
 
 ## Usage
 
@@ -69,6 +83,8 @@ Person.search({
 });
 
 ```
+
+See the elasticsearch [Query DSL](http://www.elasticsearch.org/guide/reference/query-dsl/) docs for more information.
 
 ### Hydration
 By default objects returned from performing a search will be the objects
