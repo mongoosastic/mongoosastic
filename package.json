@@ -4,13 +4,13 @@
   "description": "A mongoose plugin that indexes models into elastic search",
   "version": "0.0.1",
   "dependencies": {
-      "mongoose":"*"
-    , "elastical":"*"
+      "mongoose":"2.6.5"
+    , "elastical":"0.0.8"
   },
   "devDependencies": {
-      "mocha":"*"
-    , "should":"*"
-    , "async":"*"
+      "mocha":"1.1.0"
+    , "should":"0.6.3"
+    , "async":"0.1.22"
   },
   "optionalDependencies": {},
   "engines": {
