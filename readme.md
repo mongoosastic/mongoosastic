@@ -62,6 +62,25 @@ User.search({query:"john"}, function(err, results) {
 });
 
 ```
+### Per Field Options
+Schemas can be configured to have special options per field. These match
+with the existing [field mapping configurations](http://www.elasticsearch.org/guide/reference/mapping/core-types.html) defined by elasticsearch with the only difference being they are all prefixed by "es_". 
+
+So for example. If you wanted to index a book model and have the boost
+for title set to 2.0 (giving it greater priority when searching) you'd
+define it as follows:
+
+```javascript
+var BookSchema = new Schema({
+    title: {type:String, es_boost:2.0}
+  , author: {type:String, es_null_value:"Unknown Author"}
+  , publicationDate: {type:Date, es_type:'date'} 
+}); 
+
+```
+This example uses a few other mapping fields... such as null_value and
+type (which overrides whatever value the schema type is, useful if you
+want stronger typing such as float).
 
 ### Advanced Queries
 The full query DSL of elasticsearch is exposed through the search
