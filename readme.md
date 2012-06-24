@@ -176,6 +176,23 @@ SupervisorSchema.plugin(mongoosastic, {index: 'employees', type:'manager'});
 var Supervisor = mongoose.model('supervisor', SupervisorSchema);
 
 ```
+## Contributing
+Pull requests are always welcome as long as an accompanying test case is
+associated. 
+
+Essentially, create a new feature branch and when you're ready issue a
+pull request for the feature branch. 
+
+### Running Tests
+In order to run the tests you will need:
+
+* An elasticsearch server running on port 9200
+* A mongodb server
+* [mocha](http://visionmedia.github.com/mocha/)
+
+With those installed, running ''npm test'' will run the tests with the
+preferred timeout (which is extended for integration tests. 
+
 
 ## License
 Copyright (c) 2012 James R. Carr <james.r.carr@gmail.com>
