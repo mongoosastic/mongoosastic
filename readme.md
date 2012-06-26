@@ -181,7 +181,7 @@ Pull requests are always welcome as long as an accompanying test case is
 associated. 
 
 Essentially, create a new feature branch and when you're ready issue a
-pull request for the feature branch. 
+pull request for the feature branch. Pull requests must be made against the develop branch and will typically see release ASAP given all tests are passing.
 
 ### Running Tests
 In order to run the tests you will need:
