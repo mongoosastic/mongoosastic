@@ -1,6 +1,20 @@
 # Mongoosastic
-A mongoose plugin that indexes models into elastic search
+A [mongoose](http://mongoosejs.com/) plugin that indexes models into [elasticsearch](http://www.elasticsearch.org/). I kept
+running into cases where I needed full text search capabilities in my
+mongodb based models only to discover mongodb has none. In addition to
+full text search, I also needed the ability to filter ranges of data
+points in the searches and even highlight matches. For these reasons,
+elastic search was a perfect fit and hence this project. 
 
+
+## Installation
+
+```bash
+npm install mongoosastic
+
+```
+
+Or add it to your package.json
 
 ## Usage
 
@@ -21,9 +35,16 @@ var User = new Schema({
 User.plugin(mongoosastic)
 ```
 
-This will by default simply use the document id as the index and index
-all of the fields into elastic search. This can be a little wasteful so
-you should consider opting to index only certain fields:
+This will by default simply use the pluralization of the model name as the index 
+while using the model name itself as the type. So if you create a new
+User object and save it, you can see it by navigating to
+http://localhost:9200/users/user/_search (this assumes elasticsearch is
+running locally on port 9200). 
+
+The default behavior is all fields get indexed into elasticsearch. This can be a little wasteful especially considering that
+the document is now just being duplicated between mongodb and
+elasticsearch so you should consider opting to index only certain fields by specifying ''es_indexed'' on the 
+fields you want to store:
 
 
 ```javascript
@@ -33,9 +54,10 @@ var User = new Schema({
   , city: String
 })
 
-User.plugin(mongoosastic, {index:'users', type:'user'})
+User.plugin(mongoosastic)
 ```
-This will still use the document id as the index but only the name field
+
+In this case only the name field
 will be indexed for searching. 
 
 Finally, adding the plugin will add a new method to the model called
@@ -48,6 +70,25 @@ User.search({query:"john"}, function(err, results) {
 });
 
 ```
+### Per Field Options
+Schemas can be configured to have special options per field. These match
+with the existing [field mapping configurations](http://www.elasticsearch.org/guide/reference/mapping/core-types.html) defined by elasticsearch with the only difference being they are all prefixed by "es_". 
+
+So for example. If you wanted to index a book model and have the boost
+for title set to 2.0 (giving it greater priority when searching) you'd
+define it as follows:
+
+```javascript
+var BookSchema = new Schema({
+    title: {type:String, es_boost:2.0}
+  , author: {type:String, es_null_value:"Unknown Author"}
+  , publicationDate: {type:Date, es_type:'date'} 
+}); 
+
+```
+This example uses a few other mapping fields... such as null_value and
+type (which overrides whatever value the schema type is, useful if you
+want stronger typing such as float).
 
 ### Advanced Queries
 The full query DSL of elasticsearch is exposed through the search
@@ -69,6 +110,8 @@ Person.search({
 });
 
 ```
+
+See the elasticsearch [Query DSL](http://www.elasticsearch.org/guide/reference/query-dsl/) docs for more information.
 
 ### Hydration
 By default objects returned from performing a search will be the objects
@@ -102,7 +145,9 @@ var User = new Schema({
   , city: String
 })
 
-User.plugin(mongoosastic, {index:'users', type:'user', hydrate:true})
+User.plugin(mongoosastic, {hydrate:true})
+```
+
 
 ### Model.plugin(mongoosastic, options)
 
@@ -115,4 +160,46 @@ Options are:
 * `host` - the host elastic search is running on
 * `hydrate` - whether or not to lookup results in mongodb before
   returning results from a search. Defaults to false.
+
+#### Specifying Different Index and Type
+Perhaps you have an existing index and you want to specify the index and
+type used to index your document? No problem!!
+
+```javascript
+var SupervisorSchema = new Schema({
+  name: String
+, department: String
+});
+
+SupervisorSchema.plugin(mongoosastic, {index: 'employees', type:'manager'});
+
+var Supervisor = mongoose.model('supervisor', SupervisorSchema);
+
+```
+## Contributing
+Pull requests are always welcome as long as an accompanying test case is
+associated. 
+
+Essentially, create a new feature branch and when you're ready issue a
+pull request for the feature branch. 
+
+### Running Tests
+In order to run the tests you will need:
+
+* An elasticsearch server running on port 9200
+* A mongodb server
+* [mocha](http://visionmedia.github.com/mocha/)
+
+With those installed, running ''npm test'' will run the tests with the
+preferred timeout (which is extended for integration tests. 
+
+
+## License
+Copyright (c) 2012 James R. Carr <james.r.carr@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
