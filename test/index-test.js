@@ -4,6 +4,7 @@ var mongoose  = require('mongoose')
   , config    = require('./config')
   , Schema    = mongoose.Schema
   , ObjectId  = Schema.ObjectId
+  , esClient  = new(require('elastical').Client)
   , mongoosastic = require('../lib/mongoosastic')
 
 // -- simplest indexing... index all fields
@@ -65,6 +66,15 @@ describe('indexing', function(){
         , post_date: new Date()
       }, done);
     });
+    it("should use the model's id as ES id", function(done){
+      Tweet.findOne({message:"I like Riak better"}, function(err, doc){
+        esClient.get('tweets', doc._id.toString(), function(err, res){
+          res.message.should.eql(doc.message);
+          done()
+        });
+      });
+    });
+
     it('should be able to execute a simple query', function(done){
       Tweet.search({query:'Riak'}, function(err, results) {
         results.total.should.eql(1)
@@ -97,12 +107,12 @@ describe('indexing', function(){
     });
     it('should remove from index when model is removed', function(done){
       tweet.remove(function(){
-        setTimeout(function(){
-          Tweet.search({query:'shouldnt'}, function(err, res){
-            res.total.should.eql(0);
-            done();
-          });
-        }, 1100);
+          setTimeout(function(){
+            Tweet.search({query:'shouldnt'}, function(err, res){
+              res.total.should.eql(0);
+              done();
+            });
+          }, 1100);
       });
     });
     it('should queue for later removal if not in index', function(done){
