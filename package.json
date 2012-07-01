@@ -4,15 +4,15 @@
   "description": "A mongoose plugin that indexes models into elastic search",
   "version": "0.0.6",
   "tags":["mongodb", "elastic search", "mongoose", "full text search"],
-  "dependencies": {
-      "mongoose":"2.6.5"
-    , "elastical":"0.0.8"
-  },
   "repository": {
     "type": "git",
     "url": "git://github.com/jamescarr/mongoosastic"
   },
   "main":"lib/mongoosastic.js",
+  "dependencies": {
+      "mongoose":"2.6.5"
+    , "elastical":"0.0.8"
+  },
   "devDependencies": {
       "mocha":"1.1.0"
     , "should":"0.6.3"

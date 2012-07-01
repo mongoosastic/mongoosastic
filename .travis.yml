@@ -1,7 +1,13 @@
 language: node_js
 node_js:
   - 0.6
+  - 0.4
 
 before_install:
   - sudo service elasticsearch start
   - sleep 3
+
+notifications:
+  email:
+    - james.r.carr@gmail.com
+
