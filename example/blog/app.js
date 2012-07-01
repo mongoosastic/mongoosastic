@@ -1,7 +1,7 @@
 var express = require('express')
   , routes = require('./routes')
   , mongoose = require('mongoose')
-  , mongoosastic = require('../lib/mongoosastic')
+  , mongoosastic = require('../../lib/mongoosastic')
   , Schema = mongoose.Schema;
 
 var app = module.exports = express.createServer();
