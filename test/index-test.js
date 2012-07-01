@@ -78,14 +78,14 @@ describe('indexing', function(){
     it('should be able to execute a simple query', function(done){
       Tweet.search({query:'Riak'}, function(err, results) {
         results.total.should.eql(1)
-        results.hits[0].message.should.eql('I like Riak better')
+        results.hits[0]._source.message.should.eql('I like Riak better')
         done()
       });
     });
     it('should be able to execute a simple query', function(done){
       Tweet.search({query:'jamescarr'}, function(err, results) {
         results.total.should.eql(1)
-        results.hits[0].message.should.eql('I like Riak better')
+        results.hits[0]._source.message.should.eql('I like Riak better')
         done()
       });
     });
@@ -154,14 +154,14 @@ describe('indexing', function(){
     it('should only find models of type Tweet', function(done){
       Tweet.search({query:'Dude'}, function(err, res){
         res.total.should.eql(1);
-        res.hits[0].user.should.eql('Dude');
+        res.hits[0]._source.user.should.eql('Dude');
         done();
       });
     });
     it('should only find models of type Talk', function(done){
       Talk.search({query:'Dude'}, function(err, res){
         res.total.should.eql(1);
-        res.hits[0].title.should.eql('Dude');
+        res.hits[0]._source.title.should.eql('Dude');
         done();
       });
     });
@@ -197,7 +197,7 @@ describe('indexing', function(){
       Talk.search({query:'cool'}, function(err, res) {
         res.total.should.eql(1);
 
-        var talk = res.hits[0];
+        var talk = res.hits[0]._source;
         talk.should.have.property('title');
         talk.should.have.property('abstract');
         talk.should.not.have.property('speaker');
