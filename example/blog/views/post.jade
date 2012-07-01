@@ -1,0 +1,11 @@
+fieldset
+  legend Add Post
+  form(method="post", action="/post")
+    label Title
+    input(type="text", name="title") 
+    br
+    label Content
+    br
+    textarea(name="content", rows="10", cols="20", style="width:80%;")
+    br
+    input(type="submit", value="save")

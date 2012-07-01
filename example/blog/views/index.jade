@@ -1,0 +1,8 @@
+h1= title
+p You can either
+  a(href="/post") Add a new post
+  |  or enter text in the box below to search!
+
+form(method="post", action="/search")
+  input(type="text", name="q", placeholder="Whatever")
+  input(type="submit", value="Search")
