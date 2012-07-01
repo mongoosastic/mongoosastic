@@ -14,7 +14,7 @@
     , "elastical":"0.0.8"
   },
   "devDependencies": {
-      "mocha":"1.1.0"
+      "mocha":"1.2.2"
     , "should":"0.6.3"
     , "async":"0.1.22"
   },
