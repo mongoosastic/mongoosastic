@@ -31,23 +31,37 @@ describe('Synchronize', function(){
   });
   describe('existing collection', function(){
     before(function(done){
-      async.forEach([
-          'American Gods',
-          'Gods of the Old World',
-          'American Gothic'], function(title, cb){
+      async.forEach(bookTitles()
+          , function(title, cb){
         books.insert({title:title}, cb);
       }, done);
     });
-    it('should index all existing objects and return a count', function(done){
-      Book.synchronize(function(err, count){
-        count.should.eql(3);
-        setTimeout(function(){
+    it('should index all existing objects', function(done){
+      var stream = Book.synchronize() 
+        , count = 0;
+      
+      stream.on('data', function(err, doc){
+        count++;
+      });
+
+      stream.on('close', function(){
+        count.should.eql(203);
           Book.search({query:'American'}, function(err, results){
             results.total.should.eql(2);
             done();
           });
-        }, 2100);
       });
     });
   });
 });
+function bookTitles(){
+  var books = [
+    'American Gods',
+    'Gods of the Old World',
+    'American Gothic'
+  ];
+  for(var i = 0; i < 200; i++){
+    books.push('ABABABA'+i);
+  }
+  return books;
+}

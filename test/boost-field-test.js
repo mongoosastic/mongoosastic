@@ -28,22 +28,12 @@ describe('Add Boost Option Per Field', function(){
   });
 
   it('should create a mapping with boost field added', function(done){
-    var post = new BlogPost({
-        user:'jamescarr'
-      , post_date: new Date()
-      , title:'Hello world!'
-      , message:"Hello hello hello!"
-    });
-    post.save(function(){
-      post.on('es-indexed', function(){
-        setTimeout(function(){
-          esClient.getMapping('blogposts', 'blogpost', function(err, mapping){
-            var props = mapping.blogpost.properties;
-            props.title.type.should.eql('string');
-            props.title.boost.should.eql(2.0);
-            done();
-          });
-        }, 1000);
+    BlogPost.createMapping(function(){
+      esClient.getMapping('blogposts', 'blogpost', function(err, mapping){
+        var props = mapping.blogpost.properties;
+        props.title.type.should.eql('string');
+        props.title.boost.should.eql(2.0);
+        done();
       });
     });
   });

@@ -70,6 +70,34 @@ User.search({query:"john"}, function(err, results) {
 });
 
 ```
+
+### Indexing An Existing Collection
+Already have a mongodb collection that you'd like to index using this
+plugin? No problem! Simply call the synchronize method on your model to
+open a mongoose stream and start indexing documents individually. 
+
+```javascript
+var BookSchema = new Schema({
+  title: String
+});
+BookSchema.plugin(mongoosastic);
+
+var Book = mongoose.model('Book', BookSchema)
+  , stream = Book.synchronize()
+  , count = 0;
+
+stream.on('data', function(err, doc){
+  count++;
+});
+stream.on('close', function(){
+  console.log('indexed ' + count + ' documents!');
+});
+stream.on('error', function(err){
+  console.log(err);
+});
+```
+One caveat... this is kinda slow for now. Use with care.
+
 ### Per Field Options
 Schemas can be configured to have special options per field. These match
 with the existing [field mapping configurations](http://www.elasticsearch.org/guide/reference/mapping/core-types.html) defined by elasticsearch with the only difference being they are all prefixed by "es_". 
@@ -89,6 +117,34 @@ var BookSchema = new Schema({
 This example uses a few other mapping fields... such as null_value and
 type (which overrides whatever value the schema type is, useful if you
 want stronger typing such as float).
+
+#### Creating Mappings for These Features
+The way this can be mapped in elastic search is by creating a mapping
+for the index the model belongs to. Currently to the best of my
+knowledge mappings are create once when creating an index and can only
+be modified by destroying the index. 
+
+As such, creating the mapping is a one time operation and can be done as
+follows (using the BookSchema as an example):
+
+```javascript 
+var BookSchema = new Schema({
+    title: {type:String, es_boost:2.0}
+  , author: {type:String, es_null_value:"Unknown Author"}
+  , publicationDate: {type:Date, es_type:'date'} 
+
+BookSchema.plugin(mongoosastic);
+var Book = mongoose.model('Book', BookSchema);
+Book.createMapping(function(err, mapping){
+  // do neat things here
+});
+
+```
+This feature is still a work in progress. As of this writing you'll have
+to manage whether or not you need to create the mapping, mongoosastic
+will make no assumptions and simply attempt to create the mapping. If
+the mapping already exists, an Exception detailing such will be
+populated in the `err` argument. 
 
 ### Advanced Queries
 The full query DSL of elasticsearch is exposed through the search
