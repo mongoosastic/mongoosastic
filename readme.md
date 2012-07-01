@@ -1,4 +1,7 @@
 # Mongoosastic
+[![Build
+Status](https://secure.travis-ci.org/jamescarr/mongoosastic.png?branch=master)](http://travis-ci.org/jamescarr/mongoosastic)
+
 A [mongoose](http://mongoosejs.com/) plugin that indexes models into [elasticsearch](http://www.elasticsearch.org/). I kept
 running into cases where I needed full text search capabilities in my
 mongodb based models only to discover mongodb has none. In addition to
