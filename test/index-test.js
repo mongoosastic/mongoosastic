@@ -4,6 +4,7 @@ var mongoose  = require('mongoose')
   , config    = require('./config')
   , Schema    = mongoose.Schema
   , ObjectId  = Schema.ObjectId
+  , esClient  = new(require('elastical').Client)
   , mongoosastic = require('../lib/mongoosastic')
 
 // -- simplest indexing... index all fields
@@ -65,17 +66,26 @@ describe('indexing', function(){
         , post_date: new Date()
       }, done);
     });
+    it("should use the model's id as ES id", function(done){
+      Tweet.findOne({message:"I like Riak better"}, function(err, doc){
+        esClient.get('tweets', doc._id.toString(), function(err, res){
+          res.message.should.eql(doc.message);
+          done()
+        });
+      });
+    });
+
     it('should be able to execute a simple query', function(done){
       Tweet.search({query:'Riak'}, function(err, results) {
         results.total.should.eql(1)
-        results.hits[0].message.should.eql('I like Riak better')
+        results.hits[0]._source.message.should.eql('I like Riak better')
         done()
       });
     });
     it('should be able to execute a simple query', function(done){
       Tweet.search({query:'jamescarr'}, function(err, results) {
         results.total.should.eql(1)
-        results.hits[0].message.should.eql('I like Riak better')
+        results.hits[0]._source.message.should.eql('I like Riak better')
         done()
       });
     });
@@ -97,12 +107,12 @@ describe('indexing', function(){
     });
     it('should remove from index when model is removed', function(done){
       tweet.remove(function(){
-        setTimeout(function(){
-          Tweet.search({query:'shouldnt'}, function(err, res){
-            res.total.should.eql(0);
-            done();
-          });
-        }, 1100);
+          setTimeout(function(){
+            Tweet.search({query:'shouldnt'}, function(err, res){
+              res.total.should.eql(0);
+              done();
+            });
+          }, 1100);
       });
     });
     it('should queue for later removal if not in index', function(done){
@@ -144,14 +154,14 @@ describe('indexing', function(){
     it('should only find models of type Tweet', function(done){
       Tweet.search({query:'Dude'}, function(err, res){
         res.total.should.eql(1);
-        res.hits[0].user.should.eql('Dude');
+        res.hits[0]._source.user.should.eql('Dude');
         done();
       });
     });
     it('should only find models of type Talk', function(done){
       Talk.search({query:'Dude'}, function(err, res){
         res.total.should.eql(1);
-        res.hits[0].title.should.eql('Dude');
+        res.hits[0]._source.title.should.eql('Dude');
         done();
       });
     });
@@ -187,7 +197,7 @@ describe('indexing', function(){
       Talk.search({query:'cool'}, function(err, res) {
         res.total.should.eql(1);
 
-        var talk = res.hits[0];
+        var talk = res.hits[0]._source;
         talk.should.have.property('title');
         talk.should.have.property('abstract');
         talk.should.not.have.property('speaker');
