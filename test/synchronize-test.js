@@ -45,7 +45,7 @@ describe('Synchronize', function(){
       });
 
       stream.on('close', function(){
-        count.should.eql(203);
+        count.should.eql(53);
           Book.search({query:'American'}, function(err, results){
             results.total.should.eql(2);
             done();
@@ -60,7 +60,7 @@ function bookTitles(){
     'Gods of the Old World',
     'American Gothic'
   ];
-  for(var i = 0; i < 200; i++){
+  for(var i = 0; i < 50; i++){
     books.push('ABABABA'+i);
   }
   return books;
