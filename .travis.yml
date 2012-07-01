@@ -11,3 +11,4 @@ notifications:
   email:
     - james.r.carr@gmail.com
 
+after_script: cat /home/vagrant/builds/jamescarr/mongoosastic/npm-debug.log"
