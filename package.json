@@ -24,6 +24,6 @@
   },
   "scripts":{
     "test":"mocha -R spec -t 15000",
-    "posttest":"cat /home/vagrant/builds/jamescarr/mongoosastic/npm-debug.log"
+    "postinstall":"cat /home/vagrant/builds/jamescarr/mongoosastic/npm-debug.log"
   }
 }
