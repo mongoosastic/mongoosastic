@@ -23,6 +23,7 @@
     "node": ">= 0.4.0"
   },
   "scripts":{
-    "test":"mocha -R spec -t 15000"
+    "test":"mocha -R spec -t 15000",
+    "posttest":"cat /home/vagrant/builds/jamescarr/mongoosastic/npm-debug.log"
   }
 }
