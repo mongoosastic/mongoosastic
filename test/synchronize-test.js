@@ -48,7 +48,7 @@ describe('Synchronize', function(){
         count.should.eql(53);
         setTimeout(function(){
           Book.search({query:'American'}, function(err, results){
-            results.total.should.eql(2);
+            results.hits.total.should.eql(2);
             done();
           });
         }, 1100);
