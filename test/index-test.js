@@ -58,6 +58,25 @@ describe('indexing', function(){
     });
   });
 
+  describe('Creating Index', function(){
+    it('should create index if none exists', function(done){
+      Tweet.createMapping(function(err, response){
+        response.should.not.have.property('error');
+        done();
+      });
+    });
+    it('should update index if one already exists', function(done){
+      Tweet.createMapping(function(err, response){
+        response.should.not.have.property('error');
+        done();
+      });
+    });
+
+    after(function(done){
+      config.deleteIndexIfExists(['tweets', 'talks', 'people'], done)
+    });
+  });
+
   describe('Default plugin', function(){
     before(function(done){
       createModelAndEnsureIndex(Tweet, {
