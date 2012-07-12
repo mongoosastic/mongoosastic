@@ -45,7 +45,33 @@ describe('MappingGenerator', function(){
       generator.generateMapping(new Schema({
         oid: {type:Schema.Types.ObjectId}
       }), function(err, mapping){
-        mapping.properties.oid.type.should.eql('string')
+        mapping.properties.oid.type.should.eql('string');
+        done();
+      });
+    });
+    it('recognizes an object and maps it as one', function(done){
+      generator.generateMapping(new Schema({
+        contact: {
+            email: {type: String},
+            telephone: {type: String}
+        }
+      }), function(err, mapping){
+        mapping.properties.contact.properties.email.type.should.eql('string');
+        mapping.properties.contact.properties.telephone.type.should.eql('string');
+        done();
+      });
+    });
+    it('recognizes an nested schema and maps it', function(done){
+      var NameSchema = new Schema({
+        first_name: {type: String},
+        last_name: {type: String}
+      });
+      generator.generateMapping(new Schema({
+        name: [NameSchema]
+      }), function(err, mapping){
+        mapping.properties.name.type.should.eql('object');
+        mapping.properties.name.properties.first_name.type.should.eql('string');
+        mapping.properties.name.properties.last_name.type.should.eql('string');
         done();
       });
     });
