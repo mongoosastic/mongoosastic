@@ -58,6 +58,25 @@ describe('indexing', function(){
     });
   });
 
+  describe('Creating Index', function(){
+    it('should create index if none exists', function(done){
+      Tweet.createMapping(function(err, response){
+        response.should.not.have.property('error');
+        done();
+      });
+    });
+    it('should update index if one already exists', function(done){
+      Tweet.createMapping(function(err, response){
+        response.should.not.have.property('error');
+        done();
+      });
+    });
+
+    after(function(done){
+      config.deleteIndexIfExists(['tweets', 'talks', 'people'], done)
+    });
+  });
+
   describe('Default plugin', function(){
     before(function(done){
       createModelAndEnsureIndex(Tweet, {
@@ -77,15 +96,15 @@ describe('indexing', function(){
 
     it('should be able to execute a simple query', function(done){
       Tweet.search({query:'Riak'}, function(err, results) {
-        results.total.should.eql(1)
-        results.hits[0]._source.message.should.eql('I like Riak better')
+        results.hits.total.should.eql(1)
+        results.hits.hits[0]._source.message.should.eql('I like Riak better')
         done()
       });
     });
     it('should be able to execute a simple query', function(done){
       Tweet.search({query:'jamescarr'}, function(err, results) {
-        results.total.should.eql(1)
-        results.hits[0]._source.message.should.eql('I like Riak better')
+        results.hits.total.should.eql(1)
+        results.hits.hits[0]._source.message.should.eql('I like Riak better')
         done()
       });
     });
@@ -109,7 +128,7 @@ describe('indexing', function(){
       tweet.remove(function(){
           setTimeout(function(){
             Tweet.search({query:'shouldnt'}, function(err, res){
-              res.total.should.eql(0);
+              res.hits.total.should.eql(0);
               done();
             });
           }, 1100);
@@ -153,15 +172,15 @@ describe('indexing', function(){
 
     it('should only find models of type Tweet', function(done){
       Tweet.search({query:'Dude'}, function(err, res){
-        res.total.should.eql(1);
-        res.hits[0]._source.user.should.eql('Dude');
+        res.hits.total.should.eql(1);
+        res.hits.hits[0]._source.user.should.eql('Dude');
         done();
       });
     });
     it('should only find models of type Talk', function(done){
       Talk.search({query:'Dude'}, function(err, res){
-        res.total.should.eql(1);
-        res.hits[0]._source.title.should.eql('Dude');
+        res.hits.total.should.eql(1);
+        res.hits.hits[0]._source.title.should.eql('Dude');
         done();
       });
     });
@@ -195,9 +214,9 @@ describe('indexing', function(){
 
     it('should only return indexed fields', function(done){
       Talk.search({query:'cool'}, function(err, res) {
-        res.total.should.eql(1);
+        res.hits.total.should.eql(1);
 
-        var talk = res.hits[0]._source;
+        var talk = res.hits.hits[0]._source;
         talk.should.have.property('title');
         talk.should.have.property('abstract');
         talk.should.not.have.property('speaker');
