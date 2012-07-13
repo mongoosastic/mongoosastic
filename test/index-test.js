@@ -6,16 +6,7 @@ var mongoose  = require('mongoose')
   , ObjectId  = Schema.ObjectId
   , esClient  = new(require('elastical').Client)
   , mongoosastic = require('../lib/mongoosastic')
-
-// -- simplest indexing... index all fields
-var TweetSchema = new Schema({
-    user: String
-  , post_date: Date
-  , message: String
-});
-
-TweetSchema.plugin(mongoosastic)
-var Tweet = mongoose.model('Tweet', TweetSchema);
+  , Tweet = require('./models/tweet');
 
 // -- Only index specific field
 var TalkSchema = new Schema({
@@ -46,7 +37,7 @@ describe('indexing', function(){
   before(function(done){
     mongoose.connect(config.mongoUrl, function(){
       Tweet.remove(function(){
-        config.deleteIndexIfExists(['tweets', 'talks', 'people'], done)
+        config.deleteIndexIfExists(['tweets', 'talks', 'people', 'public_tweets'], done)
       });
     });
   });
@@ -79,7 +70,7 @@ describe('indexing', function(){
 
   describe('Default plugin', function(){
     before(function(done){
-      createModelAndEnsureIndex(Tweet, {
+      config.createModelAndEnsureIndex(Tweet, {
           user: 'jamescarr'
         , message: "I like Riak better"
         , post_date: new Date()
@@ -98,7 +89,7 @@ describe('indexing', function(){
       Tweet.search({query:'Riak'}, function(err, results) {
         results.hits.total.should.eql(1)
         results.hits.hits[0]._source.message.should.eql('I like Riak better')
-        done()
+        done();
       });
     });
     it('should be able to execute a simple query', function(done){
@@ -122,7 +113,7 @@ describe('indexing', function(){
     , message: 'Saying something I shouldnt'
     });
     before(function(done){
-      createModelAndEnsureIndex(Tweet, tweet, done);
+      config.createModelAndEnsureIndex(Tweet, tweet, done);
     });
     it('should remove from index when model is removed', function(done){
       tweet.remove(function(){
@@ -188,7 +179,7 @@ describe('indexing', function(){
 
   describe('Always hydrate', function(){
     before(function(done){
-      createModelAndEnsureIndex(Person, {
+      config.createModelAndEnsureIndex(Person, {
           name: 'James Carr'
         , address: "Exampleville, MO"
         , phone: '(555)555-5555'
@@ -204,7 +195,7 @@ describe('indexing', function(){
   });
   describe('Subset of Fields', function(){
     before(function(done){
-      createModelAndEnsureIndex(Talk,{
+      config.createModelAndEnsureIndex(Talk,{
           speaker: 'James Carr'
         , title: "Node.js Rocks"
         , abstract: "I told you node.js was cool. Listen to me!"
@@ -238,14 +229,38 @@ describe('indexing', function(){
       });
     });
   });
+
+  describe('Existing Index', function(){
+    before(function(done){
+      config.deleteIndexIfExists(['ms_sample'], function(){
+        esClient.createIndex('ms_sample', {mappings:{
+          bum:{
+            properties: {
+              name: {type:'string'}
+            }
+          }
+        }}, done);
+      });
+    });
+
+    it('should just work', function(done){
+      var BumSchema = new Schema({
+        name: String
+      });
+      BumSchema.plugin(mongoosastic, {
+          index: 'ms_sample'
+        , type: 'bum'
+      });
+      var Bum = mongoose.model('bum', BumSchema);
+      config.createModelAndEnsureIndex(Bum, {name:'Roger Wilson'}, function(){
+        Bum.search({query:'Wilson'}, function(err, results){
+          results.hits.total.should.eql(1);
+          done();
+        });
+      });
+    });
+  });
+
 });
 
 
-function createModelAndEnsureIndex(model, obj, cb){
-  var dude = new model(obj);
-  dude.save(function(){
-    dude.on('es-indexed', function(err, res){
-      setTimeout(cb, 1000);
-    });
-  });
-}
