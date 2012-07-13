@@ -53,4 +53,17 @@ describe('Index Method', function(){
       });
     });
   });
+  it('should be able to index to alternative index and type', function(done){
+    Tweet.findOne({message:'I know kung-fu!'}, function(err, doc){
+      doc.message = 'I know taebo!';
+      doc.index('public_tweets', 'utterings', function(){
+        setTimeout(function(){
+          esClient.search({index: 'public_tweets', type: 'utterings', query:'know'}, function(err, results, res){
+            res.hits.hits[0]._source.message.should.eql('I know taebo!');
+            done();
+          });
+        }, 1100);
+      });
+    });
+  });
 });
