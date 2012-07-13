@@ -25,11 +25,11 @@ describe('MappingGenerator', function(){
         done();
       });
     });
-    it('converts undefined types to object', function(done){
+    it('converts Date type to date', function(done){
       generator.generateMapping(new Schema({
-        name: {type:Date}
+        graduationDate: {type:Date}
       }), function(err, mapping){
-        mapping.properties.name.type.should.eql('object');
+        mapping.properties.graduationDate.type.should.eql('date');
         done();
       });
     });

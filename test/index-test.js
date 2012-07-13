@@ -98,7 +98,7 @@ describe('indexing', function(){
       Tweet.search({query:'Riak'}, function(err, results) {
         results.hits.total.should.eql(1)
         results.hits.hits[0]._source.message.should.eql('I like Riak better')
-        done()
+        done();
       });
     });
     it('should be able to execute a simple query', function(done){
@@ -238,6 +238,37 @@ describe('indexing', function(){
       });
     });
   });
+
+  describe('Existing Index', function(){
+    before(function(done){
+      config.deleteIndexIfExists(['ms_sample'], function(){
+        esClient.createIndex('ms_sample', {mappings:{
+          bum:{
+            properties: {
+              name: {type:'string'}
+            }
+          }
+        }}, done);
+      });
+    });
+
+    it('should just work', function(done){
+      var BumSchema = new Schema({
+        name: String
+      });
+      BumSchema.plugin(mongoosastic, {
+          index: 'ms_sample'
+        , type: 'bum'
+      });
+      var Bum = mongoose.model('bum', BumSchema);
+      createModelAndEnsureIndex(Bum, {name:'Roger Wilson'}, function(){
+        Bum.search({query:'Wilson'}, function(err, results){
+          results.hits.total.should.eql(1);
+          done();
+        });
+      });
+    });
+  });
 });
 
 
@@ -245,7 +276,7 @@ function createModelAndEnsureIndex(model, obj, cb){
   var dude = new model(obj);
   dude.save(function(){
     dude.on('es-indexed', function(err, res){
-      setTimeout(cb, 1000);
+      setTimeout(cb, 1100);
     });
   });
 }
