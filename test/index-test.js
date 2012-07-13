@@ -276,7 +276,7 @@ function createModelAndEnsureIndex(model, obj, cb){
   var dude = new model(obj);
   dude.save(function(){
     dude.on('es-indexed', function(err, res){
-      setTimeout(cb, 1000);
+      setTimeout(cb, 1100);
     });
   });
 }
