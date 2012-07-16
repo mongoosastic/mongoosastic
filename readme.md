@@ -208,6 +208,36 @@ User.plugin(mongoosastic, {hydrate:true})
 ```
 
 
+### Indexing On Demand
+While developing mongoose I came across a scenario where we needed to be
+able to save models (and search them) but a single action would
+"publish" those models to be searched from a public site. To address
+this I create a new method: `index`.
+
+#### Usage
+Usage is as simple as calling index on an existing model.
+
+```javascript
+Dude.findOne({name:'Jeffery Lebowski', function(err, dude){
+  dude.awesome = true;
+  dude.index(function(err, res){
+    console.log('egads! I've been indexed!');
+  });
+});
+```
+
+The index method takes 3 arguments:
+
+* `index` (optional) - the index to publish to. Defaults to the index
+  the model was setup with.
+* `type` (optional) - the type to publish as. Defaults to the type the
+  model was setup with.
+* `callback` - callback function to be invoked when model has been
+  indexed.
+
+Note that indexing a model does not mean it will be persisted to
+mongodb. Use save for that.
+
 ### Model.plugin(mongoosastic, options)
 
 Options are:
