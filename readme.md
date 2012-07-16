@@ -9,6 +9,8 @@ full text search, I also needed the ability to filter ranges of data
 points in the searches and even highlight matches. For these reasons,
 elastic search was a perfect fit and hence this project. 
 
+## Current Version
+The current version is ``0.0.9``
 
 ## Installation
 
