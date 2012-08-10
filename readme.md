@@ -9,6 +9,8 @@ full text search, I also needed the ability to filter ranges of data
 points in the searches and even highlight matches. For these reasons,
 elastic search was a perfect fit and hence this project. 
 
+## Current Version
+The current version is ``0.0.9``
 
 ## Installation
 
@@ -148,6 +150,67 @@ to manage whether or not you need to create the mapping, mongoosastic
 will make no assumptions and simply attempt to create the mapping. If
 the mapping already exists, an Exception detailing such will be
 populated in the `err` argument. 
+
+#### Mapping options
+There are various types that can be defined in elasticsearch. Check out http://www.elasticsearch.org/guide/reference/mapping/ for more information. Here are examples to the currently possible definitions in mongoosastic:
+
+```javascript
+var ExampleSchema = new Schema({
+  // String (core type)
+  string: {type:String, es_boost:2.0},
+
+  // Number (core type)
+  number: {type:Number, es_type:'integer'},
+
+  // Date (core type)
+  date: {type:Date, es_type:'date'},
+
+  // Array type
+  array: {type:Array, es_type:'string'},
+
+  // Object type 
+  object: {
+    field1: {type: String},
+    field2: {type: String}
+  },
+
+  // Nested type 
+  nested: [SubSchema],
+
+  // Multi field type
+  multi_field: {
+    type: String,
+    es_type: 'multi_field',
+    es_fields: {
+      multi_field: { type: 'string', index: 'analyzed' },
+      untouched: { type: 'string', index: 'not_analyzed' }
+    }
+  },
+
+  // Geo point type
+  geo: {
+    type: String,
+    es_type: 'geo_point'
+  },
+
+  // Geo point type with lat_lon fields
+  geo_with_lat_lon: {
+    geo_point: {
+      type: String,
+      es_type: 'geo_point',
+      es_lat_lon: true
+    },
+    lat: { type: Number },
+    lon: { type: Number }
+  }
+});
+
+// Used as nested schema above.
+var SubSchema = new Schema({
+  field1: {type: String},
+  field2: {type: String}
+});
+```
 
 ### Advanced Queries
 The full query DSL of elasticsearch is exposed through the search
