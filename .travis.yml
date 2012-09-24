@@ -10,3 +10,6 @@ notifications:
   email:
     - james.r.carr@gmail.com
 
+services:
+  - mongodb
+  - elasticsearch
