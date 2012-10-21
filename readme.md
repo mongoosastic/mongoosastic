@@ -63,7 +63,28 @@ User.plugin(mongoosastic)
 ```
 
 In this case only the name field
-will be indexed for searching. 
+will be indexed for searching.
+
+####Indexing Nested Models
+In order to index nested models you can refer following example.
+
+```javascript
+var Comment = new Schema({
+    title: String
+  , body: String
+  , author: String
+})
+
+
+var User = new Schema({
+    name: {type:String, es_indexed:true}
+  , email: String
+  , city: String
+  , comments: {type:[Comment], es_indexed:true}
+})
+
+User.plugin(mongoosastic)
+```
 
 Finally, adding the plugin will add a new method to the model called
 search which can be used to make simple to complex searches. 
