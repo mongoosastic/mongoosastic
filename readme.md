@@ -305,7 +305,7 @@ Usage is as simple as calling index on an existing model.
 Dude.findOne({name:'Jeffery Lebowski', function(err, dude){
   dude.awesome = true;
   dude.index(function(err, res){
-    console.log('egads! I've been indexed!');
+    console.log("egads! I've been indexed!");
   });
 });
 ```
