@@ -331,6 +331,7 @@ Options are:
 * `type`  - the type this model represents in elastic search. Defaults
   to the model name.
 * `host` - the host elastic search is running on
+* `port` - the port elastic search is running on
 * `hydrate` - whether or not to lookup results in mongodb before
   returning results from a search. Defaults to false.
 
