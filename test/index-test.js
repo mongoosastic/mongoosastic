@@ -11,6 +11,7 @@ var mongoose  = require('mongoose')
 // -- Only index specific field
 var TalkSchema = new Schema({
     speaker: String
+  , year: {type: Number, es_indexed:true}
   , title: {type:String, es_indexed:true}
   , abstract: {type:String, es_indexed:true}
   , bio: String
@@ -72,6 +73,7 @@ describe('indexing', function(){
     before(function(done){
       config.createModelAndEnsureIndex(Tweet, {
           user: 'jamescarr'
+        , userId: 1
         , message: "I like Riak better"
         , post_date: new Date()
       }, done);
@@ -143,6 +145,7 @@ describe('indexing', function(){
     before(function(done){
       var talk = new Talk({
           speaker: ''
+        , year: 2013
         , title: "Dude"
         , abstract: ""
         , bio: ''
@@ -197,6 +200,7 @@ describe('indexing', function(){
     before(function(done){
       config.createModelAndEnsureIndex(Talk,{
           speaker: 'James Carr'
+        , year: 2013
         , title: "Node.js Rocks"
         , abstract: "I told you node.js was cool. Listen to me!"
         , bio: 'One awesome dude.'
@@ -209,6 +213,7 @@ describe('indexing', function(){
 
         var talk = res.hits.hits[0]._source;
         talk.should.have.property('title');
+        talk.should.have.property('year');
         talk.should.have.property('abstract');
         talk.should.not.have.property('speaker');
         talk.should.not.have.property('bio');
@@ -222,6 +227,7 @@ describe('indexing', function(){
 
         var talk = res.hits[0]
         talk.should.have.property('title')
+        talk.should.have.property('year');
         talk.should.have.property('abstract')
         talk.should.have.property('speaker')
         talk.should.have.property('bio')
