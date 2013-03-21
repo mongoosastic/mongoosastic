@@ -3,7 +3,7 @@ var Generator = require('../lib/mapping-generator')
   , should    = require('should')
   , Schema    = mongoose.Schema
   , ObjectId  = Schema.ObjectId
-  , generator = new Generator()
+  , generator = new Generator();
 
 describe('MappingGenerator', function(){
 
