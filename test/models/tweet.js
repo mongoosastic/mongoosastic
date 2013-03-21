@@ -5,6 +5,7 @@ var mongoose  = require('mongoose')
 // -- simplest indexing... index all fields
 var TweetSchema = new Schema({
     user: String
+  , userId: Number
   , post_date: Date
   , message: String
 });
