@@ -29,6 +29,7 @@ PersonSchema.plugin(mongoosastic, {
   index:'people'
 , type: 'dude'
 , hydrate: true
+, hydrateOptions: {lean: true, sort: '-name', select: 'address name'}
 });
 
 var Person = mongoose.model("Person", PersonSchema);
@@ -139,7 +140,7 @@ describe('indexing', function(){
       });
       tweet.unIndex()
     });
-    
+
     it('should queue for later removal if not in index', function(done){
       // behavior here is to try 3 times and then give up.
       var tweet = new Tweet({
@@ -175,7 +176,7 @@ describe('indexing', function(){
           });
         });
       });
-    });   
+    });
 
     it('should only find models of type Tweet', function(done){
       Tweet.search({query:'Dude'}, function(err, res){
@@ -202,9 +203,12 @@ describe('indexing', function(){
       }, done);
     });
 
-    it('when gathering search results', function(done){
+    it('when gathering search results while respecting default hydrate options', function(done){
       Person.search({query:'James'}, function(err, res) {
         res.hits[0].address.should.eql('Exampleville, MO');
+        res.hits[0].name.should.eql('James Carr');
+        res.hits[0].should.not.have.property('phone');
+        res.hits[0].should.not.be.an.instanceof(Person);
         done();
       });
     });
@@ -244,9 +248,26 @@ describe('indexing', function(){
         talk.should.have.property('abstract')
         talk.should.have.property('speaker')
         talk.should.have.property('bio')
+        talk.should.be.an.instanceof(Talk);
         done();
       });
     });
+
+    it('should allow extra query options when hydrating', function(done){
+      Talk.search({query:'cool'}, {hydrate:true, hydrateOptions: {lean: true}}, function(err, res) {
+        res.total.should.eql(1)
+
+        var talk = res.hits[0]
+        talk.should.have.property('title')
+        talk.should.have.property('year');
+        talk.should.have.property('abstract')
+        talk.should.have.property('speaker')
+        talk.should.have.property('bio')
+        talk.should.not.be.an.instanceof(Talk);
+        done();
+      });
+    });
+
   });
 
   describe('Existing Index', function(){
