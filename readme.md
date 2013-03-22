@@ -273,12 +273,23 @@ User.search({query:"john"}, {hydrate:true}, function(err, results) {
 
 ```
 
-Note this will be a degree slower as it will perform an elasticsearch
+You can also pass in a `hydrateOptions` object with information on
+how to query for the mongoose object.
+
+```javascript
+
+User.search({query:"john"}, {hydrate:true, hydrateOptions: {select: 'name age'}}, function(err, results) {
+  // results here
+});
+
+```
+
+Note using hydrate will be a degree slower as it will perform an elasticsearch
 query and then do a query against mongodb for all the ids returned from
 the search result. 
 
 You can also default this to always be the case by providing it as a
-plugin option:
+plugin option (as well as setting default hydrate options):
 
 
 ```javascript
@@ -288,7 +299,7 @@ var User = new Schema({
   , city: String
 })
 
-User.plugin(mongoosastic, {hydrate:true})
+User.plugin(mongoosastic, {hydrate:true, hydrateOptions: {lean: true}})
 ```
 
 
