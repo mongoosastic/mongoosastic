@@ -28,7 +28,7 @@ describe('Add Boost Option Per Field', function(){
   });
 
   it('should create a mapping with boost field added', function(done){
-    BlogPost.createMapping(function(){
+    BlogPost.createMapping(function(err, mapping){
       esClient.getMapping('blogposts', 'blogpost', function(err, mapping){
         var props = mapping.blogpost.properties;
         props.title.type.should.eql('string');

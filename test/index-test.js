@@ -110,11 +110,12 @@ describe('indexing', function(){
     });
   });
   describe('Removing', function(){
-    var tweet = new Tweet({
-      user:'jamescarr'
-    , message: 'Saying something I shouldnt'
-    });
-    before(function(done){
+    var tweet = null;
+    beforeEach(function(done){
+      tweet = new Tweet({
+        user:'jamescarr'
+      , message: 'Saying something I shouldnt'
+      });
       config.createModelAndEnsureIndex(Tweet, tweet, done);
     });
     it('should remove from index when model is removed', function(done){
@@ -127,6 +128,18 @@ describe('indexing', function(){
           }, 1100);
       });
     });
+    it('should remove only index', function(done){
+      tweet.on('es-removed', function(err, res){
+        setTimeout(function(){
+          Tweet.search({query:'shouldnt'}, function(err, res){
+            res.hits.total.should.eql(0);
+            done();
+          });
+        }, 1100);
+      });
+      tweet.unIndex()
+    });
+    
     it('should queue for later removal if not in index', function(done){
       // behavior here is to try 3 times and then give up.
       var tweet = new Tweet({

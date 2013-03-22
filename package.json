@@ -10,13 +10,13 @@
   },
   "main":"lib/mongoosastic.js",
   "dependencies": {
-      "mongoose":"2.6.5"
-    , "elastical":"0.0.9"
+      "mongoose":"3.6.x"
+    , "elastical":"0.0.11"
   },
   "devDependencies": {
-      "mocha":"1.2.2"
-    , "should":"0.6.3"
-    , "async":"0.1.22"
+      "mocha":"*"
+    , "should":"*"
+    , "async":"*"
   },
   "optionalDependencies": {},
   "engines": {
