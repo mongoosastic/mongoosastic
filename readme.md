@@ -10,7 +10,7 @@ points in the searches and even highlight matches. For these reasons,
 elastic search was a perfect fit and hence this project. 
 
 ## Current Version
-The current version is ``0.0.12``
+The current version is ``0.0.11``
 
 ## Installation
 
