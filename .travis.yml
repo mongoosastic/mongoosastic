@@ -3,13 +3,27 @@ node_js:
   - 0.6
   - 0.8
 before_install:
-  - sudo service elasticsearch start
+  - sudo mkdir -p /data/r0
+  - sudo mkdir -p /data/r1
+  - sudo mkdir -p /data/r2
+  - sudo touch /var/log/mongodb0.log 
+  - sudo touch /var/log/mongodb1.log 
+  - sudo touch /var/log/mongodb2.log 
+  - sleep 3
+  - sudo mongod --replSet foo --port 27017 -fork --quiet --dbpath /data/r0 --logpath /var/log/mongodb0.log 
+  - sudo mongod --replSet foo --port 27018 -fork --quiet --dbpath /data/r1 --logpath /var/log/mongodb1.log 
+  - sudo mongod --replSet foo --port 27019 -fork --quiet --dbpath /data/r2 --logpath /var/log/mongodb2.log 
+  - sleep 3
+  - echo 'rs.initiate()' | mongo
+  - sleep 3
+  - export ES_HOME=/usr/share/elasticsearch
+  - sleep 3
+  - sudo $ES_HOME/bin/plugin -install elasticsearch/elasticsearch-mapper-attachments/1.6.0
+  - sudo $ES_HOME/bin/plugin -url https://github.com/downloads/richardwilly98/elasticsearch-river-mongodb/elasticsearch-river-mongodb-1.6.4.zip -install river-mongodb
+  - sleep 3
+  - sudo service elasticsearch restart
   - sleep 3
 
 notifications:
   email:
     - james.r.carr@gmail.com
-
-services:
-  - mongodb
-  - elasticsearch
