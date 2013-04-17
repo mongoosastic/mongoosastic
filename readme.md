@@ -345,6 +345,7 @@ Options are:
 * `port` - the port elastic search is running on
 * `hydrate` - whether or not to lookup results in mongodb before
   returning results from a search. Defaults to false.
+* `useRiver` - true for use streaming and other capabilities
 
 #### Specifying Different Index and Type
 Perhaps you have an existing index and you want to specify the index and
@@ -361,6 +362,32 @@ SupervisorSchema.plugin(mongoosastic, {index: 'employees', type:'manager'});
 var Supervisor = mongoose.model('supervisor', SupervisorSchema);
 
 ```
+### To Use the River Option
+
+Start Mongo with replicaset like this
+
+```bash
+mongod --config /etc/mongodb.conf --replSet foo --port 27017 -fork --quiet --dbpath /data/r0 --logpath /var/log/mongodb0.log && mongod --config /etc/mongodb.conf --replSet foo --port 27018 -fork --quiet --dbpath /data/r1 --logpath /var/log/mongodb1.log && mongod --config /etc/mongodb.conf --replSet foo --port 27019 -fork --quiet --dbpath /data/r2 --logpath /var/log/mongodb2.log
+```
+
+Install the elasticsearch-river-mongodb (https://github.com/richardwilly98/elasticsearch-river-mongodb)
+```bash
+  %ES_HOME%\bin\plugin.bat -url https://github.com/downloads/richardwilly98/elasticsearch-river-mongodb/elasticsearch-river-mongodb-1.6.4.zip -install river-mongodb  
+```
+Advanced Configurations
+
+```javascript
+var options = {
+  useRiver: {   
+    gridfs: false/true 
+  }
+}
+```
+to create your River only call
+```javascript
+YourModel.river(function() {})
+```
+
 ## Contributing
 Pull requests are always welcome as long as an accompanying test case is
 associated. 
