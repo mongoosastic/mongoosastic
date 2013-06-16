@@ -14,7 +14,8 @@ before_install:
   - sudo mongod --replSet foo --port 27018 -fork --quiet --dbpath /data/r1 --logpath /var/log/mongodb1.log 
   - sudo mongod --replSet foo --port 27019 -fork --quiet --dbpath /data/r2 --logpath /var/log/mongodb2.log 
   - sleep 3
-  - echo 'rs.initiate({_id: "foo", members: [{_id: 0, host: "localhost:27017"}]})' | mongo
+  - echo 'rs.initiate()' | mongo
+  - sleep 3
   - echo 'rs.add("localhost:27018")' | mongo
   - echo 'rs.add("localhost:27019")' | mongo
   - sleep 3
