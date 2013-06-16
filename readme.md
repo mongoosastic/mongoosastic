@@ -375,7 +375,7 @@ The Elasticsearch MongoDB River functionality if very new and very beta. The lat
 The above configuration has exhibited the most stability.
 
 #### Setup
-Mongodb must be running with op-logs enabled or using replica sets.
+Mongodb must be running with [replica sets](http://docs.mongodb.org/manual/tutorial/deploy-replica-set/).
 
 Install the [elasticsearch-river-mongodb plugin](https://github.com/richardwilly98/elasticsearch-river-mongodb)
 
