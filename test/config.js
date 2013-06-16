@@ -1,6 +1,10 @@
 var esClient  = new(require('elastical').Client)
   , async = require('async');
 
+before(function() {
+  this.timeout(20000)
+})
+
 module.exports = {
     mongoUrl: 'mongodb://localhost/es-test'
   , deleteIndexIfExists: function(indexes, done){
