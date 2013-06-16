@@ -23,6 +23,6 @@
     "node": ">= 0.6.0"
   },
   "scripts":{
-    "test":"mocha -R spec -t 15000 -b"
+    "test":"mocha -R spec -t 20000 -b"
   }
 }
