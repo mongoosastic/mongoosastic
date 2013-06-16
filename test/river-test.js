@@ -61,7 +61,7 @@ if(process.env.MONGOOSASTIC_RIVER || process.env.TRAVIS) {
           mongoose.connection.collections.mentions.insert(fixture, function(err, doc) {
             if (err) console.log(err);
             done();
-          })
+          });
         });
       });
 

@@ -345,6 +345,8 @@ Options are:
 * `port` - the port elastic search is running on
 * `hydrate` - whether or not to lookup results in mongodb before
   returning results from a search. Defaults to false.
+
+Experimental Options:
 * `useRiver` - true for use streaming and other capabilities
 
 #### Specifying Different Index and Type
@@ -362,18 +364,21 @@ SupervisorSchema.plugin(mongoosastic, {index: 'employees', type:'manager'});
 var Supervisor = mongoose.model('supervisor', SupervisorSchema);
 
 ```
-### To Use the River Option
+### To Use the River Option (EXPERIMENTAL)
 
-Start Mongo with replicaset like this
+The Elasticsearch MongoDB River functionality if very new and very beta. The latest it has been tested against is as follows:
 
-```bash
-mongod --config /etc/mongodb.conf --replSet foo --port 27017 -fork --quiet --dbpath /data/r0 --logpath /var/log/mongodb0.log && mongod --config /etc/mongodb.conf --replSet foo --port 27018 -fork --quiet --dbpath /data/r1 --logpath /var/log/mongodb1.log && mongod --config /etc/mongodb.conf --replSet foo --port 27019 -fork --quiet --dbpath /data/r2 --logpath /var/log/mongodb2.log
-```
+  - MongoDB v2.4.1
+  - Elasticsearch v0.20.6
+  - elasticsearch-river-mongodb v1.6.5
 
-Install the elasticsearch-river-mongodb (https://github.com/richardwilly98/elasticsearch-river-mongodb)
-```bash
-  %ES_HOME%\bin\plugin.bat -url https://github.com/downloads/richardwilly98/elasticsearch-river-mongodb/elasticsearch-river-mongodb-1.6.4.zip -install river-mongodb  
-```
+The above configuration has exhibited the most stability.
+
+#### Setup
+Mongodb must be running with op-logs enabled or using replica sets.
+
+Install the [elasticsearch-river-mongodb plugin](https://github.com/richardwilly98/elasticsearch-river-mongodb)
+
 Advanced Configurations
 
 ```javascript
@@ -387,6 +392,10 @@ to create your River only call
 ```javascript
 YourModel.river(function() {})
 ```
+
+#### Testing
+
+By default river tests do not run as it can be difficult to setup. If you wish to run river tests set the environment variable `MONGOOSASTIC_RIVER=true`
 
 ## Contributing
 Pull requests are always welcome as long as an accompanying test case is
