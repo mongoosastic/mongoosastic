@@ -15,6 +15,7 @@ before_install:
   - sudo mongod --replSet foo --port 27019 -fork --quiet --dbpath /data/r2 --logpath /var/log/mongodb2.log 
   - sleep 3
   - echo 'rs.initiate()' | mongo
+  - echo 'rs.slaveOk()' | mongo
   - sleep 3
   - export ES_HOME=/usr/share/elasticsearch
   - sleep 3
