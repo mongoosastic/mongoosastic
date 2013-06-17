@@ -93,7 +93,7 @@ if(process.env.MONGOOSASTIC_RIVER || process.env.TRAVIS) {
               res.hits.hits[0]._source.message.should.eql(doc.message);
               done();
             });
-          }, 2100);
+          }, 3100);
 
       });
     });
