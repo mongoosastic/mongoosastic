@@ -12,8 +12,8 @@ before_install:
   - sleep 3
   - export ES_HOME=/usr/share/elasticsearch
   - sleep 3
-  - sudo $ES_HOME/bin/plugin -install elasticsearch/elasticsearch-mapper-attachments/1.6.0
-  - sudo $ES_HOME/bin/plugin -url https://github.com/downloads/richardwilly98/elasticsearch-river-mongodb/elasticsearch-river-mongodb-1.6.4.zip -install river-mongodb
+  - sudo $ES_HOME/bin/plugin -install elasticsearch/elasticsearch-mapper-attachments/1.7.0
+  - sudo $ES_HOME/bin/plugin -url https://github.com/downloads/richardwilly98/elasticsearch-river-mongodb/elasticsearch-river-mongodb-1.6.5.zip -install river-mongodb
   - sleep 3
   - sudo service elasticsearch restart
   - sleep 3
