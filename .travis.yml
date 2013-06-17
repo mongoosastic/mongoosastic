@@ -4,18 +4,11 @@ node_js:
   - 0.8
 before_install:
   - sudo mkdir -p /data/r0
-  - sudo mkdir -p /data/r1
-  - sudo mkdir -p /data/r2
   - sudo touch /var/log/mongodb0.log 
-  - sudo touch /var/log/mongodb1.log 
-  - sudo touch /var/log/mongodb2.log 
   - sleep 3
   - sudo mongod --replSet foo --port 27017 -fork --quiet --dbpath /data/r0 --logpath /var/log/mongodb0.log 
-  - sudo mongod --replSet foo --port 27018 -fork --quiet --dbpath /data/r1 --logpath /var/log/mongodb1.log 
-  - sudo mongod --replSet foo --port 27019 -fork --quiet --dbpath /data/r2 --logpath /var/log/mongodb2.log 
   - sleep 3
-  - echo 'rs.initiate()' | mongo
-  - echo 'rs.slaveOk()' | mongo
+  - "echo \"rs.initiate({_id : 'foo', members : [ {_id : 0, host : '127.0.0.1'} ] })\" | mongo"
   - sleep 3
   - export ES_HOME=/usr/share/elasticsearch
   - sleep 3
