@@ -51,7 +51,6 @@ describe('Query DSL', function(){
           }
         }
       }, function(err, res){
-        console.log(JSON.stringify(res.hits, null, 2))
         res.hits.total.should.eql(2);
         res.hits.hits.forEach(function(bond){
           ['Legal', 'Construction'].should.include(bond._source.name);
