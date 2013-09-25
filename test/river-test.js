@@ -42,7 +42,7 @@ var Mention = mongoose.model('Mention', Mentionschema);
 *     MONGOOSASTIC_RIVER=true
 */
 
-if(process.env.MONGOOSASTIC_RIVER || process.env.TRAVIS) {
+if(process.env.MONGOOSASTIC_RIVER) {
   describe('River Index Method', function(){
 
     var fixture = {
