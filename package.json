@@ -15,7 +15,7 @@
   },
   "devDependencies": {
       "mocha":"*"
-    , "should":"*"
+    , "should":"1.2.2"
     , "async":"*"
   },
   "optionalDependencies": {},
