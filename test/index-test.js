@@ -24,12 +24,16 @@ var PersonSchema = new Schema({
     name: {type:String, es_indexed:true}
   , phone: {type:String, es_indexed:true}
   , address: String
+  , life: {
+      born: {type: Number, es_indexed:true}
+    , died: {type: Number, es_indexed:true}
+  }
 });
 PersonSchema.plugin(mongoosastic, {
   index:'people'
 , type: 'dude'
 , hydrate: true
-, hydrateOptions: {lean: true, sort: '-name', select: 'address name'}
+, hydrateOptions: {lean: true, sort: '-name', select: 'address name life'}
 });
 
 var Person = mongoose.model("Person", PersonSchema);
@@ -250,6 +254,31 @@ describe('indexing', function(){
         talk.should.have.property('bio')
         talk.should.be.an.instanceof(Talk);
         done();
+      });
+    });
+
+    describe('Sub-object Fields', function(){
+      before(function(done){
+        config.createModelAndEnsureIndex(Person, {
+            name: 'Bob Carr'
+          , address: "Exampleville, MO"
+          , phone: '(555)555-5555'
+          , life: { born: 1950, other: 2000 }
+        }, done);
+      });
+
+      it('should only return indexed fields and have indexed sub-objects', function(done){
+        Person.search({query:'Bob'}, function(err, res) {
+          res.hits[0].address.should.eql('Exampleville, MO');
+          res.hits[0].name.should.eql('Bob Carr');
+          res.hits[0].should.have.property('life');
+          res.hits[0].life.born.should.eql(1950);
+          res.hits[0].life.should.not.have.property('died');
+          res.hits[0].life.should.not.have.property('other');
+          res.hits[0].should.not.have.property('phone');
+          res.hits[0].should.not.be.an.instanceof(Person);
+          done();
+        });
       });
     });
 
