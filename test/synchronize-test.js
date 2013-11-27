@@ -37,16 +37,16 @@ describe('Synchronize', function(){
       }, done);
     });
     it('should index all existing objects', function(done){
-      var stream = Book.synchronize() 
+      var stream = Book.synchronize()
         , count = 0;
-      
+
       stream.on('data', function(err, doc){
         count++;
       });
 
       stream.on('close', function(){
-        count.should.eql(53);
         setTimeout(function(){
+          count.should.eql(53);
           Book.search({query:'American'}, function(err, results){
             results.hits.total.should.eql(2);
             done();
