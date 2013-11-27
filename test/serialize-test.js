@@ -6,13 +6,13 @@ var should    = require('should')
   , ObjectId  = Schema.Types.ObjectId;
 
 var BowlingBall = mongoose.model('BowlingBall', new Schema({
-  
+
 }));
 var PersonSchema22 = new Schema({
   name: {
       first: String
     , last: String
-  }, 
+  },
   dob: Date,
   bowlingBall: {type:Schema.ObjectId, ref:'BowlingBall'}
 });
@@ -39,15 +39,15 @@ describe('serialize', function(){
       serialized.name.last.should.eql('Lebowski');
     });
     it('should serialize object ids as strings', function(){
-      serialized.bowlingBall.should.eql(dude.bowlingBall.toString());
+      serialized.bowlingBall.should.eql(dude.bowlingBall);
     });
 
     it('should serialize dates in ISO 8601 format', function(){
-      serialized.dob.should.eql(dude.dob.toJSON())
+      serialized.dob.should.eql(dude.dob)
     });
   });
 
   describe('indexed fields', function(){
-    
+
   });
 });
