@@ -61,6 +61,20 @@ describe('MappingGenerator', function(){
         done();
       });
     });
+    it('recognizes an object and handles explict es_indexed', function(done){
+      generator.generateMapping(new Schema({
+        name: {type: String, es_indexed: true},
+        contact: {
+            email: {type: String, es_indexed: true},
+            telephone: {type: String}
+        }
+      }), function(err, mapping){
+        mapping.properties.name.type.should.eql('string');
+        mapping.properties.contact.properties.email.type.should.eql('string');
+        mapping.properties.contact.properties.should.not.have.property('telephone');
+        done();
+      });
+    });
     it('recognizes an multi_field and maps it as one', function(done){
       generator.generateMapping(new Schema({
         test: {
