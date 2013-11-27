@@ -1,4 +1,5 @@
 var should    = require('should')
+  , generator = new (require('../lib/mapping-generator'))
   , serialize = require('../lib/serialize')
   , mongoose  = require('mongoose')
   , Schema    = mongoose.Schema
@@ -18,6 +19,12 @@ var PersonSchema22 = new Schema({
 
 var Person = mongoose.model('Person22', PersonSchema22);
 
+var mapping;
+
+// Serialize method requires a schema mapping
+generator.generateMapping(PersonSchema22, function(err, tmp) {
+  mapping = tmp;
+});
 
 describe('serialize', function(){
   var dude = new Person({
@@ -26,7 +33,7 @@ describe('serialize', function(){
     bowlingBall: new BowlingBall()
   });
   describe('with no indexed fields', function(){
-    var serialized = serialize(dude);
+    var serialized = serialize(dude, mapping);
     it('should serialize model fields', function(){
       serialized.name.first.should.eql('Jeffery');
       serialized.name.last.should.eql('Lebowski');
