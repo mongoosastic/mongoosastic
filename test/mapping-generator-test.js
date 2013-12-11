@@ -137,6 +137,27 @@ describe('MappingGenerator', function(){
         done();
       });
     });
+    it('excludes a virtual property from mapping', function(done){
+      var PersonSchema = new Schema({
+        first_name: {type: String},
+        last_name: {type: String},
+        age: {type: Number}
+      });
+
+      PersonSchema.virtual('birthYear').set(function (year) {
+        this.age = new Date().getFullYear() - year;
+      })
+
+      generator.generateMapping(new Schema({
+        name: [PersonSchema]
+      }), function(err, mapping){
+        mapping.properties.name.properties.first_name.type.should.eql('string');
+        mapping.properties.name.properties.last_name.type.should.eql('string');
+        mapping.properties.name.properties.age.type.should.eql('double');
+        should.not.exist(mapping.properties.name.properties.birthYear);
+        done();
+      });
+    });
   });
 
   describe('elastic search fields', function(){
