@@ -39,7 +39,10 @@ describe('GeoTest', function(){
           GeoModel.remove(function(){
 
           esClient.getMapping('geodocs', 'geodoc', function(err, mapping){
-              mapping.geodoc.properties.frame.type.should.eql('geo_shape');
+              (mapping.geodoc != undefined ?
+                mapping.geodoc: /* ES 0.9.11 */
+                mapping.geodocs.mappings.geodoc /* ES 1.0.0 */
+              ).properties.frame.type.should.eql('geo_shape');
               done();
             });
           });
