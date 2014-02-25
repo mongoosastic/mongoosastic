@@ -58,7 +58,7 @@ describe('GeoTest', function(){
       myId : 1,
       frame:{
         type:'envelope',
-        coordinates: [[3,4],[1,2]]
+        coordinates: [[1,4],[3,2]]
       }
     });
 
@@ -87,8 +87,8 @@ describe('GeoTest', function(){
           if (err) throw err;
           res.length.should.eql(2);
           res[0].frame.type.should.eql('envelope');
-          res[0].frame.coordinates[0].should.eql([3,4]);
-          res[0].frame.coordinates[1].should.eql([1,2]);
+          res[0].frame.coordinates[0].should.eql([1,4]);
+          res[0].frame.coordinates[1].should.eql([3,2]);
           done();
   })})})})
   
@@ -101,7 +101,7 @@ describe('GeoTest', function(){
           if (err) throw err;                     
           res.hits.total.should.eql(2);      
           res.hits.hits[0]._source.frame.type.should.eql('envelope');
-          res.hits.hits[0]._source.frame.coordinates.should.eql([[3,4],[1,2]]);
+          res.hits.hits[0]._source.frame.coordinates.should.eql([[1,4],[3,2]]);
           done();
         });
       }, 1100);
@@ -125,7 +125,7 @@ describe('GeoTest', function(){
               if (err) throw err; 
               res.hits.total.should.eql(2);
               res.hits.hits[0]._source.frame.type.should.eql('envelope');
-              res.hits.hits[0]._source.frame.coordinates.should.eql([[3,4],[1,2]]);
+              res.hits.hits[0]._source.frame.coordinates.should.eql([[1,4],[3,2]]);
               done();
             });
           }, 1000);
@@ -166,7 +166,7 @@ describe('GeoTest', function(){
             if (err) throw err; 
             res.hits.total.should.eql(2);
 
-            geoQuery.filter.geo_shape.frame.shape.coordinates = [0,0];
+            geoQuery.filter.geo_shape.frame.shape.coordinates = [0,3];
             GeoModel.search(geoQuery,function(err, res){
               if (err) throw err; 
               res.hits.total.should.eql(0);
