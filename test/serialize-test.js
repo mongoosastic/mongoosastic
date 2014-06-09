@@ -27,7 +27,7 @@ generator.generateMapping(PersonSchema22, function(err, tmp) {
   mapping = tmp;
 });
 
-describe.only('serialize', function(){
+describe('serialize', function(){
   var dude = new Person({
     name: {first:'Jeffrey', last:'Lebowski'},
     dob: new Date(Date.parse('05/17/1962')),
