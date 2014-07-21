@@ -363,8 +363,9 @@ Experimental Options:
 * `useRiver` - true for use streaming and other capabilities
 
 Here is an example:
-
+```
 yourSchema.plugin(mongoosastic, {host:elasticConnection.hostname, curlDebug:true, auth: elasticConnection.auth, port: '', protocol: elasticConnection.protocol === 'https:' ? 'http' : 'https'});
+```
 
 #### Specifying Different Index and Type
 Perhaps you have an existing index and you want to specify the index and
