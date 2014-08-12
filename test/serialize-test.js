@@ -40,7 +40,7 @@ describe('serialize', function(){
     });
     it('should serialize object ids as strings', function(){
       serialized.bowlingBall.should.not.eql(dude.bowlingBall);
-      (typeof(serialized.bowlingBall)).should.eql("string");
+      serialized.bowlingBall.should.be.type('string');
     });
 
     it('should serialize dates in ISO 8601 format', function(){
