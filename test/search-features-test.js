@@ -53,7 +53,7 @@ describe('Query DSL', function(){
       }, function(err, res){
         res.hits.total.should.eql(2);
         res.hits.hits.forEach(function(bond){
-          ['Legal', 'Construction'].should.include(bond._source.name);
+          ['Legal', 'Construction'].should.containEql(bond._source.name);
         });
         done();
       });
