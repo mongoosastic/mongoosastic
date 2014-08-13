@@ -350,11 +350,25 @@ Options are:
   to the model name.
 * `host` - the host elastic search is running on
 * `port` - the port elastic search is running on
+* `auth` - the authentication needed to reach elastic search server. In the standard format of 'username:password'
+* `protocol` - the protocol the elastic search server uses. Defaults to http
 * `hydrate` - whether or not to lookup results in mongodb before
   returning results from a search. Defaults to false.
+* `curlDebug` - elastical debugging. Defaults to false.
+
+Here are all other avaible options invloved in connection to elastic search server: 
+https://ramv.github.io/node-elastical/docs/classes/Client.html
 
 Experimental Options:
 * `useRiver` - true for use streaming and other capabilities
+
+Here is an example:
+```
+var url               = require('url');
+var elasticConnection = url.parse(process.env.BONSAI_URL || 'http://127.0.0.1:9200');
+
+yourSchema.plugin(mongoosastic, {host:elasticConnection.hostname, curlDebug:true, auth: elasticConnection.auth, port: '', protocol: elasticConnection.protocol === 'https:' ? 'http' : 'https'});
+```
 
 #### Specifying Different Index and Type
 Perhaps you have an existing index and you want to specify the index and
