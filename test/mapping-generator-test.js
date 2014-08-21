@@ -33,11 +33,27 @@ describe('MappingGenerator', function(){
         done();
       });
     });
-    it('removes _id field', function(done){
+    it('removes _id field without prefix', function(done){
       generator.generateMapping(new Schema({
-        _id: {type:Schema.Types.ObjectId}
+        _id: {type: Schema.Types.ObjectId},
+        user: {
+          _id: {type: Schema.Types.ObjectId},
+          name: {type: String}
+        }
       }), function(err, mapping){
         mapping.properties.should.not.have.property('_id');
+        done();
+      });
+    });
+    it('does not remove _id field with prefix', function(done){
+      generator.generateMapping(new Schema({
+        _id: {type: Schema.Types.ObjectId},
+        user: {
+          _id: {type: Schema.Types.ObjectId},
+          name: {type: String}
+        }
+      }), function(err, mapping){
+        mapping.properties.user.properties.should.have.property('_id');
         done();
       });
     });
