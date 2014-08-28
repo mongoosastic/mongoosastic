@@ -367,7 +367,7 @@ Here is an example:
 var url               = require('url');
 var elasticConnection = url.parse(process.env.BONSAI_URL || 'http://127.0.0.1:9200');
 
-yourSchema.plugin(mongoosastic, {host:elasticConnection.hostname, curlDebug:true, auth: elasticConnection.auth, port: '', protocol: elasticConnection.protocol === 'https:' ? 'http' : 'https'});
+yourSchema.plugin(mongoosastic, {host:elasticConnection.hostname, curlDebug:true, auth: elasticConnection.auth, port: elasticConnection.port, protocol: elasticConnection.protocol === 'https:' ? 'https' : 'http'});
 ```
 
 #### Specifying Different Index and Type
