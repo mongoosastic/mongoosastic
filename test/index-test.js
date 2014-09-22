@@ -62,6 +62,20 @@ describe('indexing', function(){
         done();
       });
     });
+    it('should create index with settings if none exists', function(done){
+      Tweet.createMapping({analysis: {
+        analyzer: {
+          stem: {
+            tokenizer: "standard",
+            filter: ["standard", "lowercase", "stop", "porter_stem"]
+          }
+        }
+      }
+    },function(err, response){
+        response.should.not.have.property('error');
+        done();
+      });
+    });    
     it('should update index if one already exists', function(done){
       Tweet.createMapping(function(err, response){
         response.should.not.have.property('error');

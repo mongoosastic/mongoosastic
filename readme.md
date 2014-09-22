@@ -155,7 +155,8 @@ want stronger typing such as float).
 The way this can be mapped in elastic search is by creating a mapping
 for the index the model belongs to. Currently to the best of my
 knowledge mappings are create once when creating an index and can only
-be modified by destroying the index. 
+be modified by destroying the index. The optionnal first parameter is 
+the settings option for the index (for defining analysers for example or whatever is [there](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-update-settings.html).
 
 As such, creating the mapping is a one time operation and can be done as
 follows (using the BookSchema as an example):
@@ -168,7 +169,16 @@ var BookSchema = new Schema({
 
 BookSchema.plugin(mongoosastic);
 var Book = mongoose.model('Book', BookSchema);
-Book.createMapping(function(err, mapping){
+Book.createMapping({
+  "analysis" : {
+    "analyzer":{
+      "content":{
+        "type":"custom",
+        "tokenizer":"whitespace"
+      }
+    }
+  }
+},function(err, mapping){
   // do neat things here
 });
 
