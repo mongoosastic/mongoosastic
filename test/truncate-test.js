@@ -31,7 +31,7 @@ describe('Truncate', function() {
           async.forEach(dummies, function(item, cb) {
             item.save(cb);
           }, function() {
-            setTimeout(done, 1100);
+            setTimeout(done, config.indexingTimeout);
           });
         });
       });
