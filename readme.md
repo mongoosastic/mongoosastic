@@ -241,6 +241,14 @@ var ExampleSchema = new Schema({
     lat: { type: Number },
     lon: { type: Number }
   }
+
+  // Special feature : specify a cast method to pre-process the field before indexing it
+  someFieldToCast : {
+    type: String,
+    es_cast: function(value){
+      return value + ' something added';
+    }
+  }
 });
 
 // Used as nested schema above.
