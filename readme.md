@@ -388,15 +388,6 @@ Here are all other avaible options invloved in connection to elastic search serv
 https://ramv.github.io/node-elastical/docs/classes/Client.html
 
 Experimental Options:
-* `useRiver` - true for use streaming and other capabilities
-
-Here is an example:
-```
-var url               = require('url');
-var elasticConnection = url.parse(process.env.BONSAI_URL || 'http://127.0.0.1:9200');
-
-yourSchema.plugin(mongoosastic, {host:elasticConnection.hostname, curlDebug:true, auth: elasticConnection.auth, port: elasticConnection.port, protocol: elasticConnection.protocol === 'https:' ? 'https' : 'http'});
-```
 
 #### Specifying Different Index and Type
 Perhaps you have an existing index and you want to specify the index and
@@ -413,38 +404,6 @@ SupervisorSchema.plugin(mongoosastic, {index: 'employees', type:'manager'});
 var Supervisor = mongoose.model('supervisor', SupervisorSchema);
 
 ```
-### To Use the River Option (EXPERIMENTAL)
-
-The Elasticsearch MongoDB River functionality if very new and very beta. The latest it has been tested against is as follows:
-
-  - MongoDB v2.4.1
-  - Elasticsearch v0.20.6
-  - elasticsearch-river-mongodb v1.6.5
-
-The above configuration has exhibited the most stability.
-
-#### Setup
-Mongodb must be running with [replica sets](http://docs.mongodb.org/manual/tutorial/deploy-replica-set/).
-
-Install the [elasticsearch-river-mongodb plugin](https://github.com/richardwilly98/elasticsearch-river-mongodb)
-
-Advanced Configurations
-
-```javascript
-var options = {
-  useRiver: {   
-    gridfs: false/true 
-  }
-}
-```
-to create your River only call
-```javascript
-YourModel.river(function() {})
-```
-
-#### Testing
-
-By default river tests do not run as it can be difficult to setup. If you wish to run river tests set the environment variable `MONGOOSASTIC_RIVER=true`
 
 ## Contributing
 Pull requests are always welcome as long as an accompanying test case is
