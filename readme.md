@@ -241,6 +241,14 @@ var ExampleSchema = new Schema({
     lat: { type: Number },
     lon: { type: Number }
   }
+
+  // Special feature : specify a cast method to pre-process the field before indexing it
+  someFieldToCast : {
+    type: String,
+    es_cast: function(value){
+      return value + ' something added';
+    }
+  }
 });
 
 // Used as nested schema above.
@@ -349,6 +357,16 @@ The index method takes 3 arguments:
 
 Note that indexing a model does not mean it will be persisted to
 mongodb. Use save for that.
+
+### Truncating an index
+
+The static method truncate will deleted all documents from the associated index. This method combined with synchronise can be usefull in case of integration tests for example when each test case needs a cleaned up index in ElasticSearch.
+
+#### Usage
+
+```javascript
+GarbageModel.truncate(function(err){...});
+```
 
 ### Model.plugin(mongoosastic, options)
 

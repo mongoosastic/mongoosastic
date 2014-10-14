@@ -30,7 +30,7 @@ describe('Query DSL', function(){
             , new Bond({name:'Legal', type:'C', price:30000})
           ];
           async.forEach(bonds, save, function(){
-            setTimeout(done, 1100);
+            setTimeout(done, config.indexingTimeout);
           });
         });
       });
