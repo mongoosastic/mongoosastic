@@ -1,6 +1,7 @@
 # Mongoosastic
 [![Build
 Status](https://secure.travis-ci.org/mongoosastic/mongoosastic.png?branch=master)](http://travis-ci.org/mongoosastic/mongoosastic)
+[![NPM version](https://badge.fury.io/js/mongoosastic.svg)](http://badge.fury.io/js/mongoosastic)
 
 A [mongoose](http://mongoosejs.com/) plugin that indexes models into [elasticsearch](http://www.elasticsearch.org/). I kept
 running into cases where I needed full text search capabilities in my
@@ -9,8 +10,6 @@ full text search, I also needed the ability to filter ranges of data
 points in the searches and even highlight matches. For these reasons,
 elastic search was a perfect fit and hence this project. 
 
-## Current Version
-The current version is ``0.6.0``
 
 ## Installation
 
