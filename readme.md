@@ -241,6 +241,17 @@ var ExampleSchema = new Schema({
     lon: { type: Number }
   }
 
+  geo_shape: {
+    coordinates : [],
+    type: {type: String},
+    geo_shape: {
+      type:String,
+      es_type: "geo_shape",
+      es_tree: "quadtree",
+      es_precision: "1km"
+    }
+  }
+
   // Special feature : specify a cast method to pre-process the field before indexing it
   someFieldToCast : {
     type: String,
@@ -248,6 +259,7 @@ var ExampleSchema = new Schema({
       return value + ' something added';
     }
   }
+
 });
 
 // Used as nested schema above.
@@ -255,6 +267,56 @@ var SubSchema = new Schema({
   field1: {type: String},
   field2: {type: String}
 });
+```
+
+## Geo mapping
+Prior to index any geo mapped data (or calling the synchronize), 
+the mapping must be manualy created with the createMapping (see above).
+
+Notice that the name of the field containing the ES geo data must start by
+'geo_' to be recognize as such.
+
+# Indexing a geo point
+
+```javascript
+    var geo = new GeoModel({
+      …
+      geo_with_lat_lon: { lat: 1, lon: 2}
+      …
+    });
+```
+
+# Indexing a geo shape
+
+```javascript
+    var geo = new GeoModel({
+      …
+      geo_shape:{
+        type:'envelope',
+        coordinates: [[3,4],[1,2] /* Arrays of coord : [[lon,lat],[lon,lat]] */
+      }
+      …
+    });
+```
+
+Mapping, indexing and searching example for geo shape can be found in test/geo-test.js
+
+For example, one can retrieve the list of document where the shape contain a specific 
+point (or polygon...)
+
+```javascript
+    var geoQuery = {
+      "query": {"match_all": {}},
+      "filter": {"geo_shape": {
+        "geo_shape": {
+          "shape": {
+            "type": "point", 
+            "coordinates": [3,1]
+          },
+          "relation": "intersects"
+        }
+      }}
+    }
 ```
 
 ### Advanced Queries
@@ -357,6 +419,7 @@ The index method takes 3 arguments:
 Note that indexing a model does not mean it will be persisted to
 mongodb. Use save for that.
 
+<<<<<<< HEAD
 ### Truncating an index
 
 The static method truncate will deleted all documents from the associated index. This method combined with synchronise can be usefull in case of integration tests for example when each test case needs a cleaned up index in ElasticSearch.
@@ -365,6 +428,21 @@ The static method truncate will deleted all documents from the associated index.
 
 ```javascript
 GarbageModel.truncate(function(err){...});
+=======
+### Saving a document
+The indexing takes place after saving inside the mongodb and is a defered process. 
+One can check the end of the indexion catching es-indexed event. 
+
+```javascript
+doc.save(function(err){
+  if (err) throw err;
+  /* Document indexation on going */
+  doc.on('es-indexed', function(err, res){
+    if (err) throw err;
+    /* Document is indexed */
+    });
+  });
+>>>>>>> Added testfor geo_shape and updated manual
 ```
 
 ### Model.plugin(mongoosastic, options)
