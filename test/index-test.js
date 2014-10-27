@@ -223,10 +223,10 @@ describe('indexing', function(){
 
     it('when gathering search results while respecting default hydrate options', function(done){
       Person.search({query:'James'}, function(err, res) {
-        res.hits[0].address.should.eql('Exampleville, MO');
-        res.hits[0].name.should.eql('James Carr');
-        res.hits[0].should.not.have.property('phone');
-        res.hits[0].should.not.be.an.instanceof(Person);
+        res.hits.hits[0].address.should.eql('Exampleville, MO');
+        res.hits.hits[0].name.should.eql('James Carr');
+        res.hits.hits[0].should.not.have.property('phone');
+        res.hits.hits[0].should.not.be.an.instanceof(Person);
         done();
       });
     });
@@ -258,9 +258,9 @@ describe('indexing', function(){
 
     it('should hydrate returned documents if desired', function(done){
       Talk.search({query:'cool'}, {hydrate:true}, function(err, res) {
-        res.total.should.eql(1)
+        res.hits.total.should.eql(1)
 
-        var talk = res.hits[0]
+        var talk = res.hits.hits[0]
         talk.should.have.property('title')
         talk.should.have.property('year');
         talk.should.have.property('abstract')
@@ -283,14 +283,14 @@ describe('indexing', function(){
 
       it('should only return indexed fields and have indexed sub-objects', function(done){
         Person.search({query:'Bob'}, function(err, res) {
-          res.hits[0].address.should.eql('Exampleville, MO');
-          res.hits[0].name.should.eql('Bob Carr');
-          res.hits[0].should.have.property('life');
-          res.hits[0].life.born.should.eql(1950);
-          res.hits[0].life.should.not.have.property('died');
-          res.hits[0].life.should.not.have.property('other');
-          res.hits[0].should.not.have.property('phone');
-          res.hits[0].should.not.be.an.instanceof(Person);
+          res.hits.hits[0].address.should.eql('Exampleville, MO');
+          res.hits.hits[0].name.should.eql('Bob Carr');
+          res.hits.hits[0].should.have.property('life');
+          res.hits.hits[0].life.born.should.eql(1950);
+          res.hits.hits[0].life.should.not.have.property('died');
+          res.hits.hits[0].life.should.not.have.property('other');
+          res.hits.hits[0].should.not.have.property('phone');
+          res.hits.hits[0].should.not.be.an.instanceof(Person);
           done();
         });
       });
@@ -298,9 +298,9 @@ describe('indexing', function(){
 
     it('should allow extra query options when hydrating', function(done){
       Talk.search({query:'cool'}, {hydrate:true, hydrateOptions: {lean: true}}, function(err, res) {
-        res.total.should.eql(1)
+        res.hits.total.should.eql(1)
 
-        var talk = res.hits[0]
+        var talk = res.hits.hits[0]
         talk.should.have.property('title')
         talk.should.have.property('year');
         talk.should.have.property('abstract')
