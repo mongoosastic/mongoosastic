@@ -15,7 +15,13 @@ var PersonSchema22 = new Schema({
   },
   dob: Date,
   bowlingBall: {type:Schema.ObjectId, ref:'BowlingBall'},
-  games: [{score: Number, date: Date}]
+  games: [{score: Number, date: Date}],
+  somethingToCast : {
+    type: String,
+    es_cast: function(element){
+      return element+' has been cast';
+    }
+  }
 });
 
 var Person = mongoose.model('Person22', PersonSchema22);
@@ -32,7 +38,8 @@ describe('serialize', function(){
     name: {first:'Jeffrey', last:'Lebowski'},
     dob: new Date(Date.parse('05/17/1962')),
     bowlingBall: new BowlingBall(),
-    games: [{score: 80, date: new Date(Date.parse('05/17/1962'))}, {score: 80, date: new Date(Date.parse('06/17/1962'))}]
+    games: [{score: 80, date: new Date(Date.parse('05/17/1962'))}, {score: 80, date: new Date(Date.parse('06/17/1962'))}],
+    somethingToCast: 'Something'
   });
 
   // another person with missing parts to test robustness
@@ -52,15 +59,20 @@ describe('serialize', function(){
       serialized.name.last.should.eql('Lebowski');
     });
     it('should serialize object ids as strings', function(){
-      serialized.bowlingBall.should.eql(dude.bowlingBall);
+      serialized.bowlingBall.should.not.eql(dude.bowlingBall);
+      serialized.bowlingBall.should.be.type('string');
     });
     it('should serialize dates in ISO 8601 format', function(){
-      serialized.dob.should.eql(dude.dob);
+      serialized.dob.should.eql(dude.dob.toJSON())
     });
     it('should serialize nested arrays', function(){
       serialized.games.should.have.lengthOf(2);
       serialized.games[0].should.have.property('score', 80);
     });
+
+    it('should cast and serialize field', function(){
+      serialized.somethingToCast.should.eql('Something has been cast')
+    });    
   });
 
   describe('indexed fields', function(){

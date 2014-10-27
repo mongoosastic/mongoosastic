@@ -1,6 +1,7 @@
 # Mongoosastic
 [![Build
-Status](https://secure.travis-ci.org/jamescarr/mongoosastic.png?branch=master)](http://travis-ci.org/jamescarr/mongoosastic)
+Status](https://secure.travis-ci.org/mongoosastic/mongoosastic.png?branch=master)](http://travis-ci.org/mongoosastic/mongoosastic)
+[![NPM version](https://badge.fury.io/js/mongoosastic.svg)](http://badge.fury.io/js/mongoosastic)
 
 A [mongoose](http://mongoosejs.com/) plugin that indexes models into [elasticsearch](http://www.elasticsearch.org/). I kept
 running into cases where I needed full text search capabilities in my
@@ -9,8 +10,6 @@ full text search, I also needed the ability to filter ranges of data
 points in the searches and even highlight matches. For these reasons,
 elastic search was a perfect fit and hence this project. 
 
-## Current Version
-The current version is ``0.2.3``
 
 ## Installation
 
@@ -155,7 +154,8 @@ want stronger typing such as float).
 The way this can be mapped in elastic search is by creating a mapping
 for the index the model belongs to. Currently to the best of my
 knowledge mappings are create once when creating an index and can only
-be modified by destroying the index. 
+be modified by destroying the index. The optionnal first parameter is 
+the settings option for the index (for defining analysers for example or whatever is [there](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-update-settings.html).
 
 As such, creating the mapping is a one time operation and can be done as
 follows (using the BookSchema as an example):
@@ -168,7 +168,16 @@ var BookSchema = new Schema({
 
 BookSchema.plugin(mongoosastic);
 var Book = mongoose.model('Book', BookSchema);
-Book.createMapping(function(err, mapping){
+Book.createMapping({
+  "analysis" : {
+    "analyzer":{
+      "content":{
+        "type":"custom",
+        "tokenizer":"whitespace"
+      }
+    }
+  }
+},function(err, mapping){
   // do neat things here
 });
 
@@ -231,6 +240,26 @@ var ExampleSchema = new Schema({
     lat: { type: Number },
     lon: { type: Number }
   }
+
+  geo_shape: {
+    coordinates : [],
+    type: {type: String},
+    geo_shape: {
+      type:String,
+      es_type: "geo_shape",
+      es_tree: "quadtree",
+      es_precision: "1km"
+    }
+  }
+
+  // Special feature : specify a cast method to pre-process the field before indexing it
+  someFieldToCast : {
+    type: String,
+    es_cast: function(value){
+      return value + ' something added';
+    }
+  }
+
 });
 
 // Used as nested schema above.
@@ -238,6 +267,56 @@ var SubSchema = new Schema({
   field1: {type: String},
   field2: {type: String}
 });
+```
+
+## Geo mapping
+Prior to index any geo mapped data (or calling the synchronize), 
+the mapping must be manualy created with the createMapping (see above).
+
+Notice that the name of the field containing the ES geo data must start by
+'geo_' to be recognize as such.
+
+# Indexing a geo point
+
+```javascript
+    var geo = new GeoModel({
+      …
+      geo_with_lat_lon: { lat: 1, lon: 2}
+      …
+    });
+```
+
+# Indexing a geo shape
+
+```javascript
+    var geo = new GeoModel({
+      …
+      geo_shape:{
+        type:'envelope',
+        coordinates: [[3,4],[1,2] /* Arrays of coord : [[lon,lat],[lon,lat]] */
+      }
+      …
+    });
+```
+
+Mapping, indexing and searching example for geo shape can be found in test/geo-test.js
+
+For example, one can retrieve the list of document where the shape contain a specific 
+point (or polygon...)
+
+```javascript
+    var geoQuery = {
+      "query": {"match_all": {}},
+      "filter": {"geo_shape": {
+        "geo_shape": {
+          "shape": {
+            "type": "point", 
+            "coordinates": [3,1]
+          },
+          "relation": "intersects"
+        }
+      }}
+    }
 ```
 
 ### Advanced Queries
@@ -340,6 +419,32 @@ The index method takes 3 arguments:
 Note that indexing a model does not mean it will be persisted to
 mongodb. Use save for that.
 
+<<<<<<< HEAD
+### Truncating an index
+
+The static method truncate will deleted all documents from the associated index. This method combined with synchronise can be usefull in case of integration tests for example when each test case needs a cleaned up index in ElasticSearch.
+
+#### Usage
+
+```javascript
+GarbageModel.truncate(function(err){...});
+=======
+### Saving a document
+The indexing takes place after saving inside the mongodb and is a defered process. 
+One can check the end of the indexion catching es-indexed event. 
+
+```javascript
+doc.save(function(err){
+  if (err) throw err;
+  /* Document indexation on going */
+  doc.on('es-indexed', function(err, res){
+    if (err) throw err;
+    /* Document is indexed */
+    });
+  });
+>>>>>>> Added testfor geo_shape and updated manual
+```
+
 ### Model.plugin(mongoosastic, options)
 
 Options are:
@@ -350,11 +455,16 @@ Options are:
   to the model name.
 * `host` - the host elastic search is running on
 * `port` - the port elastic search is running on
+* `auth` - the authentication needed to reach elastic search server. In the standard format of 'username:password'
+* `protocol` - the protocol the elastic search server uses. Defaults to http
 * `hydrate` - whether or not to lookup results in mongodb before
   returning results from a search. Defaults to false.
+* `curlDebug` - elastical debugging. Defaults to false.
+
+Here are all other avaible options invloved in connection to elastic search server: 
+https://ramv.github.io/node-elastical/docs/classes/Client.html
 
 Experimental Options:
-* `useRiver` - true for use streaming and other capabilities
 
 #### Specifying Different Index and Type
 Perhaps you have an existing index and you want to specify the index and
@@ -371,38 +481,6 @@ SupervisorSchema.plugin(mongoosastic, {index: 'employees', type:'manager'});
 var Supervisor = mongoose.model('supervisor', SupervisorSchema);
 
 ```
-### To Use the River Option (EXPERIMENTAL)
-
-The Elasticsearch MongoDB River functionality if very new and very beta. The latest it has been tested against is as follows:
-
-  - MongoDB v2.4.1
-  - Elasticsearch v0.20.6
-  - elasticsearch-river-mongodb v1.6.5
-
-The above configuration has exhibited the most stability.
-
-#### Setup
-Mongodb must be running with [replica sets](http://docs.mongodb.org/manual/tutorial/deploy-replica-set/).
-
-Install the [elasticsearch-river-mongodb plugin](https://github.com/richardwilly98/elasticsearch-river-mongodb)
-
-Advanced Configurations
-
-```javascript
-var options = {
-  useRiver: {   
-    gridfs: false/true 
-  }
-}
-```
-to create your River only call
-```javascript
-YourModel.river(function() {})
-```
-
-#### Testing
-
-By default river tests do not run as it can be difficult to setup. If you wish to run river tests set the environment variable `MONGOOSASTIC_RIVER=true`
 
 ## Contributing
 Pull requests are always welcome as long as an accompanying test case is
@@ -460,6 +538,8 @@ preferred timeout (which is extended for integration tests.
 
 
 ## License
+[The MIT License](https://tldrlegal.com/l/mit)
+
 Copyright (c) 2012 James R. Carr <james.r.carr@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
