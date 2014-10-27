@@ -284,14 +284,14 @@ var SubSchema = new Schema({
 });
 ```
 
-## Geo mapping
+### Geo mapping
 Prior to index any geo mapped data (or calling the synchronize), 
 the mapping must be manualy created with the createMapping (see above).
 
 Notice that the name of the field containing the ES geo data must start by
 'geo_' to be recognize as such.
 
-# Indexing a geo point
+#### Indexing a geo point
 
 ```javascript
     var geo = new GeoModel({
@@ -301,7 +301,7 @@ Notice that the name of the field containing the ES geo data must start by
     });
 ```
 
-# Indexing a geo shape
+#### Indexing a geo shape
 
 ```javascript
     var geo = new GeoModel({
@@ -434,16 +434,6 @@ The index method takes 3 arguments:
 Note that indexing a model does not mean it will be persisted to
 mongodb. Use save for that.
 
-<<<<<<< HEAD
-### Truncating an index
-
-The static method truncate will deleted all documents from the associated index. This method combined with synchronise can be usefull in case of integration tests for example when each test case needs a cleaned up index in ElasticSearch.
-
-#### Usage
-
-```javascript
-GarbageModel.truncate(function(err){...});
-=======
 ### Saving a document
 The indexing takes place after saving inside the mongodb and is a defered process. 
 One can check the end of the indexion catching es-indexed event. 
@@ -457,7 +447,16 @@ doc.save(function(err){
     /* Document is indexed */
     });
   });
->>>>>>> Added testfor geo_shape and updated manual
+```
+
+### Truncating an index
+
+The static method truncate will deleted all documents from the associated index. This method combined with synchronise can be usefull in case of integration tests for example when each test case needs a cleaned up index in ElasticSearch.
+
+#### Usage
+
+```javascript
+GarbageModel.truncate(function(err){...});
 ```
 
 ### Model.plugin(mongoosastic, options)
