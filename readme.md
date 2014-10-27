@@ -130,6 +130,21 @@ var stream = Book.synchronize({author: 'Arthur C. Clarke'})
 
 One caveat... synchronization is kinda slow for now. Use with care.
 
+### Bulk Indexing
+
+You can also specify `bulk` options with mongoose which will utilize elasticsearch's bulk indexing api. This will cause the `synchronize` function to use bulk indexing as well. 
+
+Mongoosastic will wait 1 second (or specified delay) until it has 1000 docs (or specified size) and then perform bulk indexing.
+
+```javascript
+BookSchema.plugin(mongoosastic, {
+  bulk: {
+    size: 10, // preferred number of docs to bulk index
+    delay: 100 //milliseconds to wait for enough docs to meet size constraint
+  }
+});
+```
+
 ### Per Field Options
 Schemas can be configured to have special options per field. These match
 with the existing [field mapping configurations](http://www.elasticsearch.org/guide/reference/mapping/core-types.html) defined by elasticsearch with the only difference being they are all prefixed by "es_". 
