@@ -13,7 +13,7 @@ var GeoSchema;
 
 var GeoModel;
 
-describe('GeoTest', function(){
+describe.only('GeoTest', function(){
   before(function(done){
     mongoose.connect(config.mongoUrl, function(){
       config.deleteIndexIfExists(['geodocs'], function(){
@@ -92,7 +92,7 @@ describe('GeoTest', function(){
           done();
   })})})})
   
-  var getDocOrderedQuery = {"query": {"match_all": {}},"sort":{"myId":{"order":"asc"}}};
+  var getDocOrderedQuery = {"query": {"match_all": {}},"sort":"myId:asc"};
 
   it('should be able to find geo coordinates in the indexes', function(done){      
       setTimeout(function(){
@@ -138,16 +138,19 @@ describe('GeoTest', function(){
 
   it('should be able to search points inside frames', function(done){
     var geoQuery = {
-      "query": {"match_all": {}},
-      "filter": {"geo_shape": {
-        "frame": {
-          "shape": {
-            "type": "point", 
-            "coordinates": [3,1]
-          },
-          "relation": "intersects"
+      filtered: {
+        "query": {"match_all": {}},
+        "filter": {
+          "geo_shape": {
+            "frame": {
+              "shape": {
+                "type": "point", 
+                "coordinates": [3,1]
+              }
+            }
+          }
         }
-      }}
+      }
     }
 
     setTimeout(function(){
