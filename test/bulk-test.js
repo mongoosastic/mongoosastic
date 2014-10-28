@@ -20,7 +20,7 @@ BookSchema.plugin(mongoosastic, {
 
 var Book = mongoose.model('Book2', BookSchema);
 
-describe('Bulk mode', function() {
+describe.only('Bulk mode', function() {
 	var books = null;
 
 	before(function(done) {

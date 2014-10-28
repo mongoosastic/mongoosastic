@@ -43,10 +43,10 @@ describe('Index Method', function(){
   it('should be able to index to alternative index', function(done){
     Tweet.findOne({message:'I know kung-fu!'}, function(err, doc){
       doc.message = 'I know taebo!';
-      doc.index('public_tweets', function(){
+      doc.index({index: 'public_tweets'}, function(){
         setTimeout(function(){
-          esClient.search({index: 'public_tweets', query:'know'}, function(err, results, res){
-            res.hits.hits[0]._source.message.should.eql('I know taebo!');
+          esClient.search({index: 'public_tweets', query:'know'}, function(err, res){
+            res.hits[0]._source.message.should.eql('I know taebo!');
             done();
           });
         }, config.indexingTimeout);
@@ -56,7 +56,7 @@ describe('Index Method', function(){
   it('should be able to index to alternative index and type', function(done){
     Tweet.findOne({message:'I know kung-fu!'}, function(err, doc){
       doc.message = 'I know taebo!';
-      doc.index('public_tweets', 'utterings', function(){
+      doc.index({index: 'public_tweets', type: 'utterings'}, function(){
         setTimeout(function(){
           esClient.search({index: 'public_tweets', type: 'utterings', query:'know'}, function(err, results, res){
             res.hits.hits[0]._source.message.should.eql('I know taebo!');

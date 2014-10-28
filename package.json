@@ -16,7 +16,8 @@
   "main": "lib/mongoosastic.js",
   "dependencies": {
     "elastical": "0.0.13",
-    "elasticsearch": "^2.4.3"
+    "elasticsearch": "^2.4.3",
+    "nop": "^1.0.0"
   },
   "peerDependencies": {
     "mongoose": "3.8.x"
