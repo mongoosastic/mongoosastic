@@ -1,6 +1,4 @@
 var mongoose = require('mongoose'),
-	elastical = require('elastical'),
-	esClient = new(require('elastical').Client)(),
 	should = require('should'),
 	config = require('./config'),
 	Schema = mongoose.Schema,

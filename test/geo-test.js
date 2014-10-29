@@ -1,6 +1,5 @@
 var mongoose  = require('mongoose')
-  , elastical = require('elastical')
-  , esClient  = new(require('elastical').Client)
+  , esClient  = new(require('elasticsearch').Client)
   , should    = require('should')
   , config    = require('./config')
   , Schema    = mongoose.Schema
@@ -38,7 +37,10 @@ describe('GeoTest', function(){
         GeoModel.createMapping(function(err, mapping){
           GeoModel.remove(function(){
 
-          esClient.getMapping('geodocs', 'geodoc', function(err, mapping){
+          esClient.indices.getMapping({
+            index: 'geodocs', 
+            type: 'geodoc'
+          }, function(err, mapping){
               (mapping.geodoc != undefined ?
                 mapping.geodoc: /* ES 0.9.11 */
                 mapping.geodocs.mappings.geodoc /* ES 1.0.0 */

@@ -1,10 +1,9 @@
 var mongoose  = require('mongoose')
-  , elastical = require('elastical')
   , should    = require('should')
   , config    = require('./config')
   , Schema    = mongoose.Schema
   , ObjectId  = Schema.ObjectId
-  , esClient  = new(require('elastical').Client)
+  , esClient  = new(require('elasticsearch').Client)
   , mongoosastic = require('../lib/mongoosastic')
   , Tweet = require('./models/tweet');
 
@@ -99,8 +98,12 @@ describe('indexing', function(){
     });
     it("should use the model's id as ES id", function(done){
       Tweet.findOne({message:"I like Riak better"}, function(err, doc){
-        esClient.get('tweets', doc._id.toString(), function(err, res){
-          res.message.should.eql(doc.message);
+        esClient.get({
+          index: 'tweets',
+          type: 'tweet',
+          id: doc._id.toString()
+        }, function(err, res){
+          res._source.message.should.eql(doc.message);
           done()
         });
       });
@@ -342,13 +345,18 @@ describe('indexing', function(){
   describe('Existing Index', function(){
     before(function(done){
       config.deleteIndexIfExists(['ms_sample'], function(){
-        esClient.createIndex('ms_sample', {mappings:{
-          bum:{
-            properties: {
-              name: {type:'string'}
+        esClient.indices.create({
+          index: 'ms_sample',
+          body: {
+            mappings:{
+              bum:{
+                properties: {
+                  name: {type:'string'}
+                }
+              }
             }
           }
-        }}, done);
+        }, done);
       });
     });
 

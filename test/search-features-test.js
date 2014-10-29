@@ -1,5 +1,4 @@
 var mongoose  = require('mongoose')
-  , elastical = require('elastical')
   , should    = require('should')
   , config    = require('./config')
   , Schema    = mongoose.Schema
@@ -7,7 +6,6 @@ var mongoose  = require('mongoose')
   , async     = require('async')
   , mongoosastic = require('../lib/mongoosastic');
 
-var esClient  = new elastical.Client();
 var BondSchema = new Schema({
     name: String
   , type: {type:String, default:'Other Bond'}
