@@ -1,6 +1,4 @@
 var mongoose = require('mongoose'),
-  elastical = require('elastical'),
-  esClient = new(require('elastical').Client),
   should = require('should'),
   config = require('./config'),
   Schema = mongoose.Schema,
@@ -44,7 +42,9 @@ describe('Truncate', function() {
     it('should be able to truncate all documents', function(done) {
       Dummy.esTruncate(function(err) {
         Dummy.search({
-          query: 'Text1'
+          query_string: {
+            query: 'Text1'
+          }
         }, function(err, results) {
           results.hits.total.should.eql(0);
           done(err);

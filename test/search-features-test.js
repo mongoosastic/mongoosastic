@@ -1,5 +1,4 @@
 var mongoose  = require('mongoose')
-  , elastical = require('elastical')
   , should    = require('should')
   , config    = require('./config')
   , Schema    = mongoose.Schema
@@ -7,7 +6,6 @@ var mongoose  = require('mongoose')
   , async     = require('async')
   , mongoosastic = require('../lib/mongoosastic');
 
-var esClient  = new elastical.Client();
 var BondSchema = new Schema({
     name: String
   , type: {type:String, default:'Other Bond'}
@@ -42,12 +40,10 @@ describe('Query DSL', function(){
   describe('range', function(){
     it('should be able to find within range', function(done){
       Bond.search({
-        query:{
-          range: {
-            price:{
-              from:20000
-            , to: 30000
-            }
+        range: {
+          price:{
+            from:20000
+          , to: 30000
           }
         }
       }, function(err, res){

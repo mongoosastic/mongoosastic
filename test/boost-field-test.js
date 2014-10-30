@@ -1,6 +1,5 @@
 var mongoose  = require('mongoose')
-  , elastical = require('elastical')
-  , esClient  = new(require('elastical').Client)
+  , esClient  = new(require('elasticsearch').Client)
   , should    = require('should')
   , config    = require('./config')
   , Schema    = mongoose.Schema
@@ -29,7 +28,10 @@ describe('Add Boost Option Per Field', function(){
 
   it('should create a mapping with boost field added', function(done){
     BlogPost.createMapping(function(err, mapping){
-      esClient.getMapping('blogposts', 'blogpost', function(err, mapping){
+      esClient.indices.getMapping({
+        index: 'blogposts',
+        type: 'blogpost'
+      }, function(err, mapping){
 
         /* elasticsearch 1.0 & 0.9 support */
         var props = mapping.blogpost != undefined ?

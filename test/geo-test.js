@@ -1,6 +1,5 @@
 var mongoose  = require('mongoose')
-  , elastical = require('elastical')
-  , esClient  = new(require('elastical').Client)
+  , esClient  = new(require('elasticsearch').Client)
   , should    = require('should')
   , config    = require('./config')
   , Schema    = mongoose.Schema
@@ -38,7 +37,10 @@ describe('GeoTest', function(){
         GeoModel.createMapping(function(err, mapping){
           GeoModel.remove(function(){
 
-          esClient.getMapping('geodocs', 'geodoc', function(err, mapping){
+          esClient.indices.getMapping({
+            index: 'geodocs', 
+            type: 'geodoc'
+          }, function(err, mapping){
               (mapping.geodoc != undefined ?
                 mapping.geodoc: /* ES 0.9.11 */
                 mapping.geodocs.mappings.geodoc /* ES 1.0.0 */
@@ -91,13 +93,13 @@ describe('GeoTest', function(){
           res[0].frame.coordinates[1].should.eql([3,2]);
           done();
   })})})})
-  
-  var getDocOrderedQuery = {"query": {"match_all": {}},"sort":{"myId":{"order":"asc"}}};
 
   it('should be able to find geo coordinates in the indexes', function(done){      
       setTimeout(function(){
         // ES request
-        GeoModel.search(getDocOrderedQuery,function(err, res){
+        GeoModel.search({
+          match_all: {}
+        }, {sort: "myId:asc"}, function(err, res){
           if (err) throw err;                     
           res.hits.total.should.eql(2);      
           res.hits.hits[0]._source.frame.type.should.eql('envelope');
@@ -121,7 +123,9 @@ describe('GeoTest', function(){
           count.should.eql(2);
 
           setTimeout(function(){
-            GeoModel.search(getDocOrderedQuery,function(err, res){
+            GeoModel.search({
+              match_all: {}
+            }, {sort: "myId:asc"}, function(err, res){
               if (err) throw err; 
               res.hits.total.should.eql(2);
               res.hits.hits[0]._source.frame.type.should.eql('envelope');
@@ -138,16 +142,19 @@ describe('GeoTest', function(){
 
   it('should be able to search points inside frames', function(done){
     var geoQuery = {
-      "query": {"match_all": {}},
-      "filter": {"geo_shape": {
-        "frame": {
-          "shape": {
-            "type": "point", 
-            "coordinates": [3,1]
-          },
-          "relation": "intersects"
+      filtered: {
+        "query": {"match_all": {}},
+        "filter": {
+          "geo_shape": {
+            "frame": {
+              "shape": {
+                "type": "point", 
+                "coordinates": [3,1]
+              }
+            }
+          }
         }
-      }}
+      }
     }
 
     setTimeout(function(){
@@ -155,18 +162,18 @@ describe('GeoTest', function(){
         if (err) throw err; 
         res.hits.total.should.eql(1);
         res.hits.hits[0]._source.myId.should.eql(2); 
-        geoQuery.filter.geo_shape.frame.shape.coordinates = [1.5,2.5];
+        geoQuery.filtered.filter.geo_shape.frame.shape.coordinates = [1.5,2.5];
         GeoModel.search(geoQuery,function(err, res){
           if (err) throw err; 
           res.hits.total.should.eql(1);
           res.hits.hits[0]._source.myId.should.eql(1); 
 
-          geoQuery.filter.geo_shape.frame.shape.coordinates = [3,2];
+          geoQuery.filtered.filter.geo_shape.frame.shape.coordinates = [3,2];
           GeoModel.search(geoQuery,function(err, res){
             if (err) throw err; 
             res.hits.total.should.eql(2);
 
-            geoQuery.filter.geo_shape.frame.shape.coordinates = [0,3];
+            geoQuery.filtered.filter.geo_shape.frame.shape.coordinates = [0,3];
             GeoModel.search(geoQuery,function(err, res){
               if (err) throw err; 
               res.hits.total.should.eql(0);

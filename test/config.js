@@ -1,4 +1,4 @@
-var esClient  = new(require('elastical').Client)
+var esClient  = new(require('elasticsearch').Client)
   , async = require('async');
 
 const INDEXING_TIMEOUT = 1100;
@@ -8,9 +8,13 @@ module.exports = {
   , indexingTimeout: INDEXING_TIMEOUT
   , deleteIndexIfExists: function(indexes, done){
       async.forEach(indexes, function(index, cb){
-        esClient.indexExists(index, function(err, exists){
+        esClient.indices.exists({
+          index: index
+        }, function(err, exists){
           if(exists){
-            esClient.deleteIndex(index, cb);
+            esClient.indices.delete({
+              index: index
+            }, cb);
           }else{
             cb();
           }

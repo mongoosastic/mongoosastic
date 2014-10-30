@@ -1,6 +1,4 @@
 var mongoose  = require('mongoose')
-  , elastical = require('elastical')
-  , esClient  = new(require('elastical').Client)
   , should    = require('should')
   , config    = require('./config')
   , Schema    = mongoose.Schema
@@ -47,7 +45,7 @@ describe('Synchronize', function(){
       stream.on('close', function(){
         count.should.eql(53);
         setTimeout(function(){
-          Book.search({query:'American'}, function(err, results){
+          Book.search({query_string: {query: 'American'}}, function(err, results){
             results.hits.total.should.eql(2);
             done();
           });
