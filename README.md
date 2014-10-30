@@ -22,6 +22,7 @@ Mongoosastic is a [mongoose](http://mongoosejs.com/) plugin that can automatical
 	- [Creating mappings on-demand](#creating-mappings-on-demand)
 - [Queries](#queries)
 	- [Hydration](#hydration)
+
 ## Installation
 
 ```bash
