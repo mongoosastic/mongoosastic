@@ -40,12 +40,10 @@ describe('Query DSL', function(){
   describe('range', function(){
     it('should be able to find within range', function(done){
       Bond.search({
-        query:{
-          range: {
-            price:{
-              from:20000
-            , to: 30000
-            }
+        range: {
+          price:{
+            from:20000
+          , to: 30000
           }
         }
       }, function(err, res){

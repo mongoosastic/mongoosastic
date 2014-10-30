@@ -37,24 +37,22 @@ describe('Bulk mode', function() {
 			new Book({
 				title: title
 			}).save(cb);
-		}, function() {
-			setTimeout(done, 1200);
-		});
+		}, done)
 	});
 	before(function(done) {
 			Book.findOne({
 				title: 'American Gods'
 			}, function(err, book) {
-				book.remove(function() {
-					setTimeout(done, 1200);
-				});
+				book.remove(done)
 			});
 		});
 	it('should index all objects and support deletions too', function(done) {
-		Book.search({}, function(err, results) {
-			results.should.have.property('hits').with.property('total', 52);
-			done();
-		});
+    setTimeout(function() {
+      Book.search({match_all: {}}, function(err, results) {
+        results.should.have.property('hits').with.property('total', 52);
+        done();
+      });
+    }, 1500)
 	});
 });
 

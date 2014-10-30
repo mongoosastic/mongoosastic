@@ -98,9 +98,7 @@ describe('GeoTest', function(){
       setTimeout(function(){
         // ES request
         GeoModel.search({
-          query: {
-            match_all: {}
-          }
+          match_all: {}
         }, {sort: "myId:asc"}, function(err, res){
           if (err) throw err;                     
           res.hits.total.should.eql(2);      
@@ -126,9 +124,7 @@ describe('GeoTest', function(){
 
           setTimeout(function(){
             GeoModel.search({
-              query: {
-                match_all: {}
-              }
+              match_all: {}
             }, {sort: "myId:asc"}, function(err, res){
               if (err) throw err; 
               res.hits.total.should.eql(2);
@@ -146,16 +142,14 @@ describe('GeoTest', function(){
 
   it('should be able to search points inside frames', function(done){
     var geoQuery = {
-      query: {
-        filtered: {
-          "query": {"match_all": {}},
-          "filter": {
-            "geo_shape": {
-              "frame": {
-                "shape": {
-                  "type": "point", 
-                  "coordinates": [3,1]
-                }
+      filtered: {
+        "query": {"match_all": {}},
+        "filter": {
+          "geo_shape": {
+            "frame": {
+              "shape": {
+                "type": "point", 
+                "coordinates": [3,1]
               }
             }
           }
@@ -168,18 +162,18 @@ describe('GeoTest', function(){
         if (err) throw err; 
         res.hits.total.should.eql(1);
         res.hits.hits[0]._source.myId.should.eql(2); 
-        geoQuery.query.filtered.filter.geo_shape.frame.shape.coordinates = [1.5,2.5];
+        geoQuery.filtered.filter.geo_shape.frame.shape.coordinates = [1.5,2.5];
         GeoModel.search(geoQuery,function(err, res){
           if (err) throw err; 
           res.hits.total.should.eql(1);
           res.hits.hits[0]._source.myId.should.eql(1); 
 
-          geoQuery.query.filtered.filter.geo_shape.frame.shape.coordinates = [3,2];
+          geoQuery.filtered.filter.geo_shape.frame.shape.coordinates = [3,2];
           GeoModel.search(geoQuery,function(err, res){
             if (err) throw err; 
             res.hits.total.should.eql(2);
 
-            geoQuery.query.filtered.filter.geo_shape.frame.shape.coordinates = [0,3];
+            geoQuery.filtered.filter.geo_shape.frame.shape.coordinates = [0,3];
             GeoModel.search(geoQuery,function(err, res){
               if (err) throw err; 
               res.hits.total.should.eql(0);

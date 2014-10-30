@@ -33,7 +33,7 @@ describe('Index Method', function(){
       doc.message = 'I know nodejitsu!';
       doc.index(function(){
         setTimeout(function(){
-          Tweet.search({query: {query_string: {query: 'know'}}}, function(err, res){
+          Tweet.search({query_string: {query: 'know'}}, function(err, res){
             res.hits.hits[0]._source.message.should.eql('I know nodejitsu!');
             done();
           });
@@ -46,7 +46,7 @@ describe('Index Method', function(){
       doc.message = 'I know taebo!';
       doc.index({index: 'public_tweets'}, function(){
         setTimeout(function(){
-          Tweet.search({query: {query_string: {query: 'know'}}}, {index: 'public_tweets'}, function(err, res){
+          Tweet.search({query_string: {query: 'know'}}, {index: 'public_tweets'}, function(err, res){
             res.hits.hits[0]._source.message.should.eql('I know taebo!');
             done();
           });
@@ -59,7 +59,7 @@ describe('Index Method', function(){
       doc.message = 'I know taebo!';
       doc.index({index: 'public_tweets', type: 'utterings'}, function(){
         setTimeout(function(){
-          Tweet.search({query: {query_string: {query: 'know'}}}, {index: 'public_tweets', type: 'utterings'}, function(err, res){
+          Tweet.search({query_string: {query: 'know'}}, {index: 'public_tweets', type: 'utterings'}, function(err, res){
             res.hits.hits[0]._source.message.should.eql('I know taebo!');
             done();
           });

@@ -45,7 +45,7 @@ describe('Synchronize', function(){
       stream.on('close', function(){
         count.should.eql(53);
         setTimeout(function(){
-          Book.search({query: {query_string: {query: 'American'}}}, function(err, results){
+          Book.search({query_string: {query: 'American'}}, function(err, results){
             results.hits.total.should.eql(2);
             done();
           });
