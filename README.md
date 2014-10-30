@@ -3,27 +3,50 @@
 Status](https://secure.travis-ci.org/mongoosastic/mongoosastic.png?branch=master)](http://travis-ci.org/mongoosastic/mongoosastic)
 [![NPM version](https://badge.fury.io/js/mongoosastic.svg)](http://badge.fury.io/js/mongoosastic)
 
-A [mongoose](http://mongoosejs.com/) plugin that indexes models into [elasticsearch](http://www.elasticsearch.org/). I kept
-running into cases where I needed full text search capabilities in my
-mongodb based models only to discover mongodb has none. In addition to
-full text search, I also needed the ability to filter ranges of data
-points in the searches and even highlight matches. For these reasons,
-elastic search was a perfect fit and hence this project. 
+Mongoosastic is a [mongoose](http://mongoosejs.com/) plugin that can automatically index your models into [elasticsearch](http://www.elasticsearch.org/).
 
-
+- [Installation](#installation)
+- [Setup](#setup)
+- [Indexing](#indexing)
+	- [Saving a document](#saving-a-document)
+	- [Indexing nested models](#indexing-nested-models)
+	- [Indexing an existing collection](#indexing-an-existing-collection)
+	- [Bulk indexing](#bulk-indexing)
+	- [Indexing on demand](#indexing-on-demand)
+	- [Truncating an index](#truncating-an-index)
+- [Mapping](#mapping)
+	- [Geo mapping](#geo-mapping)
+		- [Indexing a geo point](#indexing-a-geo-point)
+		- [Indexing a geo shape](#indexing-a-geo-shape)
+	- [Creating mappings on-demand](#creating-mappings-on-demand)
+- [Queries](#queries)
+	- [Hydration](#hydration)
 ## Installation
 
 ```bash
-npm install mongoosastic
-
+npm install -S mongoosastic
 ```
 
-Or add it to your package.json
+## Setup
 
-## Usage
+### Model.plugin(mongoosastic, options)
 
-To make a model indexed into elastic search simply add the plugin.
+Options are:
 
+* `index` - the index in elastic search to use. Defaults to the
+  pluralization of the model name.
+* `type`  - the type this model represents in elastic search. Defaults
+  to the model name.
+* `host` - the host elastic search is running on
+* `port` - the port elastic search is running on
+* `auth` - the authentication needed to reach elastic search server. In the standard format of 'username:password'
+* `protocol` - the protocol the elastic search server uses. Defaults to http
+* `hydrate` - whether or not to lookup results in mongodb before
+* `hydrateOptions` - options to pass into hydrate function
+* `bulk` - size and delay options for bulk indexing
+
+
+To have a model indexed into elastic search simply add the plugin.
 
 ```javascript
 var mongoose     = require('mongoose')
@@ -64,7 +87,40 @@ User.plugin(mongoosastic)
 In this case only the name field
 will be indexed for searching.
 
-####Indexing Nested Models
+Now, by adding the plugin, the model will have a new method called
+`search` which can be used to make simple to complex searches. The `search`
+method accepts [standard elasticsearch query DSL](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-queries.html)
+
+```javascript
+User.search({
+  query_string: {
+    query: "john"
+  }
+}, function(err, results) {
+  // results here
+});
+
+```
+
+## Indexing
+
+### Saving a document
+The indexing takes place after saving inside the mongodb and is a defered process. 
+One can check the end of the indexion catching es-indexed event. 
+
+```javascript
+doc.save(function(err){
+  if (err) throw err;
+  /* Document indexation on going */
+  doc.on('es-indexed', function(err, res){
+    if (err) throw err;
+    /* Document is indexed */
+    });
+  });
+```
+
+
+###Indexing Nested Models
 In order to index nested models you can refer following example.
 
 ```javascript
@@ -85,16 +141,6 @@ var User = new Schema({
 User.plugin(mongoosastic)
 ```
 
-Finally, adding the plugin will add a new method to the model called
-search which can be used to make simple to complex searches. 
-
-```javascript
-
-User.search({query:"john"}, function(err, results) {
-  // results here
-});
-
-```
 
 ### Indexing An Existing Collection
 Already have a mongodb collection that you'd like to index using this
@@ -128,8 +174,6 @@ You can also synchronize a subset of documents based on a query!
 var stream = Book.synchronize({author: 'Arthur C. Clarke'})
 ```
 
-One caveat... synchronization is kinda slow for now. Use with care.
-
 ### Bulk Indexing
 
 You can also specify `bulk` options with mongoose which will utilize elasticsearch's bulk indexing api. This will cause the `synchronize` function to use bulk indexing as well. 
@@ -145,7 +189,38 @@ BookSchema.plugin(mongoosastic, {
 });
 ```
 
-### Per Field Options
+### Indexing On Demand
+You can do on-demand indexes using the `index` function
+
+```javascript
+Dude.findOne({name:'Jeffery Lebowski', function(err, dude){
+  dude.awesome = true;
+  dude.index(function(err, res){
+    console.log("egads! I've been indexed!");
+  });
+});
+```
+
+The index method takes 2 arguments:
+
+* `options` (optional) - {index, type} - the index and type to publish to. Defaults to the standard index and type.
+  the model was setup with.
+* `callback` - callback function to be invoked when model has been
+  indexed.
+
+Note that indexing a model does not mean it will be persisted to
+mongodb. Use save for that.
+
+### Truncating an index
+
+The static method truncate will deleted all documents from the associated index. This method combined with synchronise can be usefull in case of integration tests for example when each test case needs a cleaned up index in ElasticSearch.
+
+```javascript
+GarbageModel.truncate(function(err){...});
+```
+
+## Mapping
+
 Schemas can be configured to have special options per field. These match
 with the existing [field mapping configurations](http://www.elasticsearch.org/guide/reference/mapping/core-types.html) defined by elasticsearch with the only difference being they are all prefixed by "es_". 
 
@@ -165,46 +240,7 @@ This example uses a few other mapping fields... such as null_value and
 type (which overrides whatever value the schema type is, useful if you
 want stronger typing such as float).
 
-#### Creating Mappings for These Features
-The way this can be mapped in elastic search is by creating a mapping
-for the index the model belongs to. Currently to the best of my
-knowledge mappings are create once when creating an index and can only
-be modified by destroying the index. The optionnal first parameter is 
-the settings option for the index (for defining analysers for example or whatever is [there](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/indices-update-settings.html).
-
-As such, creating the mapping is a one time operation and can be done as
-follows (using the BookSchema as an example):
-
-```javascript 
-var BookSchema = new Schema({
-    title: {type:String, es_boost:2.0}
-  , author: {type:String, es_null_value:"Unknown Author"}
-  , publicationDate: {type:Date, es_type:'date'} 
-
-BookSchema.plugin(mongoosastic);
-var Book = mongoose.model('Book', BookSchema);
-Book.createMapping({
-  "analysis" : {
-    "analyzer":{
-      "content":{
-        "type":"custom",
-        "tokenizer":"whitespace"
-      }
-    }
-  }
-},function(err, mapping){
-  // do neat things here
-});
-
-```
-This feature is still a work in progress. As of this writing you'll have
-to manage whether or not you need to create the mapping, mongoosastic
-will make no assumptions and simply attempt to create the mapping. If
-the mapping already exists, an Exception detailing such will be
-populated in the `err` argument. 
-
-#### Mapping options
-There are various types that can be defined in elasticsearch. Check out http://www.elasticsearch.org/guide/reference/mapping/ for more information. Here are examples to the currently possible definitions in mongoosastic:
+There are various mapping options that can be defined in elasticsearch. Check out [http://www.elasticsearch.org/guide/reference/mapping/](http://www.elasticsearch.org/guide/reference/mapping/) for more information. Here are examples to the currently possible definitions in mongoosastic:
 
 ```javascript
 var ExampleSchema = new Schema({
@@ -294,24 +330,24 @@ Notice that the name of the field containing the ES geo data must start by
 #### Indexing a geo point
 
 ```javascript
-    var geo = new GeoModel({
-      …
-      geo_with_lat_lon: { lat: 1, lon: 2}
-      …
-    });
+var geo = new GeoModel({
+  /* … */
+  geo_with_lat_lon: { lat: 1, lon: 2}
+  /* … */
+});
 ```
 
 #### Indexing a geo shape
 
 ```javascript
-    var geo = new GeoModel({
-      …
-      geo_shape:{
-        type:'envelope',
-        coordinates: [[3,4],[1,2] /* Arrays of coord : [[lon,lat],[lon,lat]] */
-      }
-      …
-    });
+var geo = new GeoModel({
+  …
+  geo_shape:{
+    type:'envelope',
+    coordinates: [[3,4],[1,2] /* Arrays of coord : [[lon,lat],[lon,lat]] */
+  }
+  …
+});
 ```
 
 Mapping, indexing and searching example for geo shape can be found in test/geo-test.js
@@ -320,33 +356,68 @@ For example, one can retrieve the list of document where the shape contain a spe
 point (or polygon...)
 
 ```javascript
-    var geoQuery = {
-      "query": {"match_all": {}},
-      "filter": {"geo_shape": {
-        "geo_shape": {
-          "shape": {
-            "type": "point", 
-            "coordinates": [3,1]
-          },
-          "relation": "intersects"
-        }
-      }}
+var geoQuery = {
+      "match_all": {}
     }
+
+var geoFilter = {
+      geo_shape: {
+        geo_shape": {
+          shape: {
+            type: "point", 
+            coordinates: [3,1]
+          }
+        }
+      }
+    }
+
+GeoModel.search(geoQuery, {filter: geoFilter}, function(err, res) { /* ... */ })
 ```
 
-### Advanced Queries
+### Creating Mappings On Demand
+Creating the mapping is a one time operation and can be done as
+follows (using the BookSchema as an example):
+
+```javascript 
+var BookSchema = new Schema({
+    title: {type:String, es_boost:2.0}
+  , author: {type:String, es_null_value:"Unknown Author"}
+  , publicationDate: {type:Date, es_type:'date'} 
+
+BookSchema.plugin(mongoosastic);
+var Book = mongoose.model('Book', BookSchema);
+Book.createMapping({
+  "analysis" : {
+    "analyzer":{
+      "content":{
+        "type":"custom",
+        "tokenizer":"whitespace"
+      }
+    }
+  }
+},function(err, mapping){
+  // do neat things here
+});
+
+```
+This feature is still a work in progress. As of this writing you'll have
+to manage whether or not you need to create the mapping, mongoosastic
+will make no assumptions and simply attempt to create the mapping. If
+the mapping already exists, an Exception detailing such will be
+populated in the `err` argument. 
+
+
+## Queries
 The full query DSL of elasticsearch is exposed through the search
 method. For example, if you wanted to find all people between ages 21
 and 30:
 
 ```javascript
 Person.search({
-  query:{
-    range: {
-      age:{
-        from:21
-      , to: 30
-      }
+  range: {
+    age:{
+      from:21
+    , to: 30
     }
   }
 }, function(err, people){
@@ -354,8 +425,18 @@ Person.search({
 });
 
 ```
-
 See the elasticsearch [Query DSL](http://www.elasticsearch.org/guide/reference/query-dsl/) docs for more information.
+
+You can also specify query options like [sorts](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-sort.html#search-request-sort)
+
+```javascript
+Person.search({/* ... */}, {sort: "age:asc"}, function(err, people){
+  //sorted results
+});
+```
+
+Options for queries must adhere to the [javascript elasticsearch driver specs](http://www.elasticsearch.org/guide/en/elasticsearch/client/javascript-api/current/api-reference.html#api-search).
+
 
 ### Hydration
 By default objects returned from performing a search will be the objects
@@ -368,7 +449,7 @@ provide {hydrate:true} as the second argument to a search call.
 
 ```javascript
 
-User.search({query:"john"}, {hydrate:true}, function(err, results) {
+User.search({query_string: {query: "john"}}, {hydrate:true}, function(err, results) {
   // results here
 });
 
@@ -379,7 +460,7 @@ how to query for the mongoose object.
 
 ```javascript
 
-User.search({query:"john"}, {hydrate:true, hydrateOptions: {select: 'name age'}}, function(err, results) {
+User.search({query_string: {query: "john"}}, {hydrate:true, hydrateOptions: {select: 'name age'}}, function(err, results) {
   // results here
 });
 
@@ -401,97 +482,4 @@ var User = new Schema({
 })
 
 User.plugin(mongoosastic, {hydrate:true, hydrateOptions: {lean: true}})
-```
-
-
-### Indexing On Demand
-While developing mongoose I came across a scenario where we needed to be
-able to save models (and search them) but a single action would
-"publish" those models to be searched from a public site. To address
-this I create a new method: `index`.
-
-#### Usage
-Usage is as simple as calling index on an existing model.
-
-```javascript
-Dude.findOne({name:'Jeffery Lebowski', function(err, dude){
-  dude.awesome = true;
-  dude.index(function(err, res){
-    console.log("egads! I've been indexed!");
-  });
-});
-```
-
-The index method takes 3 arguments:
-
-* `index` (optional) - the index to publish to. Defaults to the index
-  the model was setup with.
-* `type` (optional) - the type to publish as. Defaults to the type the
-  model was setup with.
-* `callback` - callback function to be invoked when model has been
-  indexed.
-
-Note that indexing a model does not mean it will be persisted to
-mongodb. Use save for that.
-
-### Saving a document
-The indexing takes place after saving inside the mongodb and is a defered process. 
-One can check the end of the indexion catching es-indexed event. 
-
-```javascript
-doc.save(function(err){
-  if (err) throw err;
-  /* Document indexation on going */
-  doc.on('es-indexed', function(err, res){
-    if (err) throw err;
-    /* Document is indexed */
-    });
-  });
-```
-
-### Truncating an index
-
-The static method truncate will deleted all documents from the associated index. This method combined with synchronise can be usefull in case of integration tests for example when each test case needs a cleaned up index in ElasticSearch.
-
-#### Usage
-
-```javascript
-GarbageModel.truncate(function(err){...});
-```
-
-### Model.plugin(mongoosastic, options)
-
-Options are:
-
-* `index` - the index in elastic search to use. Defaults to the
-  pluralization of the model name.
-* `type`  - the type this model represents in elastic search. Defaults
-  to the model name.
-* `host` - the host elastic search is running on
-* `port` - the port elastic search is running on
-* `auth` - the authentication needed to reach elastic search server. In the standard format of 'username:password'
-* `protocol` - the protocol the elastic search server uses. Defaults to http
-* `hydrate` - whether or not to lookup results in mongodb before
-  returning results from a search. Defaults to false.
-* `curlDebug` - elastical debugging. Defaults to false.
-
-Here are all other avaible options invloved in connection to elastic search server: 
-https://ramv.github.io/node-elastical/docs/classes/Client.html
-
-Experimental Options:
-
-#### Specifying Different Index and Type
-Perhaps you have an existing index and you want to specify the index and
-type used to index your document? No problem!!
-
-```javascript
-var SupervisorSchema = new Schema({
-  name: String
-, department: String
-});
-
-SupervisorSchema.plugin(mongoosastic, {index: 'employees', type:'manager'});
-
-var Supervisor = mongoose.model('supervisor', SupervisorSchema);
-
 ```
