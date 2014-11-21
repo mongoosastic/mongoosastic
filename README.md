@@ -215,10 +215,10 @@ mongodb. Use save for that.
 
 ### Truncating an index
 
-The static method truncate will deleted all documents from the associated index. This method combined with synchronise can be usefull in case of integration tests for example when each test case needs a cleaned up index in ElasticSearch.
+The static method `esTruncate` will delete all documents from the associated index. This method combined with synchronise can be usefull in case of integration tests for example when each test case needs a cleaned up index in ElasticSearch.
 
 ```javascript
-GarbageModel.truncate(function(err){...});
+GarbageModel.esTruncate(function(err){...});
 ```
 
 ## Mapping
