@@ -38,7 +38,7 @@ describe('Truncate', function() {
   after(function(done) {
     Dummy.remove(done);
   });
-  describe('truncate', function() {
+  describe('esTruncate', function() {
     it('should be able to truncate all documents', function(done) {
       Dummy.esTruncate(function(err) {
         Dummy.search({
