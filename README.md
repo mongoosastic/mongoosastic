@@ -145,7 +145,7 @@ var User = new Schema({
   , comments: {type:[Comment], es_indexed:true}
 })
 
-User.plugin(mongoosastic)
+User.plugin(mongoosastic.plugin())
 ```
 
 
@@ -188,7 +188,7 @@ You can also specify `bulk` options with mongoose which will utilize elasticsear
 Mongoosastic will wait 1 second (or specified delay) until it has 1000 docs (or specified size) and then perform bulk indexing.
 
 ```javascript
-BookSchema.plugin(mongoosastic, {
+BookSchema.plugin(mongoosastic.plugin(), {
   bulk: {
     size: 10, // preferred number of docs to bulk index
     delay: 100 //milliseconds to wait for enough docs to meet size constraint
@@ -488,7 +488,7 @@ var User = new Schema({
   , city: String
 })
 
-User.plugin(mongoosastic, {hydrate:true, hydrateOptions: {lean: true}})
+User.plugin(mongoosastic.plugin(), {hydrate:true, hydrateOptions: {lean: true}})
 ```
 
 
