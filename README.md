@@ -62,8 +62,7 @@ var User = new Schema({
 })
 var options = {
     host:"localhost",
-    port:9200,
-    modelFieldName:'__model_name__' //This property is used to search for the model, in a multi-index and more types of queries,default value is __model_name__
+    port:9200
 };
 
 User.plugin(mongoosastic.plugin(options))
