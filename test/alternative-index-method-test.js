@@ -5,7 +5,6 @@ var mongoose  = require('mongoose')
   , ObjectId  = Schema.ObjectId
   , mongoosastic = require('../lib/mongoosastic')
   , Tweet = require('./models/tweet');
-
 describe('Index Method', function(){
   before(function(done){
     mongoose.connect(config.mongoUrl, function(){
