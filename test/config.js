@@ -4,7 +4,7 @@ var esClient  = new(require('elasticsearch').Client)
 const INDEXING_TIMEOUT = 1100;
 
 module.exports = {
-    mongoUrl: 'mongodb://localhost/es-test'
+    mongoUrl: 'mongodb://judicy:sa@localhost:27017/es-test'
   , indexingTimeout: INDEXING_TIMEOUT
   , deleteIndexIfExists: function(indexes, done){
       async.forEach(indexes, function(index, cb){

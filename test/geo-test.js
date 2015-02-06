@@ -31,7 +31,7 @@ describe('GeoTest', function(){
               }
           });
 
-        GeoSchema.plugin(mongoosastic);
+        GeoSchema.plugin(mongoosastic.plugin());
         GeoModel = mongoose.model('geodoc', GeoSchema);
         
         GeoModel.createMapping(function(err, mapping){

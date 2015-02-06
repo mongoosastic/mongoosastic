@@ -9,7 +9,7 @@ var mongoose = require('mongoose'),
 var BookSchema = new Schema({
 	title: String
 });
-BookSchema.plugin(mongoosastic, {
+BookSchema.plugin(mongoosastic.plugin(), {
 	bulk: {
 		size: 10,
 		delay: 100

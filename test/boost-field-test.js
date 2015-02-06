@@ -14,7 +14,7 @@ var TweetSchema = new Schema({
   , title: {type:String, es_boost:2.0}
 });
 
-TweetSchema.plugin(mongoosastic);
+TweetSchema.plugin(mongoosastic.plugin());
 var BlogPost = mongoose.model('BlogPost', TweetSchema);
 
 describe('Add Boost Option Per Field', function(){
