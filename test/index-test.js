@@ -28,7 +28,7 @@ var PersonSchema = new Schema({
     , died: {type: Number, es_indexed:true}
   }
 });
-PersonSchema.plugin(mongoosastic, {
+PersonSchema.plugin(mongoosastic.plugin(), {
   index:'people'
 , type: 'dude'
 , hydrate: true
