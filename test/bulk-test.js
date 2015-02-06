@@ -9,12 +9,12 @@ var mongoose = require('mongoose'),
 var BookSchema = new Schema({
 	title: String
 });
-BookSchema.plugin(mongoosastic.plugin(), {
-/*	bulk: {
+BookSchema.plugin(mongoosastic.plugin({
+	bulk: {
 		size: 10,
 		delay: 100
-	}*/
-});
+	}
+}));
 
 var Book = mongoose.model('Book2', BookSchema);
 
