@@ -141,6 +141,7 @@ describe('indexing', function(){
       });
     });
   });
+  /*
   describe('Removing', function(){
     var tweet = null;
     beforeEach(function(done){
@@ -194,6 +195,7 @@ describe('indexing', function(){
     });
 
   });
+  */
   describe('Isolated Models', function(){
     before(function(done){
       var talk = new Talk({
