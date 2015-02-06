@@ -9,7 +9,7 @@ var mongoose  = require('mongoose')
 var BookSchema = new Schema({
   title: String
 });
-BookSchema.plugin(mongoosastic.plugin());
+BookSchema.plugin(mongoosastic);
 
 var Book = mongoose.model('Book', BookSchema);
 

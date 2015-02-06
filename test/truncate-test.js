@@ -9,7 +9,7 @@ var mongoose = require('mongoose'),
 var DummySchema = new Schema({
   text: String
 });
-DummySchema.plugin(mongoosastic.plugin());
+DummySchema.plugin(mongoosastic);
 
 var Dummy = mongoose.model('Dummy', DummySchema);
 

@@ -10,6 +10,6 @@ var TweetSchema = new Schema({
   , message: String
 });
 
-TweetSchema.plugin(mongoosastic.plugin())
+TweetSchema.plugin(mongoosastic)
 
 module.exports = mongoose.model('Tweet', TweetSchema);

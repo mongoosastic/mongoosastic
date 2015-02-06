@@ -15,7 +15,7 @@ var TalkSchema = new Schema({
   , abstract: {type:String, es_indexed:true}
   , bio: String
 });
-TalkSchema.plugin(mongoosastic.plugin())
+TalkSchema.plugin(mongoosastic)
 
 var Talk = mongoose.model("Talk", TalkSchema);
 
@@ -28,7 +28,7 @@ var PersonSchema = new Schema({
     , died: {type: Number, es_indexed:true}
   }
 });
-PersonSchema.plugin(mongoosastic.plugin(), {
+PersonSchema.plugin(mongoosastic, {
   index:'people'
 , type: 'dude'
 , hydrate: true
@@ -141,7 +141,6 @@ describe('indexing', function(){
       });
     });
   });
-  /*
   describe('Removing', function(){
     var tweet = null;
     beforeEach(function(done){
@@ -195,7 +194,6 @@ describe('indexing', function(){
     });
 
   });
-  */
   describe('Isolated Models', function(){
     before(function(done){
       var talk = new Talk({
@@ -358,7 +356,7 @@ describe('indexing', function(){
       var BumSchema = new Schema({
         name: String
       });
-      BumSchema.plugin(mongoosastic.plugin(), {
+      BumSchema.plugin(mongoosastic, {
           index: 'ms_sample'
         , type: 'bum'
       });

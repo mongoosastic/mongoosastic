@@ -9,12 +9,12 @@ var mongoose = require('mongoose'),
 var BookSchema = new Schema({
 	title: String
 });
-BookSchema.plugin(mongoosastic.plugin({
+BookSchema.plugin(mongoosastic, {
 	bulk: {
 		size: 10,
 		delay: 100
 	}
-}));
+});
 
 var Book = mongoose.model('Book2', BookSchema);
 
@@ -52,7 +52,7 @@ describe('Bulk mode', function() {
         results.should.have.property('hits').with.property('total', 52);
         done();
       });
-    }, 2000)
+    }, 3000)
 	});
 });
 

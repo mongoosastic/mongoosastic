@@ -12,7 +12,7 @@ var BondSchema = new Schema({
   , price: Number
 });
 
-BondSchema.plugin(mongoosastic.plugin());
+BondSchema.plugin(mongoosastic);
 
 var Bond = mongoose.model('Bond', BondSchema);
 
