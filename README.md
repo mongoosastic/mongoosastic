@@ -60,8 +60,13 @@ var User = new Schema({
   , email: String
   , city: String
 })
+var options = {
+    host:"localhost",
+    port:9200,
+    modelFieldName:'__model_name__' //This property is used to search for the model, in a multi-index and more types of queries,default value is __model_name__
+};
 
-User.plugin(mongoosastic)
+User.plugin(mongoosastic.plugin(options))
 ```
 
 This will by default simply use the pluralization of the model name as the index 
@@ -83,7 +88,7 @@ var User = new Schema({
   , city: String
 })
 
-User.plugin(mongoosastic)
+User.plugin(mongoosastic.plugin())
 ```
 
 In this case only the name field
@@ -140,7 +145,7 @@ var User = new Schema({
   , comments: {type:[Comment], es_indexed:true}
 })
 
-User.plugin(mongoosastic)
+User.plugin(mongoosastic.plugin())
 ```
 
 
@@ -183,7 +188,7 @@ You can also specify `bulk` options with mongoose which will utilize elasticsear
 Mongoosastic will wait 1 second (or specified delay) until it has 1000 docs (or specified size) and then perform bulk indexing.
 
 ```javascript
-BookSchema.plugin(mongoosastic, {
+BookSchema.plugin(mongoosastic.plugin(), {
   bulk: {
     size: 10, // preferred number of docs to bulk index
     delay: 100 //milliseconds to wait for enough docs to meet size constraint
@@ -483,5 +488,30 @@ var User = new Schema({
   , city: String
 })
 
-User.plugin(mongoosastic, {hydrate:true, hydrateOptions: {lean: true}})
+User.plugin(mongoosastic.plugin(), {hydrate:true, hydrateOptions: {lean: true}})
+```
+
+
+###Populating
+
+```javascript
+var mongoosastic = require('mongoosastic');
+
+mongoosastic.search({
+    match_all:{}
+},{
+    index:["articles","videos","musics","gallerys"],
+    type:["article","video","music","gallery"],
+    hydrate:true,
+    hydrateOptions:{
+        populate:"tags catgories ..."
+    }
+}, function(err, results) {
+    if(err){
+	console.log(err);
+    } else {
+	console.log(results.hits);
+    }
+});
+
 ```
