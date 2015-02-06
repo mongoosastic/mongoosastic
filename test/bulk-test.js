@@ -52,7 +52,7 @@ describe('Bulk mode', function() {
         results.should.have.property('hits').with.property('total', 52);
         done();
       });
-    }, 3000)
+    }, 8000)
 	});
 });
 
