@@ -15,7 +15,7 @@ var TalkSchema = new Schema({
   , abstract: {type:String, es_indexed:true}
   , bio: String
 });
-TalkSchema.plugin(mongoosastic)
+TalkSchema.plugin(mongoosastic.plugin())
 
 var Talk = mongoose.model("Talk", TalkSchema);
 
@@ -356,7 +356,7 @@ describe('indexing', function(){
       var BumSchema = new Schema({
         name: String
       });
-      BumSchema.plugin(mongoosastic, {
+      BumSchema.plugin(mongoosastic.plugin(), {
           index: 'ms_sample'
         , type: 'bum'
       });
