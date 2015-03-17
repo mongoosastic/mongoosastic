@@ -55,7 +55,7 @@ describe('Bulk mode', function() {
         results.should.have.property('hits').with.property('total', 52);
         done();
       });
-    }, 4000);
+    }, process.env.BULK_TEST_TIMEOUT || 4000);
 	});
 });
 
