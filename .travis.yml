@@ -8,4 +8,4 @@ services:
   - elasticsearch
 
 env:
-  - BULK_TEST_TIMEOUT=20000
+  - BULK_TEST_TIMEOUT=19000
