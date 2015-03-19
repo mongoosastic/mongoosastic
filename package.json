@@ -5,6 +5,7 @@
   "version": "2.0.9",
   "tags": [
     "mongodb",
+    "elasticsearch",
     "elastic search",
     "mongoose",
     "full text search"
@@ -15,17 +16,17 @@
   },
   "main": "lib/mongoosastic.js",
   "dependencies": {
-    "elasticsearch": "^2.4.3",
+    "elasticsearch": "~2.4.x",
     "nop": "^1.0.0"
   },
   "peerDependencies": {
-    "mongoose": "3.8.x"
+    "mongoose": "~3.8.x"
   },
   "devDependencies": {
-    "mocha": "*",
-    "should": "*",
-    "async": "*",
-    "mongoose": "3.8.x"
+    "async": "^0.9.x",
+    "mocha": "^2.2.x",
+    "mongoose": "~3.8.x",
+    "should": "^5.2.x"
   },
   "engines": {
     "node": ">= 0.8.0"
