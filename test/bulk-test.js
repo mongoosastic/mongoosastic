@@ -11,8 +11,8 @@ var BookSchema = new Schema({
 });
 BookSchema.plugin(mongoosastic, {
 	bulk: {
-		size: 10,
-		delay: 100
+		size: 100,
+		delay: 1000
 	}
 });
 
