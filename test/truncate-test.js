@@ -1,9 +1,8 @@
 var mongoose = require('mongoose'),
+  async = require('async'),
   should = require('should'),
   config = require('./config'),
   Schema = mongoose.Schema,
-  ObjectId = Schema.ObjectId,
-  async = require('async'),
   mongoosastic = require('../lib/mongoosastic');
 
 var DummySchema = new Schema({

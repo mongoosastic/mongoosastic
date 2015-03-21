@@ -1,10 +1,9 @@
 var mongoose  = require('mongoose')
   , should    = require('should')
   , config    = require('./config')
-  , Schema    = mongoose.Schema
-  , ObjectId  = Schema.ObjectId
   , mongoosastic = require('../lib/mongoosastic')
-  , Tweet = require('./models/tweet');
+  , Tweet = require('./models/tweet')
+  , Schema    = mongoose.Schema;
 
 describe('Index Method', function(){
   before(function(done){
@@ -13,7 +12,7 @@ describe('Index Method', function(){
         Tweet.remove(function() {
           config.createModelAndEnsureIndex(Tweet, {
               user: 'jamescarr'
-            , message: "I know kung-fu!"
+            , message: 'I know kung-fu!'
             , post_date: new Date()
           }, done);
         })
@@ -41,6 +40,7 @@ describe('Index Method', function(){
       });
     });
   });
+
   it('should be able to index to alternative index', function(done){
     Tweet.findOne({message:'I know kung-fu!'}, function(err, doc){
       doc.message = 'I know taebo!';
@@ -54,6 +54,7 @@ describe('Index Method', function(){
       });
     });
   });
+
   it('should be able to index to alternative index and type', function(done){
     Tweet.findOne({message:'I know kung-fu!'}, function(err, doc){
       doc.message = 'I know taebo!';
@@ -67,4 +68,5 @@ describe('Index Method', function(){
       });
     });
   });
+
 });

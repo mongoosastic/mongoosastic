@@ -1,9 +1,8 @@
 var mongoose  = require('mongoose')
+  , async     = require('async')
   , should    = require('should')
   , config    = require('./config')
   , Schema    = mongoose.Schema
-  , ObjectId  = Schema.ObjectId
-  , async     = require('async')
   , mongoosastic = require('../lib/mongoosastic');
 
 var BondSchema = new Schema({
@@ -27,7 +26,7 @@ describe('Query DSL', function(){
             , new Bond({name:'Construction', type:'B', price:20000})
             , new Bond({name:'Legal', type:'C', price:30000})
           ];
-          async.forEach(bonds, save, function(){
+          async.forEach(bonds, config.saveAndWaitIndex, function(){
             setTimeout(done, config.indexingTimeout);
           });
         });
@@ -56,8 +55,3 @@ describe('Query DSL', function(){
     });
   });
 });
-
-function save(model, cb){
-  model.save();
-  model.on('es-indexed', cb);
-}

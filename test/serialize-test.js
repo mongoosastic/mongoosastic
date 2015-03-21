@@ -1,13 +1,10 @@
-var should    = require('should')
+var mongoose  = require('mongoose')
+  , should    = require('should')
   , generator = new (require('../lib/mapping-generator'))
   , serialize = require('../lib/serialize')
-  , mongoose  = require('mongoose')
-  , Schema    = mongoose.Schema
-  , ObjectId  = Schema.Types.ObjectId;
+  , Schema    = mongoose.Schema;
 
-var BowlingBall = mongoose.model('BowlingBall', new Schema({
-
-}));
+var BowlingBall = mongoose.model('BowlingBall', new Schema);
 var PersonSchema22 = new Schema({
   name: {
       first: String

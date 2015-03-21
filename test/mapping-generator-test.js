@@ -1,8 +1,7 @@
-var Generator = require('../lib/mapping-generator')
-  , mongoose  = require('mongoose')
+var mongoose  = require('mongoose')
   , should    = require('should')
   , Schema    = mongoose.Schema
-  , ObjectId  = Schema.ObjectId
+  , Generator = require('../lib/mapping-generator')
   , generator = new Generator();
 
 describe('MappingGenerator', function(){
@@ -243,7 +242,7 @@ describe('MappingGenerator', function(){
     it('maps all fields when schema has no es_indexed flag', function(done) {
       generator.generateMapping(new Schema({
         implicit_field_1: {type: String},
-        implicit_field_2: {type: Number},
+        implicit_field_2: {type: Number}
       }), function(err, mapping){
         mapping.properties.should.have.property('implicit_field_1');
         mapping.properties.should.have.property('implicit_field_2');

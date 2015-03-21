@@ -3,13 +3,9 @@ var mongoose  = require('mongoose')
   , should    = require('should')
   , config    = require('./config')
   , Schema    = mongoose.Schema
-  , ObjectId  = Schema.ObjectId
   , mongoosastic = require('../lib/mongoosastic');
 
-
 var GeoSchema;
-
-
 var GeoModel;
 
 describe('GeoTest', function(){
@@ -24,9 +20,9 @@ describe('GeoTest', function(){
               type: {type: String},
               geo_shape: {
                 type:String,
-                es_type: "geo_shape",
-                es_tree: "quadtree",
-                es_precision: "1km"
+                es_type: 'geo_shape',
+                es_tree: 'quadtree',
+                es_precision: '1km'
                 }
               }
           });
@@ -72,34 +68,30 @@ describe('GeoTest', function(){
       }
     });
 
-
-    var saveAndWait = function (doc,cb) {
-      doc.save(function(err) {
-        if (err) cb(err);
-        else doc.on('es-indexed', cb );   
-      });
-    };
-
-    saveAndWait(geo,function(err){
+    config.saveAndWaitIndex(geo, function(err){
       if (err) throw err;
-      saveAndWait(geo2,function(err){
+      config.saveAndWaitIndex(geo2, function(err){
         if (err) throw err;
         // Mongodb request
-        GeoModel.find({},function(err, res){
+        GeoModel.find({}, function(err, res) {
           if (err) throw err;
           res.length.should.eql(2);
           res[0].frame.type.should.eql('envelope');
           res[0].frame.coordinates[0].should.eql([1,4]);
           res[0].frame.coordinates[1].should.eql([3,2]);
           done();
-  })})})})
+        })
+      })
+    })
+
+  })
 
   it('should be able to find geo coordinates in the indexes', function(done){      
       setTimeout(function(){
         // ES request
         GeoModel.search({
           match_all: {}
-        }, {sort: "myId:asc"}, function(err, res){
+        }, {sort: 'myId:asc'}, function(err, res){
           if (err) throw err;                     
           res.hits.total.should.eql(2);      
           res.hits.hits[0]._source.frame.type.should.eql('envelope');
@@ -125,7 +117,7 @@ describe('GeoTest', function(){
           setTimeout(function(){
             GeoModel.search({
               match_all: {}
-            }, {sort: "myId:asc"}, function(err, res){
+            }, {sort: 'myId:asc'}, function(err, res){
               if (err) throw err; 
               res.hits.total.should.eql(2);
               res.hits.hits[0]._source.frame.type.should.eql('envelope');
@@ -138,18 +130,18 @@ describe('GeoTest', function(){
     });
   });
   
-
-
   it('should be able to search points inside frames', function(done){
     var geoQuery = {
       filtered: {
-        "query": {"match_all": {}},
-        "filter": {
-          "geo_shape": {
-            "frame": {
-              "shape": {
-                "type": "point", 
-                "coordinates": [3,1]
+        query: {
+          match_all: {}
+        },
+        filter: {
+          geo_shape: {
+            frame: {
+              shape: {
+                type: 'point',
+                coordinates: [3,1]
               }
             }
           }
@@ -185,6 +177,5 @@ describe('GeoTest', function(){
       });
     }, 1000);  
   });
-
 
 });

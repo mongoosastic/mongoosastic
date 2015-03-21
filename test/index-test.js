@@ -1,9 +1,8 @@
 var mongoose  = require('mongoose')
+  , esClient  = new(require('elasticsearch').Client)
   , should    = require('should')
   , config    = require('./config')
   , Schema    = mongoose.Schema
-  , ObjectId  = Schema.ObjectId
-  , esClient  = new(require('elasticsearch').Client)
   , mongoosastic = require('../lib/mongoosastic')
   , Tweet = require('./models/tweet');
 
@@ -17,7 +16,7 @@ var TalkSchema = new Schema({
 });
 TalkSchema.plugin(mongoosastic)
 
-var Talk = mongoose.model("Talk", TalkSchema);
+var Talk = mongoose.model('Talk', TalkSchema);
 
 var PersonSchema = new Schema({
     name: {type:String, es_indexed:true}
@@ -35,7 +34,7 @@ PersonSchema.plugin(mongoosastic, {
 , hydrateOptions: {lean: true, sort: '-name', select: 'address name life'}
 });
 
-var Person = mongoose.model("Person", PersonSchema);
+var Person = mongoose.model('Person', PersonSchema);
 
 // -- alright let's test this shiznit!
 describe('indexing', function(){
@@ -65,8 +64,8 @@ describe('indexing', function(){
       Tweet.createMapping({analysis: {
         analyzer: {
           stem: {
-            tokenizer: "standard",
-            filter: ["standard", "lowercase", "stop", "porter_stem"]
+            tokenizer: 'standard',
+            filter: ['standard', 'lowercase', 'stop', 'porter_stem']
           }
         }
       }
@@ -92,12 +91,12 @@ describe('indexing', function(){
       config.createModelAndEnsureIndex(Tweet, {
           user: 'jamescarr'
         , userId: 1
-        , message: "I like Riak better"
+        , message: 'I like Riak better'
         , post_date: new Date()
       }, done);
     });
-    it("should use the model's id as ES id", function(done){
-      Tweet.findOne({message:"I like Riak better"}, function(err, doc){
+    it('should use the model\'s id as ES id', function(done){
+      Tweet.findOne({message:'I like Riak better'}, function(err, doc){
         esClient.get({
           index: 'tweets',
           type: 'tweet',
@@ -199,13 +198,13 @@ describe('indexing', function(){
       var talk = new Talk({
           speaker: ''
         , year: 2013
-        , title: "Dude"
-        , abstract: ""
+        , title: 'Dude'
+        , abstract: ''
         , bio: ''
       });
       var tweet = new Tweet({
           user: 'Dude'
-        , message: "Go see the big lebowski"
+        , message: 'Go see the big lebowski'
         , post_date: new Date()
       });
       tweet.save(function(){
@@ -237,7 +236,7 @@ describe('indexing', function(){
     before(function(done){
       config.createModelAndEnsureIndex(Person, {
           name: 'James Carr'
-        , address: "Exampleville, MO"
+        , address: 'Exampleville, MO'
         , phone: '(555)555-5555'
       }, done);
     });
@@ -257,8 +256,8 @@ describe('indexing', function(){
       config.createModelAndEnsureIndex(Talk,{
           speaker: 'James Carr'
         , year: 2013
-        , title: "Node.js Rocks"
-        , abstract: "I told you node.js was cool. Listen to me!"
+        , title: 'Node.js Rocks'
+        , abstract: 'I told you node.js was cool. Listen to me!'
         , bio: 'One awesome dude.'
       }, done);
     });
@@ -296,7 +295,7 @@ describe('indexing', function(){
       before(function(done){
         config.createModelAndEnsureIndex(Person, {
             name: 'Bob Carr'
-          , address: "Exampleville, MO"
+          , address: 'Exampleville, MO'
           , phone: '(555)555-5555'
           , life: { born: 1950, other: 2000 }
         }, done);

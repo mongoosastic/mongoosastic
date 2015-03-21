@@ -22,6 +22,8 @@ module.exports = {
       }, done);
     }
   , createModelAndEnsureIndex: createModelAndEnsureIndex
+  , saveAndWaitIndex: saveAndWaitIndex
+  , bookTitlesArray: bookTitlesArray
 };
 
 function createModelAndEnsureIndex(model, obj, cb){
@@ -31,4 +33,23 @@ function createModelAndEnsureIndex(model, obj, cb){
       setTimeout(cb, INDEXING_TIMEOUT);
     });
   });
+}
+
+function saveAndWaitIndex(model, cb){
+  model.save(function(err) {
+    if (err) cb(err);
+    else model.on('es-indexed', cb );
+  });
+}
+
+function bookTitlesArray() {
+  var books = [
+    'American Gods',
+    'Gods of the Old World',
+    'American Gothic'
+  ];
+  for (var i = 0; i < 50; i++) {
+    books.push('ABABABA' + i);
+  }
+  return books;
 }

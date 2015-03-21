@@ -3,7 +3,6 @@ var mongoose  = require('mongoose')
   , should    = require('should')
   , config    = require('./config')
   , Schema    = mongoose.Schema
-  , ObjectId  = Schema.ObjectId
   , mongoosastic = require('../lib/mongoosastic');
 
 
@@ -15,6 +14,7 @@ var TweetSchema = new Schema({
 });
 
 TweetSchema.plugin(mongoosastic);
+
 var BlogPost = mongoose.model('BlogPost', TweetSchema);
 
 describe('Add Boost Option Per Field', function(){

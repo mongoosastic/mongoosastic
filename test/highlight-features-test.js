@@ -1,9 +1,8 @@
 var mongoose  = require('mongoose')
+  , async     = require('async')
   , should    = require('should')
   , config    = require('./config')
   , Schema    = mongoose.Schema
-  , ObjectId  = Schema.ObjectId
-  , async     = require('async')
   , mongoosastic = require('../lib/mongoosastic');
 
 var TextSchema = new Schema({
@@ -41,7 +40,7 @@ describe('Highlight search', function(){
                 quote: 'You don\'t see people at their best in this job, said Death.'
               })
           ];
-          async.forEach(texts, save, function(){
+          async.forEach(texts, config.saveAndWaitIndex, function(){
             setTimeout(done, config.indexingTimeout);
           });
         });
@@ -120,8 +119,3 @@ describe('Highlight search', function(){
 
   });
 });
-
-function save(model, cb){
-  model.save();
-  model.on('es-indexed', cb);
-}
