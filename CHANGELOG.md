@@ -1,3 +1,12 @@
+2.1.0 / 2015-03-21
+===================
+
+  * added multihost connection feature [#56](https://github.com/mongoosastic/mongoosastic/issues/56)
+  * updates to README
+  * lots of smalls code cleaning
+  * Added highlight feature [#51](https://github.com/mongoosastic/mongoosastic/issues/51)
+  * added full CHANGELOG.md
+
 2.0.10 / 2015-03-19
 ===================
 

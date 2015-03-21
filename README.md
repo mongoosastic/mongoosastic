@@ -34,10 +34,10 @@ npm install -S mongoosastic
 
 Options are:
 
-* `index` - the index in Elasticsearch to use. Defaults to the
-  pluralization of the model name.
-* `type`  - the type this model represents in Elasticsearch. Defaults
-  to the model name.
+* `index` - the index in Elasticsearch to use. Defaults to the pluralization of the model name.
+* `type`  - the type this model represents in Elasticsearch. Defaults to the model name.
+* `esClient` - an existing Elasticsearch `Client` instance.
+* `hosts` - an array hosts Elasticsearch is running on.
 * `host` - the host Elasticsearch is running on
 * `port` - the port Elasticsearch is running on
 * `auth` - the authentication needed to reach Elasticsearch server. In the standard format of 'username:password'
@@ -71,7 +71,7 @@ running locally on port 9200).
 
 The default behavior is all fields get indexed into Elasticsearch. This can be a little wasteful especially considering that
 the document is now just being duplicated between mongodb and
-Elasticsearch so you should consider opting to index only certain fields by specifying ''es_indexed'' on the 
+Elasticsearch so you should consider opting to index only certain fields by specifying `es_indexed` on the 
 fields you want to store:
 
 
@@ -85,8 +85,7 @@ var User = new Schema({
 User.plugin(mongoosastic)
 ```
 
-In this case only the name field
-will be indexed for searching.
+In this case only the name field will be indexed for searching.
 
 Now, by adding the plugin, the model will have a new method called
 `search` which can be used to make simple to complex searches. The `search`
@@ -102,6 +101,27 @@ User.search({
 });
 
 ```
+
+To connect to more than one host, you can use an array of hosts. 
+
+```javascript
+MyModel.plugin(mongoosastic, {
+  hosts: [
+    'localhost:9200',
+    'anotherhost:9200'
+  ]
+})
+```
+
+Also, you can re-use an existing Elasticsearch `Client` instance
+
+```javascript
+var esClient = new elasticsearch.Client({host: 'localhost:9200'});
+MyModel.plugin(mongoosastic, {
+  esClient: esClient
+})
+```
+
 
 ## Indexing
 
