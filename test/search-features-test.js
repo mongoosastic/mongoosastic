@@ -1,13 +1,10 @@
 var mongoose  = require('mongoose')
-  , elastical = require('elastical')
+  , async     = require('async')
   , should    = require('should')
   , config    = require('./config')
   , Schema    = mongoose.Schema
-  , ObjectId  = Schema.ObjectId
-  , async     = require('async')
   , mongoosastic = require('../lib/mongoosastic');
 
-var esClient  = new elastical.Client();
 var BondSchema = new Schema({
     name: String
   , type: {type:String, default:'Other Bond'}
@@ -29,8 +26,8 @@ describe('Query DSL', function(){
             , new Bond({name:'Construction', type:'B', price:20000})
             , new Bond({name:'Legal', type:'C', price:30000})
           ];
-          async.forEach(bonds, save, function(){
-            setTimeout(done, 1100);
+          async.forEach(bonds, config.saveAndWaitIndex, function(){
+            setTimeout(done, config.indexingTimeout);
           });
         });
       });
@@ -42,26 +39,19 @@ describe('Query DSL', function(){
   describe('range', function(){
     it('should be able to find within range', function(done){
       Bond.search({
-        query:{
-          range: {
-            price:{
-              from:20000
-            , to: 30000
-            }
+        range: {
+          price:{
+            from:20000
+          , to: 30000
           }
         }
       }, function(err, res){
         res.hits.total.should.eql(2);
         res.hits.hits.forEach(function(bond){
-          ['Legal', 'Construction'].should.include(bond._source.name);
+          ['Legal', 'Construction'].should.containEql(bond._source.name);
         });
         done();
       });
     });
   });
 });
-
-function save(model, cb){
-  model.save();
-  model.on('es-indexed', cb);
-}

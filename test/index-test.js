@@ -1,10 +1,8 @@
 var mongoose  = require('mongoose')
-  , elastical = require('elastical')
+  , esClient  = new(require('elasticsearch').Client)
   , should    = require('should')
   , config    = require('./config')
   , Schema    = mongoose.Schema
-  , ObjectId  = Schema.ObjectId
-  , esClient  = new(require('elastical').Client)
   , mongoosastic = require('../lib/mongoosastic')
   , Tweet = require('./models/tweet');
 
@@ -18,7 +16,7 @@ var TalkSchema = new Schema({
 });
 TalkSchema.plugin(mongoosastic)
 
-var Talk = mongoose.model("Talk", TalkSchema);
+var Talk = mongoose.model('Talk', TalkSchema);
 
 var PersonSchema = new Schema({
     name: {type:String, es_indexed:true}
@@ -36,7 +34,7 @@ PersonSchema.plugin(mongoosastic, {
 , hydrateOptions: {lean: true, sort: '-name', select: 'address name life'}
 });
 
-var Person = mongoose.model("Person", PersonSchema);
+var Person = mongoose.model('Person', PersonSchema);
 
 // -- alright let's test this shiznit!
 describe('indexing', function(){
@@ -62,6 +60,20 @@ describe('indexing', function(){
         done();
       });
     });
+    it('should create index with settings if none exists', function(done){
+      Tweet.createMapping({analysis: {
+        analyzer: {
+          stem: {
+            tokenizer: 'standard',
+            filter: ['standard', 'lowercase', 'stop', 'porter_stem']
+          }
+        }
+      }
+    },function(err, response){
+        response.should.not.have.property('error');
+        done();
+      });
+    });    
     it('should update index if one already exists', function(done){
       Tweet.createMapping(function(err, response){
         response.should.not.have.property('error');
@@ -79,33 +91,47 @@ describe('indexing', function(){
       config.createModelAndEnsureIndex(Tweet, {
           user: 'jamescarr'
         , userId: 1
-        , message: "I like Riak better"
+        , message: 'I like Riak better'
         , post_date: new Date()
       }, done);
     });
-    it("should use the model's id as ES id", function(done){
-      Tweet.findOne({message:"I like Riak better"}, function(err, doc){
-        esClient.get('tweets', doc._id.toString(), function(err, res){
-          res.message.should.eql(doc.message);
+    it('should use the model\'s id as ES id', function(done){
+      Tweet.findOne({message:'I like Riak better'}, function(err, doc){
+        esClient.get({
+          index: 'tweets',
+          type: 'tweet',
+          id: doc._id.toString()
+        }, function(err, res){
+          res._source.message.should.eql(doc.message);
           done()
         });
       });
     });
 
     it('should be able to execute a simple query', function(done){
-      Tweet.search({query:'Riak'}, function(err, results) {
+      Tweet.search({
+        query_string: {
+          query: 'Riak'
+        }
+      }, function(err, results) {
         results.hits.total.should.eql(1)
         results.hits.hits[0]._source.message.should.eql('I like Riak better')
         done();
       });
     });
+
     it('should be able to execute a simple query', function(done){
-      Tweet.search({query:'jamescarr'}, function(err, results) {
+      Tweet.search({
+        query_string: {
+          query: 'jamescarr'
+        }
+      }, function(err, results) {
         results.hits.total.should.eql(1)
         results.hits.hits[0]._source.message.should.eql('I like Riak better')
         done()
       });
     });
+
     it('should report errors', function(done){
       Tweet.search({queriez:'jamescarr'}, function(err, results) {
         err.message.should.match(/SearchPhaseExecutionException/);
@@ -126,21 +152,29 @@ describe('indexing', function(){
     it('should remove from index when model is removed', function(done){
       tweet.remove(function(){
           setTimeout(function(){
-            Tweet.search({query:'shouldnt'}, function(err, res){
+            Tweet.search({
+              query_string: {
+                query: 'shouldnt'
+              }
+            }, function(err, res){
               res.hits.total.should.eql(0);
               done();
             });
-          }, 1100);
+          }, config.indexingTimeout);
       });
     });
     it('should remove only index', function(done){
       tweet.on('es-removed', function(err, res){
         setTimeout(function(){
-          Tweet.search({query:'shouldnt'}, function(err, res){
+          Tweet.search({
+              query_string: {
+                query: 'shouldnt'
+              }
+            }, function(err, res){
             res.hits.total.should.eql(0);
             done();
           });
-        }, 1100);
+        }, config.indexingTimeout);
       });
       tweet.unIndex()
     });
@@ -164,33 +198,33 @@ describe('indexing', function(){
       var talk = new Talk({
           speaker: ''
         , year: 2013
-        , title: "Dude"
-        , abstract: ""
+        , title: 'Dude'
+        , abstract: ''
         , bio: ''
       });
       var tweet = new Tweet({
           user: 'Dude'
-        , message: "Go see the big lebowski"
+        , message: 'Go see the big lebowski'
         , post_date: new Date()
       });
       tweet.save(function(){
         talk.save(function(){
           talk.on('es-indexed', function(err, res){
-            setTimeout(done, 1000);
+            setTimeout(done, config.indexingTimeout);
           });
         });
       });
     });
 
     it('should only find models of type Tweet', function(done){
-      Tweet.search({query:'Dude'}, function(err, res){
+      Tweet.search({query_string: {query: 'Dude'}}, function(err, res){
         res.hits.total.should.eql(1);
         res.hits.hits[0]._source.user.should.eql('Dude');
         done();
       });
     });
     it('should only find models of type Talk', function(done){
-      Talk.search({query:'Dude'}, function(err, res){
+      Talk.search({query_string: {query: 'Dude'}}, function(err, res){
         res.hits.total.should.eql(1);
         res.hits.hits[0]._source.title.should.eql('Dude');
         done();
@@ -202,17 +236,17 @@ describe('indexing', function(){
     before(function(done){
       config.createModelAndEnsureIndex(Person, {
           name: 'James Carr'
-        , address: "Exampleville, MO"
+        , address: 'Exampleville, MO'
         , phone: '(555)555-5555'
       }, done);
     });
 
     it('when gathering search results while respecting default hydrate options', function(done){
-      Person.search({query:'James'}, function(err, res) {
-        res.hits[0].address.should.eql('Exampleville, MO');
-        res.hits[0].name.should.eql('James Carr');
-        res.hits[0].should.not.have.property('phone');
-        res.hits[0].should.not.be.an.instanceof(Person);
+      Person.search({query_string: {query: 'James'}}, function(err, res) {
+        res.hits.hits[0].address.should.eql('Exampleville, MO');
+        res.hits.hits[0].name.should.eql('James Carr');
+        res.hits.hits[0].should.not.have.property('phone');
+        res.hits.hits[0].should.not.be.an.instanceof(Person);
         done();
       });
     });
@@ -222,14 +256,14 @@ describe('indexing', function(){
       config.createModelAndEnsureIndex(Talk,{
           speaker: 'James Carr'
         , year: 2013
-        , title: "Node.js Rocks"
-        , abstract: "I told you node.js was cool. Listen to me!"
+        , title: 'Node.js Rocks'
+        , abstract: 'I told you node.js was cool. Listen to me!'
         , bio: 'One awesome dude.'
       }, done);
     });
 
     it('should only return indexed fields', function(done){
-      Talk.search({query:'cool'}, function(err, res) {
+      Talk.search({query_string: {query: 'cool'}}, function(err, res) {
         res.hits.total.should.eql(1);
 
         var talk = res.hits.hits[0]._source;
@@ -243,10 +277,10 @@ describe('indexing', function(){
     });
 
     it('should hydrate returned documents if desired', function(done){
-      Talk.search({query:'cool'}, {hydrate:true}, function(err, res) {
-        res.total.should.eql(1)
+      Talk.search({query_string: {query: 'cool'}}, {hydrate:true}, function(err, res) {
+        res.hits.total.should.eql(1)
 
-        var talk = res.hits[0]
+        var talk = res.hits.hits[0]
         talk.should.have.property('title')
         talk.should.have.property('year');
         talk.should.have.property('abstract')
@@ -261,32 +295,32 @@ describe('indexing', function(){
       before(function(done){
         config.createModelAndEnsureIndex(Person, {
             name: 'Bob Carr'
-          , address: "Exampleville, MO"
+          , address: 'Exampleville, MO'
           , phone: '(555)555-5555'
           , life: { born: 1950, other: 2000 }
         }, done);
       });
 
       it('should only return indexed fields and have indexed sub-objects', function(done){
-        Person.search({query:'Bob'}, function(err, res) {
-          res.hits[0].address.should.eql('Exampleville, MO');
-          res.hits[0].name.should.eql('Bob Carr');
-          res.hits[0].should.have.property('life');
-          res.hits[0].life.born.should.eql(1950);
-          res.hits[0].life.should.not.have.property('died');
-          res.hits[0].life.should.not.have.property('other');
-          res.hits[0].should.not.have.property('phone');
-          res.hits[0].should.not.be.an.instanceof(Person);
+        Person.search({query_string: {query: 'Bob'}}, function(err, res) {
+          res.hits.hits[0].address.should.eql('Exampleville, MO');
+          res.hits.hits[0].name.should.eql('Bob Carr');
+          res.hits.hits[0].should.have.property('life');
+          res.hits.hits[0].life.born.should.eql(1950);
+          res.hits.hits[0].life.should.not.have.property('died');
+          res.hits.hits[0].life.should.not.have.property('other');
+          res.hits.hits[0].should.not.have.property('phone');
+          res.hits.hits[0].should.not.be.an.instanceof(Person);
           done();
         });
       });
     });
 
     it('should allow extra query options when hydrating', function(done){
-      Talk.search({query:'cool'}, {hydrate:true, hydrateOptions: {lean: true}}, function(err, res) {
-        res.total.should.eql(1)
+      Talk.search({query_string: {query: 'cool'}}, {hydrate:true, hydrateOptions: {lean: true}}, function(err, res) {
+        res.hits.total.should.eql(1)
 
-        var talk = res.hits[0]
+        var talk = res.hits.hits[0]
         talk.should.have.property('title')
         talk.should.have.property('year');
         talk.should.have.property('abstract')
@@ -302,13 +336,18 @@ describe('indexing', function(){
   describe('Existing Index', function(){
     before(function(done){
       config.deleteIndexIfExists(['ms_sample'], function(){
-        esClient.createIndex('ms_sample', {mappings:{
-          bum:{
-            properties: {
-              name: {type:'string'}
+        esClient.indices.create({
+          index: 'ms_sample',
+          body: {
+            mappings:{
+              bum:{
+                properties: {
+                  name: {type:'string'}
+                }
+              }
             }
           }
-        }}, done);
+        }, done);
       });
     });
 
@@ -322,7 +361,7 @@ describe('indexing', function(){
       });
       var Bum = mongoose.model('bum', BumSchema);
       config.createModelAndEnsureIndex(Bum, {name:'Roger Wilson'}, function(){
-        Bum.search({query:'Wilson'}, function(err, results){
+        Bum.search({query_string: {query: 'Wilson'}}, function(err, results){
           results.hits.total.should.eql(1);
           done();
         });

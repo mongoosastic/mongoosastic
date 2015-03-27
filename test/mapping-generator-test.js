@@ -1,8 +1,7 @@
-var Generator = require('../lib/mapping-generator')
-  , mongoose  = require('mongoose')
+var mongoose  = require('mongoose')
   , should    = require('should')
   , Schema    = mongoose.Schema
-  , ObjectId  = Schema.ObjectId
+  , Generator = require('../lib/mapping-generator')
   , generator = new Generator();
 
 describe('MappingGenerator', function(){
@@ -33,11 +32,27 @@ describe('MappingGenerator', function(){
         done();
       });
     });
-    it('removes _id field', function(done){
+    it('removes _id field without prefix', function(done){
       generator.generateMapping(new Schema({
-        _id: {type:Schema.Types.ObjectId}
+        _id: {type: Schema.Types.ObjectId},
+        user: {
+          _id: {type: Schema.Types.ObjectId},
+          name: {type: String}
+        }
       }), function(err, mapping){
         mapping.properties.should.not.have.property('_id');
+        done();
+      });
+    });
+    it('does not remove _id field with prefix', function(done){
+      generator.generateMapping(new Schema({
+        _id: {type: Schema.Types.ObjectId},
+        user: {
+          _id: {type: Schema.Types.ObjectId},
+          name: {type: String}
+        }
+      }), function(err, mapping){
+        mapping.properties.user.properties.should.have.property('_id');
         done();
       });
     });
@@ -75,6 +90,7 @@ describe('MappingGenerator', function(){
         done();
       });
     });
+    
     it('recognizes an multi_field and maps it as one', function(done){
       generator.generateMapping(new Schema({
         test: {
@@ -137,6 +153,38 @@ describe('MappingGenerator', function(){
         done();
       });
     });
+    it('recognizes a nested array with a simple type and maps it as a simple attribute', function(done){
+      generator.generateMapping(new Schema({
+        contacts: [String]
+      }), function(err, mapping){
+        mapping.properties.contacts.type.should.eql('string');
+        done();
+      });
+    });
+    it('recognizes a nested array with a simple type and additional attributes and maps it as a simple attribute', function(done){
+      generator.generateMapping(new Schema({
+        contacts: [{ type: String, es_index: 'not_analyzed' }]
+      }), function(err, mapping){
+        mapping.properties.contacts.type.should.eql('string');
+        mapping.properties.contacts.index.should.eql('not_analyzed');
+        done();
+      });
+    });
+    it('recognizes a nested array with a complex object and maps it', function(done){
+      generator.generateMapping(new Schema({
+        name: String,
+        contacts: [{
+            email: {type: String, es_index: 'not_analyzed' },
+            telephone: String
+        }]
+      }), function(err, mapping){
+        mapping.properties.name.type.should.eql('string');
+        mapping.properties.contacts.properties.email.type.should.eql('string');
+        mapping.properties.contacts.properties.email.index.should.eql('not_analyzed');
+        mapping.properties.contacts.properties.telephone.type.should.eql('string');
+        done();
+      });
+    });
     it('excludes a virtual property from mapping', function(done){
       var PersonSchema = new Schema({
         first_name: {type: String},
@@ -194,7 +242,7 @@ describe('MappingGenerator', function(){
     it('maps all fields when schema has no es_indexed flag', function(done) {
       generator.generateMapping(new Schema({
         implicit_field_1: {type: String},
-        implicit_field_2: {type: Number},
+        implicit_field_2: {type: Number}
       }), function(err, mapping){
         mapping.properties.should.have.property('implicit_field_1');
         mapping.properties.should.have.property('implicit_field_2');

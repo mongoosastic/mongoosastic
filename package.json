@@ -2,29 +2,36 @@
   "author": "James R. Carr <james.r.carr@gmail.com> (http://blog.james-carr.org)",
   "name": "mongoosastic",
   "description": "A mongoose plugin that indexes models into elastic search",
-  "version": "0.2.6",
-  "tags":["mongodb", "elastic search", "mongoose", "full text search"],
+  "version": "2.1.0",
+  "tags": [
+    "mongodb",
+    "elasticsearch",
+    "elastic search",
+    "mongoose",
+    "full text search"
+  ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/jamescarr/mongoosastic"
+    "url": "git://github.com/mongoosastic/mongoosastic"
   },
-  "main":"lib/mongoosastic.js",
+  "main": "lib/mongoosastic.js",
   "dependencies": {
-    "elastical":"0.0.12"
+    "elasticsearch": "^3.1.x",
+    "nop": "^1.0.0"
   },
   "peerDependencies": {
-    "mongoose":"3.8.x"
+    "mongoose": "~3.8.x"
   },
   "devDependencies": {
-      "mocha":"*"
-    , "should":"*"
-    , "async":"*"
-    , "mongoose":"3.8.x"
+    "async": "^0.9.x",
+    "mocha": "^2.2.x",
+    "mongoose": "~3.8.x",
+    "should": "^5.2.x"
   },
   "engines": {
     "node": ">= 0.8.0"
   },
-  "scripts":{
-    "test":"mocha -R spec -t 20000 -b"
+  "scripts": {
+    "test": "mocha -R spec -t 60000 -b"
   }
 }

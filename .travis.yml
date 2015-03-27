@@ -1,12 +1,11 @@
 language: node_js
 
 node_js:
-  - 0.8
+  - 0.10
 
 services:
   - mongodb
   - elasticsearch
 
-notifications:
-  email:
-    - james.r.carr@gmail.com
+env:
+  - BULK_TEST_TIMEOUT=30000

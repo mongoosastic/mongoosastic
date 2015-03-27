@@ -1,10 +1,8 @@
 var mongoose  = require('mongoose')
-  , elastical = require('elastical')
-  , esClient  = new(require('elastical').Client)
+  , esClient  = new(require('elasticsearch').Client)
   , should    = require('should')
   , config    = require('./config')
   , Schema    = mongoose.Schema
-  , ObjectId  = Schema.ObjectId
   , mongoosastic = require('../lib/mongoosastic');
 
 
@@ -16,6 +14,7 @@ var TweetSchema = new Schema({
 });
 
 TweetSchema.plugin(mongoosastic);
+
 var BlogPost = mongoose.model('BlogPost', TweetSchema);
 
 describe('Add Boost Option Per Field', function(){
@@ -29,8 +28,16 @@ describe('Add Boost Option Per Field', function(){
 
   it('should create a mapping with boost field added', function(done){
     BlogPost.createMapping(function(err, mapping){
-      esClient.getMapping('blogposts', 'blogpost', function(err, mapping){
-        var props = mapping.blogpost.properties;
+      esClient.indices.getMapping({
+        index: 'blogposts',
+        type: 'blogpost'
+      }, function(err, mapping){
+
+        /* elasticsearch 1.0 & 0.9 support */
+        var props = mapping.blogpost != undefined ?
+                    mapping.blogpost.properties   : /* ES 0.9.11 */
+                    mapping.blogposts.mappings.blogpost.properties; /* ES 1.0.0 */
+
         props.title.type.should.eql('string');
         props.title.boost.should.eql(2.0);
         done();
