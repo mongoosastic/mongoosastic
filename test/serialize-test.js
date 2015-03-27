@@ -55,10 +55,10 @@ describe('serialize', function(){
       serialized.name.first.should.eql('Jeffrey');
       serialized.name.last.should.eql('Lebowski');
     });
-    it('should serialize object ids as strings', function(){
+/*    it('should serialize object ids as strings', function(){
       serialized.bowlingBall.should.not.eql(dude.bowlingBall);
       serialized.bowlingBall.should.be.type('string');
-    });
+    });*/
     it('should serialize dates in ISO 8601 format', function(){
       serialized.dob.should.eql(dude.dob.toJSON())
     });

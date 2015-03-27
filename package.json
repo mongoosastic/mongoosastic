@@ -20,12 +20,12 @@
     "nop": "^1.0.0"
   },
   "peerDependencies": {
-    "mongoose": "~3.8.x"
+    "mongoose": "~4.0.0"
   },
   "devDependencies": {
     "async": "^0.9.x",
     "mocha": "^2.2.x",
-    "mongoose": "~3.8.x",
+    "mongoose": "~4.0.x",
     "should": "^5.2.x"
   },
   "engines": {

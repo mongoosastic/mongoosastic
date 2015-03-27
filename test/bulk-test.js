@@ -51,7 +51,7 @@ describe('Bulk mode', function() {
     // needs to be taken into account in these tests
     setTimeout(function() {
       Book.search({match_all: {}}, function(err, results) {
-        results.should.have.property('hits').with.property('total', 52);
+        results.should.have.property('hits').with.property('total', 53);
         done();
       });
     }, process.env.BULK_TEST_TIMEOUT || 4000);
