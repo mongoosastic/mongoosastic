@@ -16,7 +16,7 @@
   },
   "main": "lib/mongoosastic.js",
   "dependencies": {
-    "elasticsearch": "^3.1.x",
+    "elasticsearch": "^4.0.x",
     "nop": "^1.0.0"
   },
   "peerDependencies": {

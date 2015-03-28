@@ -187,9 +187,12 @@ describe('indexing', function(){
       });
 
       tweet.save(function(){
-        tweet.remove();
+        setTimeout(function(){
+          tweet.remove();
+          tweet.on('es-removed', done);
+        }, 200)
       });
-      tweet.on('es-removed', done);
+
     });
 
   });
