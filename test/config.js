@@ -1,7 +1,7 @@
 var esClient  = new(require('elasticsearch').Client)
   , async = require('async');
 
-const INDEXING_TIMEOUT = 1100;
+const INDEXING_TIMEOUT = 110;
 
 module.exports = {
     mongoUrl: 'mongodb://localhost/es-test'
@@ -29,16 +29,17 @@ module.exports = {
 function createModelAndEnsureIndex(model, obj, cb){
   var dude = new model(obj);
   dude.save(function(){
-    dude.on('es-indexed', function(err, res){
-      setTimeout(cb, INDEXING_TIMEOUT);
+    dude.on('es-indexed', function(){
+      model.esClient.indices.refresh().then(cb.bind(this, null));
     });
   });
 }
 
 function saveAndWaitIndex(model, cb){
   model.save(function(err) {
-    if (err) cb(err);
-    else model.on('es-indexed', cb );
+    if (err) return cb(err);
+
+    model.on('es-indexed', cb );
   });
 }
 

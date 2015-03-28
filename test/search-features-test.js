@@ -27,7 +27,7 @@ describe('Query DSL', function(){
             , new Bond({name:'Legal', type:'C', price:30000})
           ];
           async.forEach(bonds, config.saveAndWaitIndex, function(){
-            setTimeout(done, config.indexingTimeout);
+            Bond.esClient.indices.refresh().then(done.bind(this, null));
           });
         });
       });

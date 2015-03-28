@@ -1,5 +1,6 @@
 var mongoose  = require('mongoose')
   , async     = require('async')
+  , esClient = new (require('elasticsearch').Client)
   , should    = require('should')
   , config    = require('./config')
   , Schema    = mongoose.Schema
@@ -41,12 +42,13 @@ describe('Highlight search', function(){
               })
           ];
           async.forEach(texts, config.saveAndWaitIndex, function(){
-            setTimeout(done, config.indexingTimeout);
+            esClient.indices.refresh().then(done.bind(this, null));
           });
         });
       });
     });
   });
+
   after(function(done){
     Text.remove(done);
   });
@@ -72,7 +74,6 @@ describe('Highlight search', function(){
           }
         }
       },function(err, res){
-
         res.hits.total.should.eql(3);
         res.hits.hits.forEach(function(text){
           text.should.have.property('highlight');
@@ -114,8 +115,5 @@ describe('Highlight search', function(){
         done();
       });
     });
-
-
-
   });
 });

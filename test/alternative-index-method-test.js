@@ -31,12 +31,12 @@ describe('Index Method', function(){
     Tweet.findOne({message:'I know kung-fu!'}, function(err, doc){
       doc.message = 'I know nodejitsu!';
       doc.index(function(){
-        setTimeout(function(){
+        Tweet.esClient.indices.refresh().then(function(){
           Tweet.search({query_string: {query: 'know'}}, function(err, res){
             res.hits.hits[0]._source.message.should.eql('I know nodejitsu!');
             done();
           });
-        }, config.indexingTimeout);
+        });
       });
     });
   });
@@ -45,12 +45,12 @@ describe('Index Method', function(){
     Tweet.findOne({message:'I know kung-fu!'}, function(err, doc){
       doc.message = 'I know taebo!';
       doc.index({index: 'public_tweets'}, function(){
-        setTimeout(function(){
+        Tweet.esClient.indices.refresh().then(function(){
           Tweet.search({query_string: {query: 'know'}}, {index: 'public_tweets'}, function(err, res){
             res.hits.hits[0]._source.message.should.eql('I know taebo!');
             done();
           });
-        }, config.indexingTimeout);
+        });
       });
     });
   });
@@ -59,14 +59,13 @@ describe('Index Method', function(){
     Tweet.findOne({message:'I know kung-fu!'}, function(err, doc){
       doc.message = 'I know taebo!';
       doc.index({index: 'public_tweets', type: 'utterings'}, function(){
-        setTimeout(function(){
+        Tweet.esClient.indices.refresh().then(function(){
           Tweet.search({query_string: {query: 'know'}}, {index: 'public_tweets', type: 'utterings'}, function(err, res){
             res.hits.hits[0]._source.message.should.eql('I know taebo!');
             done();
           });
-        }, config.indexingTimeout);
+        });
       });
     });
   });
-
 });

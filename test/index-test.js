@@ -14,7 +14,7 @@ var TalkSchema = new Schema({
   , abstract: {type:String, es_indexed:true}
   , bio: String
 });
-TalkSchema.plugin(mongoosastic)
+TalkSchema.plugin(mongoosastic);
 
 var Talk = mongoose.model('Talk', TalkSchema);
 
@@ -151,21 +151,21 @@ describe('indexing', function(){
     });
     it('should remove from index when model is removed', function(done){
       tweet.remove(function(){
-          setTimeout(function(){
-            Tweet.search({
-              query_string: {
-                query: 'shouldnt'
-              }
-            }, function(err, res){
-              res.hits.total.should.eql(0);
-              done();
-            });
-          }, config.indexingTimeout);
+        esClient.indices.refresh().then(function(){
+          Tweet.search({
+            query_string: {
+              query: 'shouldnt'
+            }
+          }, function(err, res){
+            res.hits.total.should.eql(0);
+            done();
+          });
+        });
       });
     });
     it('should remove only index', function(done){
       tweet.on('es-removed', function(err, res){
-        setTimeout(function(){
+        esClient.indices.refresh().then(function(){
           Tweet.search({
               query_string: {
                 query: 'shouldnt'
@@ -174,7 +174,7 @@ describe('indexing', function(){
             res.hits.total.should.eql(0);
             done();
           });
-        }, config.indexingTimeout);
+        });
       });
       tweet.unIndex()
     });
@@ -187,10 +187,10 @@ describe('indexing', function(){
       });
 
       tweet.save(function(){
-        setTimeout(function(){
+        esClient.indices.refresh().then(function(){
           tweet.remove();
           tweet.on('es-removed', done);
-        }, 200)
+        })
       });
 
     });
@@ -212,8 +212,8 @@ describe('indexing', function(){
       });
       tweet.save(function(){
         talk.save(function(){
-          talk.on('es-indexed', function(err, res){
-            setTimeout(done, config.indexingTimeout);
+          talk.on('es-indexed', function(){
+            esClient.indices.refresh().then(done.bind(this, null));
           });
         });
       });

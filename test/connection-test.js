@@ -15,6 +15,7 @@ var Dummy = mongoose.model('Dummy1', DummySchema, 'dummys');
 describe('Elasticsearch Connection', function() {
 
   before(function(done) {
+    var esClient = new elasticsearch.Client;
 
     mongoose.connect(config.mongoUrl, function() {
       Dummy.remove(function() {
@@ -30,7 +31,7 @@ describe('Elasticsearch Connection', function() {
           async.forEach(dummies, function(item, cb) {
             item.save(cb);
           }, function() {
-            setTimeout(done, config.indexingTimeout);
+            esClient.indices.refresh().then(done.bind(this, null));
           });
         });
       });
@@ -102,17 +103,16 @@ describe('Elasticsearch Connection', function() {
 });
 
 function tryDummySearch(model, cb) {
-  setTimeout(function(){
+  model.esClient.indices.refresh().then(function(){
     model.search({
       query_string: {
         query: 'Text1'
       }
     }, function(err, results) {
-      if(err) return cb(err)
+      if(err) return cb(err);
 
       results.hits.total.should.eql(0);
       cb(err);
     });
-  }, config.indexingTimeout);
-
+  })
 }
