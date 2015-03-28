@@ -1,6 +1,5 @@
 var mongoose = require('mongoose'),
   async = require('async'),
-  should = require('should'),
   config = require('./config'),
   Schema = mongoose.Schema,
   mongoosastic = require('../lib/mongoosastic');
@@ -31,20 +30,30 @@ describe('Bulk mode', function() {
       });
     });
   });
+
   before(function(done) {
     async.forEach(config.bookTitlesArray(), function(title, cb) {
       new Book({
         title: title
       }).save(cb);
-    }, done)
+    }, done);
   });
+
   before(function(done) {
     Book.findOne({
       title: 'American Gods'
     }, function(err, book) {
-      book.remove(done)
+      book.remove(done);
     });
   });
+
+  after(function(done) {
+    mongoose.disconnect();
+    Book.esClient.close();
+    done();
+
+  });
+
   it('should index all objects and support deletions too', function(done) {
 
     // This timeout is important, as Elasticsearch is "near-realtime" and the index/deletion takes time that

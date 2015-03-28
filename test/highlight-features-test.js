@@ -1,54 +1,57 @@
-var mongoose  = require('mongoose')
-  , async     = require('async')
-  , should    = require('should')
-  , config    = require('./config')
-  , Schema    = mongoose.Schema
-  , mongoosastic = require('../lib/mongoosastic');
+var mongoose = require('mongoose'),
+  async = require('async'),
+  config = require('./config'),
+  Schema = mongoose.Schema,
+  mongoosastic = require('../lib/mongoosastic');
 
 var TextSchema = new Schema({
-    title: String,
-    quote: String
+  title: String,
+  quote: String
 });
 
 TextSchema.plugin(mongoosastic);
 
 var Text = mongoose.model('Text', TextSchema);
 
-describe('Highlight search', function(){
-  before(function(done){
-    mongoose.connect(config.mongoUrl, function(){
-      Text.remove(function(){
-        config.deleteIndexIfExists(['texts'], function(){
+describe('Highlight search', function() {
+  before(function(done) {
+    mongoose.connect(config.mongoUrl, function() {
+      Text.remove(function() {
+        config.deleteIndexIfExists(['texts'], function() {
 
           // Quotes are from Terry Pratchett's Discworld books
           var texts = [
-              new Text({
-                title: 'The colour of magic',
-                quote: 'The only reason for walking into the jaws of Death is so\'s you can steal his gold teeth'
-              }),
-              new Text({
-                title: 'The Light Fantastic',
-                quote: 'The death of the warrior or the old man or the little child, this I understand, and I take ' +
-                'away the pain and end the suffering. I do not understand this death-of-the-mind'
-              }),
-              new Text({
-                title: 'Equal Rites',
-                quote: 'Time passed, which, basically, is its job'
-              }),
-              new Text({
-                title: 'Mort',
-                quote: 'You don\'t see people at their best in this job, said Death.'
-              })
+            new Text({
+              title: 'The colour of magic',
+              quote: 'The only reason for walking into the jaws of Death is so\'s you can steal his gold teeth'
+            }),
+            new Text({
+              title: 'The Light Fantastic',
+              quote: 'The death of the warrior or the old man or the little child, this I understand, and I take ' +
+              'away the pain and end the suffering. I do not understand this death-of-the-mind'
+            }),
+            new Text({
+              title: 'Equal Rites',
+              quote: 'Time passed, which, basically, is its job'
+            }),
+            new Text({
+              title: 'Mort',
+              quote: 'You don\'t see people at their best in this job, said Death.'
+            })
           ];
-          async.forEach(texts, config.saveAndWaitIndex, function(){
+          async.forEach(texts, config.saveAndWaitIndex, function() {
             setTimeout(done, config.indexingTimeout);
           });
         });
       });
     });
   });
-  after(function(done){
-    Text.remove(done);
+
+  after(function(done) {
+    Text.remove();
+    Text.esClient.close();
+    mongoose.disconnect();
+    done();
   });
 
   var responses = [
@@ -58,42 +61,43 @@ describe('Highlight search', function(){
     'The only reason for walking into the jaws of <em>Death</em> is so\'s you can steal his gold teeth'
   ];
 
-  describe('Highlight without hydrating', function(){
-    it('should return highlighted text on every hit result', function(done){
+  describe('Highlight without hydrating', function() {
+    it('should return highlighted text on every hit result', function(done) {
 
       Text.search({
-          match_phrase: {
-            quote: 'Death'
-          }
+        match_phrase: {
+          quote: 'Death'
+        }
       }, {
         highlight: {
           fields: {
             quote: {}
           }
         }
-      },function(err, res){
+      }, function(err, res) {
 
         res.hits.total.should.eql(3);
-        res.hits.hits.forEach(function(text){
+        res.hits.hits.forEach(function(text) {
           text.should.have.property('highlight');
           text.highlight.should.have.property('quote');
-          text.highlight.quote.forEach(function(q){
-              responses.should.containEql(q);
+          text.highlight.quote.forEach(function(q) {
+            responses.should.containEql(q);
           });
         });
+
         done();
       });
     });
 
   });
 
-  describe('Highlight hydrated results', function(){
-    it('should return highlighted text on every resulting document', function(done){
+  describe('Highlight hydrated results', function() {
+    it('should return highlighted text on every resulting document', function(done) {
 
       Text.search({
-          match_phrase: {
-            quote: 'Death'
-          }
+        match_phrase: {
+          quote: 'Death'
+        }
       }, {
         hydrate: true,
         highlight: {
@@ -101,21 +105,20 @@ describe('Highlight search', function(){
             quote: {}
           }
         }
-      },function(err, res){
+      }, function(err, res) {
 
         res.hits.total.should.eql(3);
-        res.hits.hits.forEach(function(model){
+        res.hits.hits.forEach(function(model) {
           model.should.have.property('_highlight');
           model._highlight.should.have.property('quote');
-          model._highlight.quote.forEach(function(q){
-              responses.should.containEql(q);
+          model._highlight.quote.forEach(function(q) {
+            responses.should.containEql(q);
           });
         });
+
         done();
       });
     });
-
-
 
   });
 });
