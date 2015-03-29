@@ -1,10 +1,10 @@
 var mongoose = require('mongoose'),
   async = require('async'),
   config = require('./config'),
-  should    = require('should'),
   Schema = mongoose.Schema,
-  esClient = new (require('elasticsearch').Client),
   mongoosastic = require('../lib/mongoosastic');
+
+require('should');
 
 var TextSchema = new Schema({
   title: String,
@@ -41,8 +41,8 @@ describe('Highlight search', function() {
               quote: 'You don\'t see people at their best in this job, said Death.'
             })
           ];
-          async.forEach(texts, config.saveAndWaitIndex, function(){
-            esClient.indices.refresh().then(done.bind(this, null));
+          async.forEach(texts, config.saveAndWaitIndex, function() {
+            Text.refresh(done);
           });
         });
       });

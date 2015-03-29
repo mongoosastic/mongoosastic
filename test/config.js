@@ -43,7 +43,7 @@ function createModelAndEnsureIndex(Model, obj, cb) {
   var dude = new Model(obj);
   dude.save(function() {
     dude.on('es-indexed', function() {
-      model.esClient.indices.refresh().then(cb.bind(this, null));
+      Model.refresh(cb);
     });
   });
 }

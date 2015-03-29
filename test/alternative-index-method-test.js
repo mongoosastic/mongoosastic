@@ -27,9 +27,9 @@ describe('Index Method', function() {
   it('should be able to index it directly without saving', function(done) {
     Tweet.findOne({message: 'I know kung-fu!'}, function(err, doc) {
       doc.message = 'I know nodejitsu!';
-      doc.index(function(){
-        Tweet.esClient.indices.refresh().then(function(){
-          Tweet.search({query_string: {query: 'know'}}, function(err, res){
+      doc.index(function() {
+        Tweet.refresh(function() {
+          Tweet.search({query_string: {query: 'know'}}, function(err, res) {
             res.hits.hits[0]._source.message.should.eql('I know nodejitsu!');
             done();
           });
@@ -41,9 +41,9 @@ describe('Index Method', function() {
   it('should be able to index to alternative index', function(done) {
     Tweet.findOne({message: 'I know kung-fu!'}, function(err, doc) {
       doc.message = 'I know taebo!';
-      doc.index({index: 'public_tweets'}, function(){
-        Tweet.esClient.indices.refresh().then(function(){
-          Tweet.search({query_string: {query: 'know'}}, {index: 'public_tweets'}, function(err, res){
+      doc.index({index: 'public_tweets'}, function() {
+        Tweet.refresh(function() {
+          Tweet.search({query_string: {query: 'know'}}, {index: 'public_tweets'}, function(err, res) {
             res.hits.hits[0]._source.message.should.eql('I know taebo!');
             done();
           });
@@ -55,9 +55,12 @@ describe('Index Method', function() {
   it('should be able to index to alternative index and type', function(done) {
     Tweet.findOne({message: 'I know kung-fu!'}, function(err, doc) {
       doc.message = 'I know taebo!';
-      doc.index({index: 'public_tweets', type: 'utterings'}, function(){
-        Tweet.esClient.indices.refresh().then(function(){
-          Tweet.search({query_string: {query: 'know'}}, {index: 'public_tweets', type: 'utterings'}, function(err, res){
+      doc.index({index: 'public_tweets', type: 'utterings'}, function() {
+        Tweet.refresh(function() {
+          Tweet.search({query_string: {query: 'know'}}, {
+            index: 'public_tweets',
+            type: 'utterings'
+          }, function(err, res) {
             res.hits.hits[0]._source.message.should.eql('I know taebo!');
             done();
           });

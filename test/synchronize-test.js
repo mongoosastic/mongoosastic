@@ -51,8 +51,8 @@ describe('Synchronize', function() {
 
       stream.on('close', function() {
         count.should.eql(53);
-        Book.esClient.indices.refresh().then(function(){
-          Book.search({query_string: {query: 'American'}}, function(err, results){
+        Book.refresh(function() {
+          Book.search({query_string: {query: 'American'}}, function(err, results) {
             results.hits.total.should.eql(2);
             done();
           });

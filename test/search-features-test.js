@@ -25,8 +25,8 @@ describe('Query DSL', function() {
             new Bond({name: 'Construction', type: 'B', price: 20000}),
             new Bond({name: 'Legal', type: 'C', price: 30000})
           ];
-          async.forEach(bonds, config.saveAndWaitIndex, function(){
-            Bond.esClient.indices.refresh().then(done.bind(this, null));
+          async.forEach(bonds, config.saveAndWaitIndex, function() {
+            Bond.refresh(done);
           });
         });
       });

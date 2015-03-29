@@ -172,24 +172,24 @@ describe('indexing', function() {
       });
       config.createModelAndEnsureIndex(Tweet, tweet, done);
     });
-    it('should remove from index when model is removed', function(done){
+    it('should remove from index when model is removed', function(done) {
       tweet.remove();
-      tweet.on('es-removed', function(){
-        esClient.indices.refresh().then(function(){
+      tweet.on('es-removed', function() {
+        Tweet.refresh(function() {
           Tweet.search({
             query_string: {
               query: 'shouldnt'
             }
-          }, function(err, res){
+          }, function(err, res) {
             res.hits.total.should.eql(0);
             done();
           });
         });
       });
     });
-    it('should remove only index', function(done){
-      tweet.on('es-removed', function(err, res){
-        esClient.indices.refresh().then(function(){
+    it('should remove only index', function(done) {
+      tweet.on('es-removed', function(err, res) {
+        Tweet.refresh(function() {
           Tweet.search({
             query_string: {
               query: 'shouldnt'
@@ -211,11 +211,11 @@ describe('indexing', function() {
         message: 'ABBA'
       });
 
-      tweet.save(function(){
-        esClient.indices.refresh().then(function(){
+      tweet.save(function() {
+        Tweet.refresh(function() {
           tweet.remove();
           tweet.on('es-removed', done);
-        })
+        });
       });
 
     });
@@ -236,10 +236,10 @@ describe('indexing', function() {
         message: 'Go see the big lebowski',
         post_date: new Date()
       });
-      tweet.save(function(){
-        talk.save(function(){
-          talk.on('es-indexed', function(){
-            esClient.indices.refresh().then(done.bind(this, null));
+      tweet.save(function() {
+        talk.save(function() {
+          talk.on('es-indexed', function() {
+            esClient.indices.refresh(done);
           });
         });
       });

@@ -4,7 +4,7 @@ var mongoose = require('mongoose'),
   config = require('./config'),
   Schema = mongoose.Schema,
   mongoosastic = require('../lib/mongoosastic'),
-  async    = require('async');
+  async = require('async');
 
 var GeoSchema;
 var GeoModel;
@@ -43,7 +43,7 @@ describe('GeoTest', function() {
                 mapping.geodocs.mappings.geodoc /* ES 1.0.0 */
               ).properties.frame.type.should.eql('geo_shape');
 
-              esClient.indices.refresh().then(done.bind(this, null));
+              GeoModel.refresh(done);
             });
           });
         });
@@ -86,19 +86,18 @@ describe('GeoTest', function() {
         if (err) {
           throw err;
         }
-
-        // Mongodb request
-        GeoModel.find({}, function(err, res) {
-          if (err) throw err;
-          res.length.should.eql(2);
-          res[0].frame.type.should.eql('envelope');
-          res[0].frame.coordinates[0].should.eql([1, 4]);
-          res[0].frame.coordinates[1].should.eql([3, 2]);
-
-          esClient.indices.refresh().then(done.bind(this, null));
-        })
-      })
-    })
+        GeoModel.refresh(function() {
+          // Mongodb request
+          GeoModel.find({}, function(err, res) {
+            if (err) throw err;
+            res.length.should.eql(2);
+            res[0].frame.type.should.eql('envelope');
+            res[0].frame.coordinates[0].should.eql([1, 4]);
+            res[0].frame.coordinates[1].should.eql([3, 2]);
+          });
+        });
+      });
+    });
   });
 
   it('should be able to find geo coordinates in the indexes', function(done) {
@@ -126,7 +125,7 @@ describe('GeoTest', function() {
         stream.on('close', function() {
           count.should.eql(2);
 
-          esClient.indices.refresh().then(function(){
+          GeoModel.refresh(function() {
             GeoModel.search({
               match_all: {}
             }, {sort: 'myId:asc'}, function(err, res) {
@@ -161,19 +160,19 @@ describe('GeoTest', function() {
       }
     };
 
-    esClient.indices.refresh().then(function(){
+    GeoModel.refresh(function() {
       async.series([
-        function( next_search ){
+        function(nextSearch) {
           GeoModel.search(geoQuery, function(err, res) {
             if (err) throw err;
             res.hits.total.should.eql(1);
             res.hits.hits[0]._source.myId.should.eql(2);
             geoQuery.filtered.filter.geo_shape.frame.shape.coordinates = [1.5, 2.5];
 
-            next_search();
-          })
+            nextSearch();
+          });
         },
-        function( next_search ){
+        function(nextSearch) {
           GeoModel.search(geoQuery, function(err, res) {
             if (err) throw err;
             res.hits.total.should.eql(1);
@@ -181,23 +180,23 @@ describe('GeoTest', function() {
 
             geoQuery.filtered.filter.geo_shape.frame.shape.coordinates = [3, 2];
 
-            next_search()
+            nextSearch();
           });
         },
-        function( next_search ){
+        function(nextSearch) {
           GeoModel.search(geoQuery, function(err, res) {
             if (err) throw err;
             res.hits.total.should.eql(2);
 
             geoQuery.filtered.filter.geo_shape.frame.shape.coordinates = [0, 3];
-            next_search();
+            nextSearch();
           });
         },
-        function( next_search ){
+        function(nextSearch) {
           GeoModel.search(geoQuery, function(err, res) {
             if (err) throw err;
             res.hits.total.should.eql(0);
-            next_search();
+            nextSearch();
           });
         }
       ], done);
