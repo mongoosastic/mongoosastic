@@ -60,8 +60,8 @@ describe('serialize', function() {
     });
 
     it('should serialize object ids as strings', function() {
-      serialized.bowlingBall.should.not.eql(dude.bowlingBall);
-      serialized.bowlingBall.should.be.type('string');
+      serialized.bowlingBall.should.eql(dude.bowlingBall);
+      serialized.bowlingBall.should.be.type('object');
     });
 
     it('should serialize dates in ISO 8601 format', function() {

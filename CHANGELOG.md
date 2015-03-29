@@ -1,3 +1,13 @@
+3.0.0 / 2015-03-29
+==================
+
+  * mongoose and elasticsearch version bump
+  
+2.1.3 / 2015-03-29
+==================
+
+  * added doc parameter on mongoose hooks
+
 2.1.1 / 2015-03-28
 ===================
 
