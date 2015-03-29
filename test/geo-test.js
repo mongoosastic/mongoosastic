@@ -1,10 +1,10 @@
-var mongoose = require('mongoose')
-  , async    = require('async')
-  , esClient = new (require('elasticsearch').Client)
-  , should = require('should')
-  , config = require('./config')
-  , Schema = mongoose.Schema
-  , mongoosastic = require('../lib/mongoosastic');
+var mongoose = require('mongoose'),
+  elasticsearch = require('elasticsearch'),
+  esClient = new elasticsearch.Client(),
+  config = require('./config'),
+  Schema = mongoose.Schema,
+  mongoosastic = require('../lib/mongoosastic'),
+  async    = require('async');
 
 var GeoSchema;
 var GeoModel;
@@ -38,7 +38,7 @@ describe('GeoTest', function() {
               index: 'geodocs',
               type: 'geodoc'
             }, function(err, mapping) {
-              (mapping.geodoc != undefined ?
+              (mapping.geodoc !== undefined ?
                 mapping.geodoc : /* ES 0.9.11 */
                 mapping.geodocs.mappings.geodoc /* ES 1.0.0 */
               ).properties.frame.type.should.eql('geo_shape');
@@ -52,6 +52,13 @@ describe('GeoTest', function() {
     });
   });
 
+  after(function(done) {
+    GeoModel.esClient.close();
+    mongoose.disconnect();
+    esClient.close();
+    done();
+  });
+
   it('should be able to create and store geo coordinates', function(done) {
 
     var geo = new GeoModel({
@@ -62,7 +69,7 @@ describe('GeoTest', function() {
       }
     });
 
-    geo2 = new GeoModel({
+    var geo2 = new GeoModel({
       myId: 2,
       frame: {
         type: 'envelope',
@@ -71,9 +78,15 @@ describe('GeoTest', function() {
     });
 
     config.saveAndWaitIndex(geo, function(err) {
-      if (err) throw err;
+      if (err) {
+        throw err;
+      }
+
       config.saveAndWaitIndex(geo2, function(err) {
-        if (err) throw err;
+        if (err) {
+          throw err;
+        }
+
         // Mongodb request
         GeoModel.find({}, function(err, res) {
           if (err) throw err;
@@ -103,8 +116,8 @@ describe('GeoTest', function() {
   it('should be able to resync geo coordinates from the database', function(done) {
     config.deleteIndexIfExists(['geodocs'], function() {
       GeoModel.createMapping(function(err, mapping) {
-        var stream = GeoModel.synchronize()
-          , count = 0;
+        var stream = GeoModel.synchronize(),
+          count = 0;
 
         stream.on('data', function(err, doc) {
           count++;

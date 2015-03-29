@@ -1,6 +1,5 @@
 var mongoose = require('mongoose'),
   async = require('async'),
-  should = require('should'),
   elasticsearch = require('elasticsearch'),
   config = require('./config'),
   Schema = mongoose.Schema,
@@ -10,7 +9,6 @@ var DummySchema = new Schema({
   text: String
 });
 var Dummy = mongoose.model('Dummy1', DummySchema, 'dummys');
-
 
 describe('Elasticsearch Connection', function() {
 
@@ -39,7 +37,9 @@ describe('Elasticsearch Connection', function() {
   });
 
   after(function(done) {
-    Dummy.remove(done);
+    Dummy.remove();
+    mongoose.disconnect();
+    done();
   });
 
   it('should be able to connect with default options', function(done) {
@@ -50,7 +50,6 @@ describe('Elasticsearch Connection', function() {
     tryDummySearch(Dummy, done);
 
   });
-
 
   it('should be able to connect with explicit options', function(done) {
 
@@ -85,7 +84,7 @@ describe('Elasticsearch Connection', function() {
 
     esClient.ping({
       requestTimeout: 1000
-    }, function (err) {
+    }, function(err) {
       if (err) {
         return done(err);
       }
@@ -112,6 +111,7 @@ function tryDummySearch(model, cb) {
       if(err) return cb(err);
 
       results.hits.total.should.eql(0);
+      model.esClient.close();
       cb(err);
     });
   })

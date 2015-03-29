@@ -1,6 +1,5 @@
 var mongoose = require('mongoose'),
   async = require('async'),
-  should = require('should'),
   config = require('./config'),
   Schema = mongoose.Schema,
   mongoosastic = require('../lib/mongoosastic');
@@ -23,7 +22,7 @@ describe('Truncate', function() {
             }),
             new Dummy({
               text: 'Text2'
-            }),
+            })
           ];
           async.forEach(dummies, function(item, cb) {
             item.save(cb);
@@ -34,9 +33,14 @@ describe('Truncate', function() {
       });
     });
   });
+
   after(function(done) {
-    Dummy.remove(done);
+    Dummy.remove();
+    Dummy.esClient.close();
+    mongoose.disconnect();
+    done();
   });
+
   describe('esTruncate', function() {
     it('should be able to truncate all documents', function(done) {
       Dummy.esTruncate(function(err) {
