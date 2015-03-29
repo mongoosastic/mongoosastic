@@ -150,7 +150,8 @@ describe('indexing', function(){
       config.createModelAndEnsureIndex(Tweet, tweet, done);
     });
     it('should remove from index when model is removed', function(done){
-      tweet.remove(function(){
+      tweet.remove();
+      tweet.on('es-removed', function(){
         esClient.indices.refresh().then(function(){
           Tweet.search({
             query_string: {
