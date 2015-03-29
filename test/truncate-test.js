@@ -43,14 +43,17 @@ describe('Truncate', function() {
 
   describe('esTruncate', function() {
     it('should be able to truncate all documents', function(done) {
-      Dummy.esTruncate(function(err) {
-        Dummy.search({
-          query_string: {
-            query: 'Text1'
-          }
-        }, function(err, results) {
-          results.hits.total.should.eql(0);
-          done(err);
+      Dummy.esTruncate(function() {
+        Dummy.refresh(function() {
+          Dummy.search({
+            query_string: {
+              query: 'Text1'
+            }
+          }, function(err, results) {
+            results.hits.total.should.eql(0);
+            done(err);
+          });
+
         });
       });
     });

@@ -4,6 +4,8 @@ var mongoose = require('mongoose'),
   Schema = mongoose.Schema,
   mongoosastic = require('../lib/mongoosastic');
 
+require('should');
+
 var TextSchema = new Schema({
   title: String,
   quote: String
@@ -40,7 +42,7 @@ describe('Highlight search', function() {
             })
           ];
           async.forEach(texts, config.saveAndWaitIndex, function() {
-            setTimeout(done, config.indexingTimeout);
+            Text.refresh(done);
           });
         });
       });

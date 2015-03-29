@@ -13,7 +13,6 @@ var Dummy = mongoose.model('Dummy1', DummySchema, 'dummys');
 describe('Elasticsearch Connection', function() {
 
   before(function(done) {
-
     mongoose.connect(config.mongoUrl, function() {
       Dummy.remove(function() {
         config.deleteIndexIfExists(['dummys'], function() {
@@ -28,7 +27,7 @@ describe('Elasticsearch Connection', function() {
           async.forEach(dummies, function(item, cb) {
             item.save(cb);
           }, function() {
-            setTimeout(done, config.indexingTimeout);
+            Dummy.refresh(done);
           });
         });
       });
@@ -101,20 +100,17 @@ describe('Elasticsearch Connection', function() {
 });
 
 function tryDummySearch(model, cb) {
-  setTimeout(function() {
+  model.refresh(function() {
     model.search({
       query_string: {
         query: 'Text1'
       }
     }, function(err, results) {
-      if (err) {
-        return cb(err);
-      }
+      if (err) return cb(err);
 
       results.hits.total.should.eql(0);
       model.esClient.close();
       cb(err);
     });
-  }, config.indexingTimeout);
-
+  });
 }
