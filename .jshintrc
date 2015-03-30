@@ -1,0 +1,17 @@
+{
+  "browser": false,
+  "node": true,
+  "camelcase": false,
+  "eqeqeq": true,
+  "indent": 2,
+  "latedef": false,
+  "newcap": true,
+  "quotmark": "single",
+  "strict": false,
+  "undef": true,
+  "unused": "vars",
+  "eqnull": true,
+  "forin": false,
+  "mocha": true,
+  "esnext": true
+}
