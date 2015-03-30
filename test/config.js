@@ -6,7 +6,7 @@ var elasticsearch = require('elasticsearch'),
   }),
   async = require('async');
 
-const INDEXING_TIMEOUT = process.env.INDEXING_TIMEOUT || 1100;
+const INDEXING_TIMEOUT = process.env.INDEXING_TIMEOUT || 2000;
 
 module.exports = {
   mongoUrl: 'mongodb://localhost/es-test',
