@@ -38,7 +38,7 @@ describe.only('Count', function() {
           async.forEach(comments, function(item, cb) {
             item.save(cb);
           }, function() {
-             setTimeout(done, config.indexingTimeout);
+             setTimeout(done, 2000);
            });
         });
       });
