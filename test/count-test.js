@@ -20,7 +20,7 @@ CommentSchema.plugin(mongoosastic, {
 
 var Comment = mongoose.model('Comment', CommentSchema);
 
-describe.only('Count', function() {
+describe('Count', function() {
   before(function(done) {
     mongoose.connect(config.mongoUrl, function() {
       Comment.remove(function() {
