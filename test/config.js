@@ -13,6 +13,7 @@ module.exports = {
   indexingTimeout: INDEXING_TIMEOUT,
   deleteIndexIfExists: deleteIndexIfExists,
   createModelAndEnsureIndex: createModelAndEnsureIndex,
+  createModelAndSave: createModelAndSave,
   saveAndWaitIndex: saveAndWaitIndex,
   bookTitlesArray: bookTitlesArray,
   getClient: function() {
@@ -46,6 +47,11 @@ function createModelAndEnsureIndex(Model, obj, cb) {
       setTimeout(cb, INDEXING_TIMEOUT);
     });
   });
+}
+
+function createModelAndSave(Model, obj, cb) {
+  var dude = new Model(obj);
+  dude.save(cb);
 }
 
 function saveAndWaitIndex(model, cb) {
