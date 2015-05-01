@@ -1,3 +1,10 @@
+3.1.0 / 2015-05-01
+==================
+
+  * added esCount feature [#58](https://github.com/mongoosastic/mongoosastic/issues/58)
+  * fixed esTruncate  [#69](https://github.com/mongoosastic/mongoosastic/issues/69)
+  * added filtering index logic [#67](https://github.com/mongoosastic/mongoosastic/issues/67)
+
 3.0.0 / 2015-03-29
 ==================
 
