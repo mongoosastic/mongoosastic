@@ -23,16 +23,16 @@
     "mongoose": "^4.x"
   },
   "devDependencies": {
-    "async": "^0.9.x",
+    "async": "^1.0.0",
     "gulp": "^3.8.11",
     "gulp-jscs": "^1.4.0",
     "gulp-jshint": "^1.9.4",
     "gulp-mocha": "^2.0.0",
     "jscs": "^1.12.0",
-    "jshint-stylish": "^1.0.1",
+    "jshint-stylish": "^2.0.0",
     "mocha": "^2.2.x",
     "mongoose": "^4.x",
-    "should": "^5.2.x"
+    "should": "^6.0.3"
   },
   "engines": {
     "node": ">= 0.8.0"
