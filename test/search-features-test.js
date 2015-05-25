@@ -62,72 +62,72 @@ describe('Query DSL', function() {
 
   describe('Sort', function() {
 
-      var getNames = function(i) { return i._source.name; };
-      var expectedDesc = ['Legal', 'Construction', 'Commercial', 'Bail'];
-      var expectedAsc = expectedDesc.concat([]).reverse(); // clone and reverse
+    var getNames = function(i) { return i._source.name; };
+    var expectedDesc = ['Legal', 'Construction', 'Commercial', 'Bail'];
+    var expectedAsc = expectedDesc.concat([]).reverse(); // clone and reverse
 
-      describe('Simple sort', function() {
+    describe('Simple sort', function() {
 
-          it('should be able to return all data, sorted by name ascending', function(done) {
-              Bond.search({
-                  match_all: {}
-              }, {
-                  sort: 'name:asc'
-              }, function(err, res) {
-                  res.hits.total.should.eql(4);
-                  expectedAsc.should.eql(res.hits.hits.map(getNames));
+      it('should be able to return all data, sorted by name ascending', function(done) {
+        Bond.search({
+          match_all: {}
+        }, {
+          sort: 'name:asc'
+        }, function(err, res) {
+          res.hits.total.should.eql(4);
+          expectedAsc.should.eql(res.hits.hits.map(getNames));
 
-                  done();
-              });
-          });
-
-          it('should be able to return all data, sorted by name descending', function(done) {
-              Bond.search({
-                  match_all: {}
-              }, {
-                  sort: ['name:desc']
-              }, function(err, res) {
-                  res.hits.total.should.eql(4);
-                  expectedDesc.should.eql(res.hits.hits.map(getNames));
-
-                  done();
-              });
-          });
+          done();
+        });
       });
 
-      describe('Complex sort', function() {
+      it('should be able to return all data, sorted by name descending', function(done) {
+        Bond.search({
+          match_all: {}
+        }, {
+          sort: ['name:desc']
+        }, function(err, res) {
+          res.hits.total.should.eql(4);
+          expectedDesc.should.eql(res.hits.hits.map(getNames));
 
-          it('should be able to return all data, sorted by name ascending', function(done) {
-              Bond.search({
-                  match_all: {}
-              }, {
-                  sort: {
-                    name: { order: 'asc' }
-                  }
-              }, function(err, res) {
-                  res.hits.total.should.eql(4);
-                  expectedAsc.should.eql(res.hits.hits.map(getNames));
-
-                  done();
-              });
-          });
-
-          it('should be able to return all data, sorted by name descending', function(done) {
-              Bond.search({
-                  match_all: {}
-              }, {
-                  sort: {
-                    name: { order: 'desc' },
-                    type: { order: 'asc' }
-                  }
-              }, function(err, res) {
-                  res.hits.total.should.eql(4);
-                  expectedDesc.should.eql(res.hits.hits.map(getNames));
-
-                  done();
-              });
-          });
+          done();
+        });
       });
+    });
+
+    describe('Complex sort', function() {
+
+      it('should be able to return all data, sorted by name ascending', function(done) {
+        Bond.search({
+          match_all: {}
+        }, {
+          sort: {
+            name: { order: 'asc' }
+          }
+        }, function(err, res) {
+          res.hits.total.should.eql(4);
+          expectedAsc.should.eql(res.hits.hits.map(getNames));
+
+          done();
+        });
+      });
+
+      it('should be able to return all data, sorted by name descending', function(done) {
+        Bond.search({
+          match_all: {}
+        }, {
+          sort: {
+            name: { order: 'desc' },
+            type: { order: 'asc' }
+          }
+        }, function(err, res) {
+          res.hits.total.should.eql(4);
+          expectedDesc.should.eql(res.hits.hits.map(getNames));
+
+          done();
+        });
+      });
+    });
 
   });
 
