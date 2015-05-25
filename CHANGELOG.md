@@ -1,3 +1,15 @@
+3.1.2 / 2015-05-25
+==================
+
+  * added complex sorting object to `search()` options parameters [#79](https://github.com/mongoosastic/mongoosastic/issues/79)
+  * devDependecies updated
+
+3.1.1 / 2015-05-25
+==================
+
+  * fixed index creation [#75](https://github.com/mongoosastic/mongoosastic/issues/75)
+  * added index filtering documentation [#72](https://github.com/mongoosastic/mongoosastic/issues/72)
+
 3.1.0 / 2015-05-01
 ==================
 
