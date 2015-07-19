@@ -1,5 +1,4 @@
 var mongoose = require('mongoose'),
-  should = require('should'),
   config = require('./config'),
   Schema = mongoose.Schema,
   mongoosastic = require('../lib/mongoosastic');

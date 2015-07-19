@@ -103,18 +103,22 @@ describe('Elasticsearch Connection', function() {
 function tryDummySearch(model, cb) {
   setTimeout(function() {
     model.search({
-      query_string: {
-        query: 'Text1'
-      }
-    }, function(err, results) {
-      if (err) {
-        return cb(err);
-      }
+        simple_query_string: {
+          query: 'Text1'
+        }
+      },
+      {
+        index: '_all'
+      },
+      function(err, results) {
+        if (err) {
+          return cb(err);
+        }
 
-      results.hits.total.should.eql(0);
-      model.esClient.close();
-      cb(err);
-    });
+        results.hits.total.should.eql(0);
+        model.esClient.close();
+        cb(err);
+      });
   }, config.indexingTimeout);
 
 }
