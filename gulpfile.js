@@ -20,7 +20,7 @@ gulp.task('mocha', function() {
   return gulp.src(['test/*-test.js'], { read: false })
     .pipe(mocha({
       reporter: 'spec',
-      timeout: 60000,
+      timeout: 600000,
       globals: {
         should: require('should')
       }
