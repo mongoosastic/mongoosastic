@@ -1,3 +1,8 @@
+3.1.3 / 2015-07-19
+==================
+
+  * improves synchronize high memory usage [#84](https://github.com/mongoosastic/mongoosastic/issues/84)
+
 3.1.2 / 2015-05-25
 ==================
 
