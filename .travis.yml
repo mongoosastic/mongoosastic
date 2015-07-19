@@ -2,8 +2,8 @@
 language: node_js
 
 node_js:
-  - 0.10.x
-  - 0.12.x
+  - 0.10
+  - 0.12
   - iojs
 
 services:
