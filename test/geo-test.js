@@ -111,7 +111,7 @@ describe('GeoTest', function() {
         res.hits.hits[0]._source.frame.coordinates.should.eql([[1, 4], [3, 2]]);
         done();
       });
-    }, 1100);
+    }, process.env.BULK_TEST_TIMEOUT || 1100);
   });
 
   it('should be able to resync geo coordinates from the database', function(done) {
@@ -137,7 +137,7 @@ describe('GeoTest', function() {
               res.hits.hits[0]._source.frame.coordinates.should.eql([[1, 4], [3, 2]]);
               done();
             });
-          }, 1000);
+    	  }, process.env.BULK_TEST_TIMEOUT || 1100);
         });
       });
     });
@@ -187,7 +187,7 @@ describe('GeoTest', function() {
           });
         });
       });
-    }, 1000);
+     }, process.env.BULK_TEST_TIMEOUT || 1000);
   });
 
 });
