@@ -1,3 +1,11 @@
+3.1.4 / 2015-07-19
+==================
+
+  * updated package.json dependencies and added "licence" field.
+  * added `iojs` and Node 0.12 to travis environments.
+  * upgraded to new travis infraestructure. 
+  * minor tweaks to improve tests.
+
 3.1.3 / 2015-07-19
 ==================
 
