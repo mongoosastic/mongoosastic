@@ -7,10 +7,12 @@ var elasticsearch = require('elasticsearch'),
   async = require('async');
 
 const INDEXING_TIMEOUT = process.env.INDEXING_TIMEOUT || 2000;
+const BULK_ACTION_TIMEOUT = process.env.BULK_ACTION_TIMEOUT || 4000;
 
 module.exports = {
   mongoUrl: 'mongodb://localhost/es-test',
-  indexingTimeout: INDEXING_TIMEOUT,
+  INDEXING_TIMEOUT: INDEXING_TIMEOUT,
+  BULK_ACTION_TIMEOUT: BULK_ACTION_TIMEOUT,
   deleteIndexIfExists: deleteIndexIfExists,
   createModelAndEnsureIndex: createModelAndEnsureIndex,
   createModelAndSave: createModelAndSave,

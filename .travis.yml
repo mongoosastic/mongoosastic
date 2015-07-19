@@ -12,4 +12,5 @@ services:
   - elasticsearch
 
 env:
-  - BULK_TEST_TIMEOUT=30000
+  - BULK_ACTION_TIMEOUT=30000
+  - INDEXING_TIMEOUT=3000

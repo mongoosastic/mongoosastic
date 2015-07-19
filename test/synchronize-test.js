@@ -56,7 +56,7 @@ describe('Synchronize', function() {
             results.hits.total.should.eql(2);
             done();
           });
-        }, config.indexingTimeout);
+        }, config.INDEXING_TIMEOUT);
       });
     });
 

@@ -33,7 +33,7 @@ describe('Index Method', function() {
             res.hits.hits[0]._source.message.should.eql('I know nodejitsu!');
             done();
           });
-        }, config.indexingTimeout);
+        }, config.INDEXING_TIMEOUT);
       });
     });
   });
@@ -47,7 +47,7 @@ describe('Index Method', function() {
             res.hits.hits[0]._source.message.should.eql('I know taebo!');
             done();
           });
-        }, config.indexingTimeout);
+        }, config.INDEXING_TIMEOUT);
       });
     });
   });
@@ -64,7 +64,7 @@ describe('Index Method', function() {
             res.hits.hits[0]._source.message.should.eql('I know taebo!');
             done();
           });
-        }, config.indexingTimeout);
+        }, config.INDEXING_TIMEOUT);
       });
     });
   });

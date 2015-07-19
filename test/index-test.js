@@ -184,7 +184,7 @@ describe('indexing', function() {
             res.hits.total.should.eql(0);
             done();
           });
-        }, config.indexingTimeout);
+        }, config.INDEXING_TIMEOUT);
       });
     });
 
@@ -199,7 +199,7 @@ describe('indexing', function() {
             res.hits.total.should.eql(0);
             done();
           });
-        }, config.indexingTimeout);
+        }, config.INDEXING_TIMEOUT);
       });
 
       tweet.unIndex();
@@ -239,7 +239,7 @@ describe('indexing', function() {
       tweet.save(function() {
         talk.save(function() {
           talk.on('es-indexed', function(err, res) {
-            setTimeout(done, config.indexingTimeout);
+            setTimeout(done, config.INDEXING_TIMEOUT);
           });
         });
       });
