@@ -131,4 +131,27 @@ describe('Query DSL', function() {
 
   });
 
+  describe('test', function() {
+
+    it('should do a fuzzy query', function(done) {
+      var getNames = function(i) { return i._source.name; };
+
+      Bond.search({
+        match: {
+          name: {
+            query: 'comersial',
+            fuzziness: 2
+          }
+        }
+      }, function(err, res) {
+
+        res.hits.total.should.eql(1);
+        ['Commercial'].should.eql(res.hits.hits.map(getNames));
+        done();
+      });
+
+    });
+
+  });
+
 });
