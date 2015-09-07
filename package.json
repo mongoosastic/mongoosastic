@@ -16,7 +16,7 @@
   },
   "main": "lib/mongoosastic.js",
   "dependencies": {
-    "elasticsearch": "^5.0.0",
+    "elasticsearch": "^8.0.0",
     "mongoose": "^4.0.7",
     "nop": "^1.0.0"
   },
