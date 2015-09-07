@@ -154,6 +154,28 @@ describe('indexing', function() {
       });
     });
 
+    it('should reindex when findOneAndUpdate', function(done) {
+      Tweet.findOneAndUpdate({
+        message: 'I like Riak better'
+      }, {
+        message: 'I like Jack better'
+      }, {
+        new: true
+      }, function(err, doc) {
+        setTimeout(function() {
+          Tweet.search({
+            query_string: {
+              query: 'Jack'
+            }
+          }, function(err, results) {
+            results.hits.total.should.eql(1);
+            results.hits.hits[0]._source.message.should.eql('I like Jack better');
+            done();
+          });
+        }, config.INDEXING_TIMEOUT);
+      });
+    });
+
     it('should report errors', function(done) {
       Tweet.search({queriez: 'jamescarr'}, function(err, results) {
         err.message.should.match(/SearchPhaseExecutionException/);
@@ -217,6 +239,28 @@ describe('indexing', function() {
           tweet.remove();
           tweet.on('es-removed', done);
         }, 200);
+      });
+    });
+
+    it('should remove from index when findOneAndRemove', function(done) {
+      var tweet = new Tweet({
+        user: 'jamescarr',
+        message: 'findOneAndRemove'
+      });
+
+      config.createModelAndEnsureIndex(Tweet, tweet, function() {
+        Tweet.findByIdAndRemove(tweet._id, function() {
+          setTimeout(function() {
+            Tweet.search({
+              query_string: {
+                query: 'findOneAndRemove'
+              }
+            }, function(err, res) {
+              res.hits.total.should.eql(0);
+              done();
+            });
+          }, config.INDEXING_TIMEOUT);
+        });
       });
     });
 
