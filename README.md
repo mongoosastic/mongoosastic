@@ -415,7 +415,7 @@ var geoQuery = {
 
 var geoFilter = {
       geo_shape: {
-        geo_shape": {
+        geo_shape: {
           shape: {
             type: "point", 
             coordinates: [3,1]
