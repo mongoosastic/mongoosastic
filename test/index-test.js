@@ -176,6 +176,20 @@ describe('indexing', function() {
       });
     });
 
+    it('should be able to execute findOneAndUpdate if document doesn\'t exist', function(done) {
+      Tweet.findOneAndUpdate({
+        message: 'Not existing document'
+      }, {
+        message: 'I like Jack better'
+      }, {
+        new: true
+      }, function(err, doc) {
+        should.not.exist(err);
+        should.not.exist(doc);
+        done();
+      });
+    });
+
     it('should report errors', function(done) {
       Tweet.search({queriez: 'jamescarr'}, function(err, results) {
         err.message.should.match(/SearchPhaseExecutionException/);
