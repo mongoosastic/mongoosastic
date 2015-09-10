@@ -9,55 +9,52 @@ var mongoose = require('mongoose'),
   Schema = mongoose.Schema,
   mongoosastic = require('../lib/mongoosastic');
 
-var KittenSchema = new Schema({
-  name: {type: String, es_type: 'completion', es_index_analyzer: 'simple', es_search_analyzer: 'simple', es_indexed: true},
-  breed: {type: String }
-});
-
-KittenSchema.plugin(mongoosastic);
-
-var Kitten = mongoose.model('Kitten', KittenSchema);
-
-Kitten.createMapping();
+var KittenSchema;
+var Kitten;
 
 describe('Suggesters', function() {
   before(function(done) {
     mongoose.connect(config.mongoUrl, function() {
-      Kitten.remove(function() {
-        config.deleteIndexIfExists(['kittens'], function() {
+      config.deleteIndexIfExists(['kittens'], function() {
+          KittenSchema = new Schema({
+            name: {type: String, es_type: 'completion', es_index_analyzer: 'simple', es_search_analyzer: 'simple', es_indexed: true},
+            breed: {type: String }
+          });
+          KittenSchema.plugin(mongoosastic);
           Kitten = mongoose.model('Kitten', KittenSchema);
-          Kitten.createMapping();
-
-          var kittens = [
-            new Kitten({
-              name: 'Cookie',
-              breed: 'Aegean'
-            }),
-            new Kitten({
-              name: 'Chipmunk',
-              breed: 'Aegean'
-            }),
-            new Kitten({
-              name: 'Twix',
-              breed: 'Persian'
-            }),
-            new Kitten({
-              name: 'Cookies and Cream',
-              breed: 'Persian'
-            })
-          ];
-          async.forEach(kittens, config.saveAndWaitIndex, function() {
-            setTimeout(done, config.INDEXING_TIMEOUT);
+          Kitten.createMapping({}, function(err, mapping) {
+            Kitten.remove(function() {
+              var kittens = [
+                new Kitten({
+                  name: 'Cookie',
+                  breed: 'Aegean'
+                }),
+                new Kitten({
+                  name: 'Chipmunk',
+                  breed: 'Aegean'
+                }),
+                new Kitten({
+                  name: 'Twix',
+                  breed: 'Persian'
+                }),
+                new Kitten({
+                  name: 'Cookies and Cream',
+                  breed: 'Persian'
+                })
+              ];
+              async.forEach(kittens, config.saveAndWaitIndex, function() {
+                setTimeout(done, config.INDEXING_TIMEOUT);
+              });
+            });
           });
         });
-      });
     });
   });
 
   after(function(done) {
-    Kitten.remove();
     Kitten.esClient.close();
     mongoose.disconnect();
+    esClient.close();
     done();
   });
 
