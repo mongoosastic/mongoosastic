@@ -1,7 +1,10 @@
 # Mongoosastic
 [![Build Status](https://secure.travis-ci.org/mongoosastic/mongoosastic.png?branch=master)](http://travis-ci.org/mongoosastic/mongoosastic)
-[![NPM version](https://badge.fury.io/js/mongoosastic.svg)](http://badge.fury.io/js/mongoosastic)
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mongoosastic/mongoosastic?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![NPM version](https://img.shields.io/npm/v/mongoosastic.svg)](https://www.npmjs.com/package/mongoosastic)
+[![Downloads](https://img.shields.io/npm/dm/mongoosastic.svg)](https://www.npmjs.com/package/mongoosastic)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mongoosastic/mongoosastic?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
+[![NPM](https://nodei.co/npm/mongoosastic.png)](https://nodei.co/npm/mongoosastic/)
 
 Mongoosastic is a [mongoose](http://mongoosejs.com/) plugin that can automatically index your models into [elasticsearch](http://www.elasticsearch.org/).
 
