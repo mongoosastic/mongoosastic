@@ -2,6 +2,7 @@ var mongoose = require('mongoose'),
   async = require('async'),
   config = require('./config'),
   Schema = mongoose.Schema,
+  Bond,
   mongoosastic = require('../lib/mongoosastic');
 
 var BondSchema = new Schema({
@@ -10,9 +11,10 @@ var BondSchema = new Schema({
   price: Number
 });
 
+
 BondSchema.plugin(mongoosastic);
 
-var Bond = mongoose.model('Bond', BondSchema);
+Bond = mongoose.model('Bond', BondSchema);
 
 describe('Query DSL', function() {
   before(function(done) {
@@ -62,7 +64,7 @@ describe('Query DSL', function() {
 
   describe('Sort', function() {
 
-    var getNames = function(i) { return i._source.name; };
+    var getNames = function(res) { return res._source.name; };
     var expectedDesc = ['Legal', 'Construction', 'Commercial', 'Bail'];
     var expectedAsc = expectedDesc.concat([]).reverse(); // clone and reverse
 
@@ -134,7 +136,7 @@ describe('Query DSL', function() {
   describe('test', function() {
 
     it('should do a fuzzy query', function(done) {
-      var getNames = function(i) { return i._source.name; };
+      var getNames = function(res) { return res._source.name; };
 
       Bond.search({
         match: {

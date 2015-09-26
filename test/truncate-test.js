@@ -2,14 +2,16 @@ var mongoose = require('mongoose'),
   async = require('async'),
   config = require('./config'),
   Schema = mongoose.Schema,
+  Dummy,
   mongoosastic = require('../lib/mongoosastic');
 
 var DummySchema = new Schema({
   text: String
 });
+
 DummySchema.plugin(mongoosastic);
 
-var Dummy = mongoose.model('Dummy', DummySchema);
+Dummy = mongoose.model('Dummy', DummySchema);
 
 describe('Truncate', function() {
   before(function(done) {
@@ -43,7 +45,7 @@ describe('Truncate', function() {
 
   describe('esTruncate', function() {
     it('should be able to truncate all documents', function(done) {
-      Dummy.esTruncate(function(err) {
+      Dummy.esTruncate(function() {
         Dummy.search({
           query_string: {
             query: 'Text1'

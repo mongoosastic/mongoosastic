@@ -2,6 +2,7 @@ var mongoose = require('mongoose'),
   async = require('async'),
   config = require('./config'),
   mongoosastic = require('../lib/mongoosastic'),
+  Book,
   Schema = mongoose.Schema;
 
 var BookSchema = new Schema({
@@ -10,7 +11,7 @@ var BookSchema = new Schema({
 
 BookSchema.plugin(mongoosastic);
 
-var Book = mongoose.model('Book', BookSchema);
+Book = mongoose.model('Book', BookSchema);
 
 describe('Synchronize', function() {
   var books = null;
@@ -45,7 +46,7 @@ describe('Synchronize', function() {
       var stream = Book.synchronize(),
         count = 0;
 
-      stream.on('data', function(err, doc) {
+      stream.on('data', function() {
         count++;
       });
 
