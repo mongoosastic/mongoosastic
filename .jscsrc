@@ -1,8 +1,0 @@
-{
-  "preset": "airbnb",
-  "requireMultipleVarDecl": null,
-  "disallowMultipleVarDecl": null,
-  "requireTrailingComma": null,
-  "requireCamelCaseOrUpperCaseIdentifiers": "ignoreProperties",
-  "requirePaddingNewLinesAfterBlocks": null
-}

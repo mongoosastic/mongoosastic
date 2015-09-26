@@ -2,11 +2,14 @@ var mongoose = require('mongoose'),
   async = require('async'),
   config = require('./config'),
   Schema = mongoose.Schema,
+  Book,
   mongoosastic = require('../lib/mongoosastic');
 
 var BookSchema = new Schema({
   title: String
 });
+
+
 BookSchema.plugin(mongoosastic, {
   bulk: {
     size: 100,
@@ -14,17 +17,15 @@ BookSchema.plugin(mongoosastic, {
   }
 });
 
-var Book = mongoose.model('Book2', BookSchema);
+Book = mongoose.model('Book2', BookSchema);
 
 describe('Bulk mode', function() {
-  var books = null;
 
   before(function(done) {
     config.deleteIndexIfExists(['book2s'], function() {
       mongoose.connect(config.mongoUrl, function() {
         var client = mongoose.connections[0].db;
-        client.collection('book2s', function(err, _books) {
-          books = _books;
+        client.collection('book2s', function() {
           Book.remove(done);
         });
       });

@@ -2,6 +2,7 @@ var mongoose = require('mongoose'),
   async = require('async'),
   config = require('./config'),
   Schema = mongoose.Schema,
+  Text,
   mongoosastic = require('../lib/mongoosastic');
 
 var TextSchema = new Schema({
@@ -11,9 +12,16 @@ var TextSchema = new Schema({
 
 TextSchema.plugin(mongoosastic);
 
-var Text = mongoose.model('Text', TextSchema);
+Text = mongoose.model('Text', TextSchema);
 
 describe('Highlight search', function() {
+  var responses = [
+    'You don\'t see people at their best in this job, said <em>Death</em>.',
+    'The <em>death</em> of the warrior or the old man or the little child, this I understand, and I take away the',
+    ' pain and end the suffering. I do not understand this <em>death</em>-of-the-mind',
+    'The only reason for walking into the jaws of <em>Death</em> is so\'s you can steal his gold teeth'
+  ];
+
   before(function(done) {
     mongoose.connect(config.mongoUrl, function() {
       Text.remove(function() {
@@ -54,13 +62,6 @@ describe('Highlight search', function() {
     done();
   });
 
-  var responses = [
-    'You don\'t see people at their best in this job, said <em>Death</em>.',
-    'The <em>death</em> of the warrior or the old man or the little child, this I understand, and I take away the',
-    ' pain and end the suffering. I do not understand this <em>death</em>-of-the-mind',
-    'The only reason for walking into the jaws of <em>Death</em> is so\'s you can steal his gold teeth'
-  ];
-
   describe('Highlight without hydrating', function() {
     it('should return highlighted text on every hit result', function(done) {
 
@@ -80,8 +81,8 @@ describe('Highlight search', function() {
         res.hits.hits.forEach(function(text) {
           text.should.have.property('highlight');
           text.highlight.should.have.property('quote');
-          text.highlight.quote.forEach(function(q) {
-            responses.should.containEql(q);
+          text.highlight.quote.forEach(function(query) {
+            responses.should.containEql(query);
           });
         });
 
@@ -111,8 +112,8 @@ describe('Highlight search', function() {
         res.hits.hits.forEach(function(model) {
           model.should.have.property('_highlight');
           model._highlight.should.have.property('quote');
-          model._highlight.quote.forEach(function(q) {
-            responses.should.containEql(q);
+          model._highlight.quote.forEach(function(query) {
+            responses.should.containEql(query);
           });
         });
 

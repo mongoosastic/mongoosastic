@@ -2,14 +2,16 @@ var mongoose = require('mongoose'),
   async = require('async'),
   config = require('./config'),
   Schema = mongoose.Schema,
+  Comment,
   mongoosastic = require('../lib/mongoosastic');
 
 var CommentSchema = new Schema({
   user: String,
-  post_date: {type:Date, es_type:'date'},
-  message: {type:String},
-  title: {type:String, es_boost:2.0}
+  post_date: {type: Date, es_type: 'date'},
+  message: {type: String},
+  title: {type: String, es_boost: 2.0}
 });
+
 
 CommentSchema.plugin(mongoosastic, {
   bulk: {
@@ -18,7 +20,7 @@ CommentSchema.plugin(mongoosastic, {
   }
 });
 
-var Comment = mongoose.model('Comment', CommentSchema);
+Comment = mongoose.model('Comment', CommentSchema);
 
 describe('Count', function() {
   before(function(done) {
@@ -38,8 +40,8 @@ describe('Count', function() {
           async.forEach(comments, function(item, cb) {
             item.save(cb);
           }, function() {
-             setTimeout(done, config.INDEXING_TIMEOUT);
-           });
+            setTimeout(done, config.INDEXING_TIMEOUT);
+          });
         });
       });
     });
