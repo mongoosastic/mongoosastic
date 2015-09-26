@@ -31,6 +31,7 @@
     "node": ">= 0.10.0"
   },
   "scripts": {
+    "authors": "./scripts/update_authors.sh",
     "lint": "eslint lib",
     "mocha": "mocha test/*-test.js -R spec -t 600000",
     "test": "npm run lint && npm run mocha"
