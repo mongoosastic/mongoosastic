@@ -22,8 +22,10 @@
   "devDependencies": {
     "async": "^1.4.2",
     "babel-eslint": "^4.1.3",
+    "coveralls": "^2.11.4",
     "eslint": "^1.5.1",
     "eslint-config-airbnb": "0.0.9",
+    "istanbul": "^0.3.21",
     "mocha": "^2.3.3",
     "should": "^7.1.0"
   },
@@ -34,7 +36,8 @@
     "authors": "./scripts/update_authors.sh",
     "lint": "eslint lib",
     "mocha": "mocha test/*-test.js -R spec -t 600000",
-    "test": "npm run lint && npm run mocha"
+    "test": "npm run lint && npm run coverage",
+    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec test/*-test.js -t 600000 && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "license": "MIT"
 }
