@@ -68,22 +68,20 @@ describe('_all Field Option', function() {
     done();
   });
 
-  describe('Testing _all', function() {
-  	it('should map _all field', function(done) {
-      Song = mongoose.model('Song', SongSchema);
-      Song.createMapping(function(){
-        esClient.indices.getMapping({
-          index: 'songs',
-          type: 'song'
-        }, function(err, mapping){
-        	var field = mapping.song !== undefined ? /* elasticsearch 1.0 & 0.9 support */
-        	  mapping.song : /* ES 0.9.11 */
-        	  mapping.songs.mappings.song; /* ES 1.0.0 */
-        	field._all.enabled.should.eql(true);
-        	done();
-        });
+  it('should map _all field', function(done) {
+    Song.createMapping(function(){
+      esClient.indices.getMapping({
+        index: 'songs',
+        type: 'song'
+      }, function(err, mapping){
+      	var field = mapping.song !== undefined ? /* elasticsearch 1.0 & 0.9 support */
+      	  mapping.song : /* ES 0.9.11 */
+      	  mapping.songs.mappings.song; /* ES 1.0.0 */
+      	field._all.enabled.should.eql(true);
+      	done();
       });
-  	});
+    });
   });
+
 });
 
