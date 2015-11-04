@@ -163,6 +163,26 @@ describe('MappingGenerator', function() {
       });
     });
 
+    it('recognizes an es_type of nested with es_fields and maps it', function(done) {
+      var NameSchema = new Schema({
+        first_name: {type: String, es_index: 'not_analyzed'},
+        last_name: {type: String, es_index: 'not_analyzed'}
+      });
+      generator.generateMapping(new Schema({
+        name: {type: [NameSchema], es_indexed: true, es_type: 'nested', es_include_in_parent: true}
+      }), function(err, mapping) {
+        mapping.properties.name.type.should.eql('nested');
+        mapping.properties.name.include_in_parent.should.eql(true);
+        mapping.properties.name.properties.first_name.type.should.eql('string');
+        mapping.properties.name.properties.first_name.index.should.eql('not_analyzed');
+        mapping.properties.name.properties.last_name.type.should.eql('string');
+        mapping.properties.name.properties.last_name.index.should.eql('not_analyzed');
+        should.not.exist(mapping.properties.name.properties.es_include_in_parent);
+        should.not.exist(mapping.properties.name.properties.es_type);
+        done();
+      });
+    });
+
     it('recognizes a nested array with a simple type and maps it as a simple attribute', function(done) {
       generator.generateMapping(new Schema({
         contacts: [String]
