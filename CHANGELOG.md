@@ -1,3 +1,14 @@
+3.4.0 / 2015-11-07
+==================
+  * Merge pull request [#120](https://github.com/mongoosastic/mongoosastic/issues/120) from JasonMore/master
+    Recognizes an es_type of nested with es_fields and maps it
+  * added ability to define a nested type
+  * Merge pull request [#122](https://github.com/mongoosastic/mongoosastic/issues/122) from guumaster/updated-travis-coveralls
+    updated yml config for travisci and coveralls
+  * added coverage script
+  * Update README.md
+  * Create .coveralls.yml
+
 3.3.2 / 2015-09-27
 ==================
 
