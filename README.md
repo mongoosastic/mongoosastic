@@ -59,6 +59,7 @@ Options are:
 * `hydrateOptions` - options to pass into hydrate function
 * `bulk` - size and delay options for bulk indexing
 * `filter` - the function used for filtered indexing
+* `transform` - the function used to transform serialized document before indexing
 
 
 To have a model indexed into Elasticsearch simply add the plugin.
