@@ -20,7 +20,7 @@ MovieSchema.plugin(mongoosastic, {
 Movie = mongoose.model('Movie', MovieSchema);
 
 describe('Filter mode', function() {
-  this.timeout(5000);
+  this.timeout(7000);
 
   before(function(done) {
     config.deleteIndexIfExists(['movies'], function() {
@@ -53,6 +53,24 @@ describe('Filter mode', function() {
       Movie.search({term: {genre: 'action'}}, function(err, results) {
         results.hits.total.should.eql(0);
         done();
+      });
+    });
+  });
+
+  it('should unindex filtered models', function(done) {
+    config.createModelAndEnsureIndex(Movie, {title: 'REC', genre: 'horror'}, function(errSave, movie) {
+      Movie.search({term: {title: 'rec'}}, function(err, results) {
+        results.hits.total.should.eql(1);
+
+        movie.genre = 'action';
+        config.saveAndWaitIndex(movie, function() {
+          setTimeout(function() {
+            Movie.search({term: {title: 'rec'}}, function(errSearch2, results2) {
+              results2.hits.total.should.eql(0);
+              done();
+            });
+          }, config.INDEXING_TIMEOUT);
+        });
       });
     });
   });
