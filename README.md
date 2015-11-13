@@ -177,6 +177,35 @@ var User = new Schema({
 User.plugin(mongoosastic)
 ```
 
+###Elasticsearch [Nested datatype](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/nested.html)
+Since the default in Elasticsearch is to take arrays and flatten them into objects,
+it can make it hard to write queries where you need to maintain the relationships 
+between objects in the array, per .
+The way to change this behavior is by changing the Elasticsearch type from `object` 
+(the mongoosastic default) to `nested`
+
+```javascript
+var Comment = new Schema({
+    title: String
+  , body: String
+  , author: String
+})
+
+
+var User = new Schema({
+    name: {type: String, es_indexed: true}
+  , email: String
+  , city: String
+  , comments: {
+      type:[Comment], 
+      es_indexed: true, 
+      es_type: 'nested', 
+      es_include_in_parent: true
+  }
+})
+
+User.plugin(mongoosastic)
+```
 
 ### Indexing An Existing Collection
 Already have a mongodb collection that you'd like to index using this
