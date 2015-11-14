@@ -522,6 +522,22 @@ Person.search({/* ... */}, {sort: "age:asc"}, function(err, people){
 });
 ```
 
+And also [aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html):
+
+```javascript
+Person.search({/* ... */}, {
+  aggs: {
+    'names': {
+      'terms': {
+        'field': 'name'
+      }
+    }
+  }
+}, function(err, results){
+  // results.aggregations holds the aggregations
+});
+```
+
 Options for queries must adhere to the [javascript elasticsearch driver specs](http://www.elasticsearch.org/guide/en/elasticsearch/client/javascript-api/current/api-reference.html#api-search).
 
 
