@@ -7,8 +7,8 @@ var mongoose = require('mongoose'),
 // -- Only index specific field
 var RepoSchema = new Schema({
   name: {
-    type:String,
-    es_indexed:true
+    type: String,
+    es_indexed: true
   },
   settingLicense: {
     type: String
@@ -49,8 +49,16 @@ describe('Transform mode', function() {
   });
 
   it('should index with field "fullTitle"', function(done) {
-    config.createModelAndEnsureIndex(Repo, {name: 'LOTR', settingLicense: '', detectedLicense: 'Apache'}, function() {
-      Repo.search({query_string: {query: 'Apache'}}, function(err, results) {
+    config.createModelAndEnsureIndex(Repo, {
+      name: 'LOTR',
+      settingLicense: '',
+      detectedLicense: 'Apache'
+    }, function() {
+      Repo.search({
+        query_string: {
+          query: 'Apache'
+        }
+      }, function(err, results) {
         results.hits.total.should.eql(1);
         done();
       });

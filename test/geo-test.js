@@ -17,7 +17,9 @@ describe('GeoTest', function() {
           myId: Number,
           frame: {
             coordinates: [],
-            type: {type: String},
+            type: {
+              type: String
+            },
             geo_shape: {
               type: String,
               es_type: 'geo_shape',
@@ -104,7 +106,9 @@ describe('GeoTest', function() {
       // ES request
       GeoModel.search({
         match_all: {}
-      }, {sort: 'myId:asc'}, function(err, res) {
+      }, {
+        sort: 'myId:asc'
+      }, function(err, res) {
         if (err) throw err;
         res.hits.total.should.eql(2);
         res.hits.hits[0]._source.frame.type.should.eql('envelope');
@@ -130,7 +134,9 @@ describe('GeoTest', function() {
           setTimeout(function() {
             GeoModel.search({
               match_all: {}
-            }, {sort: 'myId:asc'}, function(err, res) {
+            }, {
+              sort: 'myId:asc'
+            }, function(err, res) {
               if (err) throw err;
               res.hits.total.should.eql(2);
               res.hits.hits[0]._source.frame.type.should.eql('envelope');

@@ -27,6 +27,13 @@ Mongoosastic is a [mongoose](http://mongoosejs.com/) plugin that can automatical
 - [Queries](#queries)
   - [Hydration](#hydration)
 
+## Elasticsearch 2.x plugin requirement
+
+```bash
+./bin/plugin install mapper-size
+```
+
+
 ## Installation
 
 The latest version of this package will be as close as possible to the latest `elasticsearch` and `mongoose` packages. If you are working with latest mongoose package, install normally: 
