@@ -133,6 +133,37 @@ describe('Query DSL', function() {
 
   });
 
+  describe('Aggregations', function() {
+
+    describe('Simple aggregation', function() {
+
+      it('should be able to group by term', function(done) {
+        Bond.search({
+          match_all: {}
+        }, {
+          aggs: {
+            'names': {
+              'terms': {
+                'field': 'name'
+              }
+            }
+          }
+        }, function(err, res) {
+          res.aggregations.names.buckets.should.eql([
+            { doc_count: 1, key: 'bail' },
+            { doc_count: 1, key: 'commercial' },
+            { doc_count: 1, key: 'construction' },
+            { doc_count: 1, key: 'legal' }
+          ]);
+
+          done();
+        });
+      });
+
+    });
+
+  });
+
   describe('test', function() {
 
     it('should do a fuzzy query', function(done) {
