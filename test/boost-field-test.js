@@ -11,9 +11,17 @@ var mongoose = require('mongoose'),
 
 var TweetSchema = new Schema({
   user: String,
-  post_date: {type: Date, es_type: 'date'},
-  message: {type: String},
-  title: {type: String, es_boost: 2.0}
+  post_date: {
+    type: Date,
+    es_type: 'date'
+  },
+  message: {
+    type: String
+  },
+  title: {
+    type: String,
+    es_boost: 2.0
+  }
 });
 
 

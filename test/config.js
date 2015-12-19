@@ -59,7 +59,8 @@ function bookTitlesArray() {
       'American Gods',
       'Gods of the Old World',
       'American Gothic'
-    ], idx;
+    ],
+    idx;
   for (idx = 0; idx < 50; idx++) {
     books.push('ABABABA' + idx);
   }
@@ -82,4 +83,3 @@ module.exports = {
     esClient.close();
   }
 };
-

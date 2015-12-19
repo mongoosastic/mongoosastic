@@ -6,8 +6,19 @@ var mongoose = require('mongoose'),
 
 // -- Only index specific field
 var MovieSchema = new Schema({
-  title: {type: String, required: true, default: '', es_indexed: true},
-  genre: {type: String, required: true, default: '', enum: ['horror', 'action', 'adventure', 'other'], es_indexed: true}
+  title: {
+    type: String,
+    required: true,
+    default: '',
+    es_indexed: true
+  },
+  genre: {
+    type: String,
+    required: true,
+    default: '',
+    enum: ['horror', 'action', 'adventure', 'other'],
+    es_indexed: true
+  }
 });
 
 
@@ -40,8 +51,15 @@ describe('Filter mode', function() {
   });
 
   it('should index horror genre', function(done) {
-    config.createModelAndEnsureIndex(Movie, {title: 'LOTR', genre: 'horror'}, function() {
-      Movie.search({term: {genre: 'horror'}}, function(err, results) {
+    config.createModelAndEnsureIndex(Movie, {
+      title: 'LOTR',
+      genre: 'horror'
+    }, function() {
+      Movie.search({
+        term: {
+          genre: 'horror'
+        }
+      }, function(err, results) {
         results.hits.total.should.eql(1);
         done();
       });
@@ -49,8 +67,15 @@ describe('Filter mode', function() {
   });
 
   it('should not index action genre', function(done) {
-    config.createModelAndSave(Movie, {title: 'Man in Black', genre: 'action'}, function() {
-      Movie.search({term: {genre: 'action'}}, function(err, results) {
+    config.createModelAndSave(Movie, {
+      title: 'Man in Black',
+      genre: 'action'
+    }, function() {
+      Movie.search({
+        term: {
+          genre: 'action'
+        }
+      }, function(err, results) {
         results.hits.total.should.eql(0);
         done();
       });
@@ -58,14 +83,25 @@ describe('Filter mode', function() {
   });
 
   it('should unindex filtered models', function(done) {
-    config.createModelAndEnsureIndex(Movie, {title: 'REC', genre: 'horror'}, function(errSave, movie) {
-      Movie.search({term: {title: 'rec'}}, function(err, results) {
+    config.createModelAndEnsureIndex(Movie, {
+      title: 'REC',
+      genre: 'horror'
+    }, function(errSave, movie) {
+      Movie.search({
+        term: {
+          title: 'rec'
+        }
+      }, function(err, results) {
         results.hits.total.should.eql(1);
 
         movie.genre = 'action';
         config.saveAndWaitIndex(movie, function() {
           setTimeout(function() {
-            Movie.search({term: {title: 'rec'}}, function(errSearch2, results2) {
+            Movie.search({
+              term: {
+                title: 'rec'
+              }
+            }, function(errSearch2, results2) {
               results2.hits.total.should.eql(0);
               done();
             });
