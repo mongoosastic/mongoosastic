@@ -17,8 +17,16 @@ describe('Suggesters', function() {
     mongoose.connect(config.mongoUrl, function() {
       config.deleteIndexIfExists(['kittens'], function() {
         KittenSchema = new Schema({
-          name: {type: String, es_type: 'completion', es_index_analyzer: 'simple', es_search_analyzer: 'simple', es_indexed: true},
-          breed: {type: String }
+          name: {
+            type: String,
+            es_type: 'completion',
+            es_index_analyzer: 'simple',
+            es_search_analyzer: 'simple',
+            es_indexed: true
+          },
+          breed: {
+            type: String
+          }
         });
         KittenSchema.plugin(mongoosastic);
         Kitten = mongoose.model('Kitten', KittenSchema);

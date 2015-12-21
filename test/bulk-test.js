@@ -60,7 +60,9 @@ describe('Bulk mode', function() {
     // This timeout is important, as Elasticsearch is "near-realtime" and the index/deletion takes time that
     // needs to be taken into account in these tests
     setTimeout(function() {
-      Book.search({match_all: {}}, function(err, results) {
+      Book.search({
+        match_all: {}
+      }, function(err, results) {
         results.should.have.property('hits').with.property('total', 52);
         done();
       });

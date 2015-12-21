@@ -67,7 +67,7 @@ describe('Elasticsearch Connection', function() {
     var Dummy2;
 
     DummySchema.plugin(mongoosastic);
-    Dummy2= mongoose.model('Dummy2', DummySchema, 'dummys');
+    Dummy2 = mongoose.model('Dummy2', DummySchema, 'dummys');
 
     tryDummySearch(Dummy2, done);
 
@@ -105,7 +105,9 @@ describe('Elasticsearch Connection', function() {
 
   it('should be able to connect with an existing elasticsearch client', function(done) {
 
-    var esClient = new elasticsearch.Client({host: 'localhost:9200'});
+    var esClient = new elasticsearch.Client({
+      host: 'localhost:9200'
+    });
 
     esClient.ping({
       requestTimeout: 1000
@@ -128,4 +130,3 @@ describe('Elasticsearch Connection', function() {
   });
 
 });
-

@@ -10,6 +10,7 @@
     "one-var": 0,
     "no-var": 0,
     "comma-dangle": 0,
-    "padded-blocks": 0
+    "padded-blocks": 0,
+    "object-shorthand": 0
   }
 }

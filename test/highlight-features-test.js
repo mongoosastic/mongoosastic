@@ -36,7 +36,7 @@ describe('Highlight search', function() {
             new Text({
               title: 'The Light Fantastic',
               quote: 'The death of the warrior or the old man or the little child, this I understand, and I take ' +
-              'away the pain and end the suffering. I do not understand this death-of-the-mind'
+                'away the pain and end the suffering. I do not understand this death-of-the-mind'
             }),
             new Text({
               title: 'Equal Rites',
