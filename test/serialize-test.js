@@ -11,8 +11,14 @@ var PersonSchema22 = new Schema({
     last: String
   },
   dob: Date,
-  bowlingBall: {type: Schema.ObjectId, ref: 'BowlingBall'},
-  games: [{score: Number, date: Date}],
+  bowlingBall: {
+    type: Schema.ObjectId,
+    ref: 'BowlingBall'
+  },
+  games: [{
+    score: Number,
+    date: Date
+  }],
   somethingToCast: {
     type: String,
     es_cast: function(element) {
@@ -32,10 +38,16 @@ generator.generateMapping(PersonSchema22, function(err, tmp) {
 
 describe('serialize', function() {
   var dude = new Person({
-    name: {first: 'Jeffrey', last: 'Lebowski'},
+    name: {
+      first: 'Jeffrey',
+      last: 'Lebowski'
+    },
     dob: new Date(Date.parse('05/17/1962')),
     bowlingBall: new BowlingBall(),
-    games: [{score: 80, date: new Date(Date.parse('05/17/1962'))}, {
+    games: [{
+      score: 80,
+      date: new Date(Date.parse('05/17/1962'))
+    }, {
       score: 80,
       date: new Date(Date.parse('06/17/1962'))
     }],
@@ -44,7 +56,10 @@ describe('serialize', function() {
 
   // another person with missing parts to test robustness
   var millionnaire = new Person({
-    name: {first: 'Jeffrey', last: 'Lebowski'}
+    name: {
+      first: 'Jeffrey',
+      last: 'Lebowski'
+    }
   });
 
   it('should serialize a document with missing bits', function() {

@@ -11,9 +11,18 @@ var mongoose = require('mongoose'),
 // -- Only index specific field
 var TalkSchema = new Schema({
   speaker: String,
-  year: {type: Number, es_indexed: true},
-  title: {type: String, es_indexed: true},
-  abstract: {type: String, es_indexed: true},
+  year: {
+    type: Number,
+    es_indexed: true
+  },
+  title: {
+    type: String,
+    es_indexed: true
+  },
+  abstract: {
+    type: String,
+    es_indexed: true
+  },
   bio: String
 });
 
@@ -22,12 +31,24 @@ var BumSchema = new Schema({
 });
 
 var PersonSchema = new Schema({
-  name: {type: String, es_indexed: true},
-  phone: {type: String, es_indexed: true},
+  name: {
+    type: String,
+    es_indexed: true
+  },
+  phone: {
+    type: String,
+    es_indexed: true
+  },
   address: String,
   life: {
-    born: {type: Number, es_indexed: true},
-    died: {type: Number, es_indexed: true}
+    born: {
+      type: Number,
+      es_indexed: true
+    },
+    died: {
+      type: Number,
+      es_indexed: true
+    }
   }
 });
 
@@ -37,7 +58,11 @@ PersonSchema.plugin(mongoosastic, {
   index: 'people',
   type: 'dude',
   hydrate: true,
-  hydrateOptions: {lean: true, sort: '-name', select: 'address name life'}
+  hydrateOptions: {
+    lean: true,
+    sort: '-name',
+    select: 'address name life'
+  }
 });
 
 BumSchema.plugin(mongoosastic, {
@@ -120,7 +145,9 @@ describe('indexing', function() {
     });
 
     it('should use the model\'s id as ES id', function(done) {
-      Tweet.findOne({message: 'I like Riak better'}, function(err, doc) {
+      Tweet.findOne({
+        message: 'I like Riak better'
+      }, function(err, doc) {
         esClient.get({
           index: 'tweets',
           type: 'tweet',
@@ -193,7 +220,9 @@ describe('indexing', function() {
     });
 
     it('should report errors', function(done) {
-      Tweet.search({queriez: 'jamescarr'}, function(err, results) {
+      Tweet.search({
+        queriez: 'jamescarr'
+      }, function(err, results) {
         err.message.should.match(/SearchPhaseExecutionException/);
         should.not.exist(results);
         done();
@@ -306,7 +335,11 @@ describe('indexing', function() {
     });
 
     it('should only find models of type Tweet', function(done) {
-      Tweet.search({query_string: {query: 'Dude'}}, function(err, res) {
+      Tweet.search({
+        query_string: {
+          query: 'Dude'
+        }
+      }, function(err, res) {
         res.hits.total.should.eql(1);
         res.hits.hits[0]._source.user.should.eql('Dude');
         done();
@@ -314,7 +347,11 @@ describe('indexing', function() {
     });
 
     it('should only find models of type Talk', function(done) {
-      Talk.search({query_string: {query: 'Dude'}}, function(err, res) {
+      Talk.search({
+        query_string: {
+          query: 'Dude'
+        }
+      }, function(err, res) {
         res.hits.total.should.eql(1);
         res.hits.hits[0]._source.title.should.eql('Dude');
         done();
@@ -332,7 +369,11 @@ describe('indexing', function() {
     });
 
     it('when gathering search results while respecting default hydrate options', function(done) {
-      Person.search({query_string: {query: 'James'}}, function(err, res) {
+      Person.search({
+        query_string: {
+          query: 'James'
+        }
+      }, function(err, res) {
         res.hits.hits[0].address.should.eql('Exampleville, MO');
         res.hits.hits[0].name.should.eql('James Carr');
         res.hits.hits[0].should.not.have.property('phone');
@@ -354,7 +395,11 @@ describe('indexing', function() {
     });
 
     it('should only return indexed fields', function(done) {
-      Talk.search({query_string: {query: 'cool'}}, function(err, res) {
+      Talk.search({
+        query_string: {
+          query: 'cool'
+        }
+      }, function(err, res) {
         var talk = res.hits.hits[0]._source;
 
         res.hits.total.should.eql(1);
@@ -368,7 +413,13 @@ describe('indexing', function() {
     });
 
     it('should hydrate returned documents if desired', function(done) {
-      Talk.search({query_string: {query: 'cool'}}, {hydrate: true}, function(err, res) {
+      Talk.search({
+        query_string: {
+          query: 'cool'
+        }
+      }, {
+        hydrate: true
+      }, function(err, res) {
         var talk = res.hits.hits[0];
 
         res.hits.total.should.eql(1);
@@ -388,12 +439,19 @@ describe('indexing', function() {
           name: 'Bob Carr',
           address: 'Exampleville, MO',
           phone: '(555)555-5555',
-          life: {born: 1950, other: 2000}
+          life: {
+            born: 1950,
+            other: 2000
+          }
         }, done);
       });
 
       it('should only return indexed fields and have indexed sub-objects', function(done) {
-        Person.search({query_string: {query: 'Bob'}}, function(err, res) {
+        Person.search({
+          query_string: {
+            query: 'Bob'
+          }
+        }, function(err, res) {
           res.hits.hits[0].address.should.eql('Exampleville, MO');
           res.hits.hits[0].name.should.eql('Bob Carr');
           res.hits.hits[0].should.have.property('life');
@@ -408,7 +466,16 @@ describe('indexing', function() {
     });
 
     it('should allow extra query options when hydrating', function(done) {
-      Talk.search({query_string: {query: 'cool'}}, {hydrate: true, hydrateOptions: {lean: true}}, function(err, res) {
+      Talk.search({
+        query_string: {
+          query: 'cool'
+        }
+      }, {
+        hydrate: true,
+        hydrateOptions: {
+          lean: true
+        }
+      }, function(err, res) {
         var talk = res.hits.hits[0];
 
         res.hits.total.should.eql(1);
@@ -433,7 +500,9 @@ describe('indexing', function() {
             mappings: {
               bum: {
                 properties: {
-                  name: {type: 'string'}
+                  name: {
+                    type: 'string'
+                  }
                 }
               }
             }
@@ -444,8 +513,14 @@ describe('indexing', function() {
 
     it('should just work', function(done) {
 
-      config.createModelAndEnsureIndex(Bum, {name: 'Roger Wilson'}, function() {
-        Bum.search({query_string: {query: 'Wilson'}}, function(err, results) {
+      config.createModelAndEnsureIndex(Bum, {
+        name: 'Roger Wilson'
+      }, function() {
+        Bum.search({
+          query_string: {
+            query: 'Wilson'
+          }
+        }, function(err, results) {
           results.hits.total.should.eql(1);
           done();
         });

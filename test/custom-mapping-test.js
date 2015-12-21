@@ -48,8 +48,16 @@ describe('Custom Properties for Mapping', function() {
   });
 
   it('should index with field "fullTitle"', function(done) {
-    config.createModelAndEnsureIndex(Phone, {name: 'iPhone'}, function() {
-      Phone.search({query_string: {query: 'iPhone'}}, {sort: 'created:asc'}, function(err, results) {
+    config.createModelAndEnsureIndex(Phone, {
+      name: 'iPhone'
+    }, function() {
+      Phone.search({
+        query_string: {
+          query: 'iPhone'
+        }
+      }, {
+        sort: 'created:asc'
+      }, function(err, results) {
         results.hits.total.should.eql(1);
         done();
       });
