@@ -373,6 +373,35 @@ describe('MappingGenerator', function() {
         done();
       });
     });
+  });
 
+  describe('ref mapping', function() {
+    it('maps all fields from referenced schema', function(done) {
+      var Name = new Schema({
+        firstName: String,
+        lastName: String
+      });
+      generator.generateMapping(new Schema({
+        name: {type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name}
+      }), function(err, mapping) {
+        mapping.properties.name.properties.firstName.type.should.eql('string');
+        mapping.properties.name.properties.lastName.type.should.eql('string');
+        done();
+      });
+    });
+
+    it('maps only selected fields from referenced schema', function(done) {
+      var Name = new Schema({
+        firstName: String,
+        lastName: String
+      });
+      generator.generateMapping(new Schema({
+        name: {type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name, es_select: 'firstName'}
+      }), function(err, mapping) {
+        mapping.properties.name.properties.firstName.type.should.eql('string');
+        should.not.exist(mapping.properties.name.properties.lastName);
+        done();
+      });
+    });
   });
 });

@@ -14,6 +14,7 @@ Mongoosastic is a [mongoose](http://mongoosejs.com/) plugin that can automatical
 - [Indexing](#indexing)
   - [Saving a document](#saving-a-document)
   - [Indexing nested models](#indexing-nested-models)
+  - [Indexing mongoose references](#indexing-mongoose-references)
   - [Indexing an existing collection](#indexing-an-existing-collection)
   - [Bulk indexing](#bulk-indexing)
   - [Filtered indexing](#filtered-indexing)
@@ -60,6 +61,7 @@ Options are:
 * `bulk` - size and delay options for bulk indexing
 * `filter` - the function used for filtered indexing
 * `transform` - the function used to transform serialized document before indexing
+* `populate` - an Array of Mongoose populate options objects
 
 
 To have a model indexed into Elasticsearch simply add the plugin.
@@ -207,10 +209,41 @@ var User = new Schema({
 User.plugin(mongoosastic)
 ```
 
+###Indexing Mongoose References
+In order to index mongoose references you can refer following example.
+
+```javascript
+var Comment = new Schema({
+    title: String
+  , body: String
+  , author: String
+});
+
+
+var User = new Schema({
+    name: {type:String, es_indexed:true}
+  , email: String
+  , city: String
+  , comments: {type: Schema.Types.ObjectId, ref: 'Comment',
+    es_schema: Comment, es_indexed:true, es_select: 'title body'}
+})
+
+User.plugin(mongoosastic, {
+  populate: [
+    {path: 'comments', select: 'title body'}
+  ]
+})
+```
+In the schema you'll need to provide `es_schema` field - the referenced schema.
+By default every field of the referenced schema will be mapped. Use `es_select` field to pick just specific fields.
+
+`populate` is an array of options objects you normally pass to
+[Model.populate](http://mongoosejs.com/docs/api.html#model_Model.populate).
+
 ### Indexing An Existing Collection
 Already have a mongodb collection that you'd like to index using this
 plugin? No problem! Simply call the synchronize method on your model to
-open a mongoose stream and start indexing documents individually. 
+open a mongoose stream and start indexing documents individually.
 
 ```javascript
 var BookSchema = new Schema({
