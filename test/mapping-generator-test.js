@@ -88,6 +88,18 @@ describe('MappingGenerator', function() {
       });
     });
 
+    it('does not modify the original schema tree', function(done) {
+      var schema = new Schema({
+        oid: Schema.ObjectId
+      });
+
+      generator.generateMapping(schema, function(err, mapping) {
+        mapping.properties.oid.type.should.eql('string');
+        should.not.exist(schema.tree.oid.type);
+        done();
+      });
+    });
+
     it('recognizes an object and maps it as one', function(done) {
       generator.generateMapping(new Schema({
         contact: {
