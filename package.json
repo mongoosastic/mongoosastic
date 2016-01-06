@@ -2,7 +2,7 @@
   "author": "James R. Carr <james.r.carr@gmail.com> (http://blog.james-carr.org)",
   "name": "mongoosastic",
   "description": "A mongoose plugin that indexes models into elastic search",
-  "version": "3.6.0",
+  "version": "3.6.1",
   "tags": [
     "mongodb",
     "elasticsearch",
