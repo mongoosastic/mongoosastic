@@ -1,7 +1,11 @@
 # Mongoosastic
 [![Build Status](https://secure.travis-ci.org/mongoosastic/mongoosastic.png?branch=master)](http://travis-ci.org/mongoosastic/mongoosastic)
-[![NPM version](https://badge.fury.io/js/mongoosastic.svg)](http://badge.fury.io/js/mongoosastic)
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mongoosastic/mongoosastic?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![NPM version](https://img.shields.io/npm/v/mongoosastic.svg)](https://www.npmjs.com/package/mongoosastic)
+[![Coverage Status](https://coveralls.io/repos/mongoosastic/mongoosastic/badge.svg?branch=master&service=github)](https://coveralls.io/github/mongoosastic/mongoosastic?branch=master)
+[![Downloads](https://img.shields.io/npm/dm/mongoosastic.svg)](https://www.npmjs.com/package/mongoosastic)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mongoosastic/mongoosastic?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
+[![NPM](https://nodei.co/npm/mongoosastic.png)](https://nodei.co/npm/mongoosastic/)
 
 Mongoosastic is a [mongoose](http://mongoosejs.com/) plugin that can automatically index your models into [elasticsearch](http://www.elasticsearch.org/).
 
@@ -10,6 +14,7 @@ Mongoosastic is a [mongoose](http://mongoosejs.com/) plugin that can automatical
 - [Indexing](#indexing)
   - [Saving a document](#saving-a-document)
   - [Indexing nested models](#indexing-nested-models)
+  - [Indexing mongoose references](#indexing-mongoose-references)
   - [Indexing an existing collection](#indexing-an-existing-collection)
   - [Bulk indexing](#bulk-indexing)
   - [Filtered indexing](#filtered-indexing)
@@ -55,6 +60,8 @@ Options are:
 * `hydrateOptions` - options to pass into hydrate function
 * `bulk` - size and delay options for bulk indexing
 * `filter` - the function used for filtered indexing
+* `transform` - the function used to transform serialized document before indexing
+* `populate` - an Array of Mongoose populate options objects
 
 
 To have a model indexed into Elasticsearch simply add the plugin.
@@ -172,11 +179,71 @@ var User = new Schema({
 User.plugin(mongoosastic)
 ```
 
+###Elasticsearch [Nested datatype](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/nested.html)
+Since the default in Elasticsearch is to take arrays and flatten them into objects,
+it can make it hard to write queries where you need to maintain the relationships 
+between objects in the array, per .
+The way to change this behavior is by changing the Elasticsearch type from `object` 
+(the mongoosastic default) to `nested`
+
+```javascript
+var Comment = new Schema({
+    title: String
+  , body: String
+  , author: String
+})
+
+
+var User = new Schema({
+    name: {type: String, es_indexed: true}
+  , email: String
+  , city: String
+  , comments: {
+      type:[Comment], 
+      es_indexed: true, 
+      es_type: 'nested', 
+      es_include_in_parent: true
+  }
+})
+
+User.plugin(mongoosastic)
+```
+
+###Indexing Mongoose References
+In order to index mongoose references you can refer following example.
+
+```javascript
+var Comment = new Schema({
+    title: String
+  , body: String
+  , author: String
+});
+
+
+var User = new Schema({
+    name: {type:String, es_indexed:true}
+  , email: String
+  , city: String
+  , comments: {type: Schema.Types.ObjectId, ref: 'Comment',
+    es_schema: Comment, es_indexed:true, es_select: 'title body'}
+})
+
+User.plugin(mongoosastic, {
+  populate: [
+    {path: 'comments', select: 'title body'}
+  ]
+})
+```
+In the schema you'll need to provide `es_schema` field - the referenced schema.
+By default every field of the referenced schema will be mapped. Use `es_select` field to pick just specific fields.
+
+`populate` is an array of options objects you normally pass to
+[Model.populate](http://mongoosejs.com/docs/api.html#model_Model.populate).
 
 ### Indexing An Existing Collection
 Already have a mongodb collection that you'd like to index using this
 plugin? No problem! Simply call the synchronize method on your model to
-open a mongoose stream and start indexing documents individually. 
+open a mongoose stream and start indexing documents individually.
 
 ```javascript
 var BookSchema = new Schema({
@@ -415,7 +482,7 @@ var geoQuery = {
 
 var geoFilter = {
       geo_shape: {
-        geo_shape": {
+        geo_shape: {
           shape: {
             type: "point", 
             coordinates: [3,1]
@@ -485,6 +552,22 @@ You can also specify query options like [sorts](http://www.elasticsearch.org/gui
 ```javascript
 Person.search({/* ... */}, {sort: "age:asc"}, function(err, people){
   //sorted results
+});
+```
+
+And also [aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html):
+
+```javascript
+Person.search({/* ... */}, {
+  aggs: {
+    'names': {
+      'terms': {
+        'field': 'name'
+      }
+    }
+  }
+}, function(err, results){
+  // results.aggregations holds the aggregations
 });
 ```
 

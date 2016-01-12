@@ -1,13 +1,26 @@
 var mongoose = require('mongoose'),
   config = require('./config'),
   Schema = mongoose.Schema,
+  Movie,
   mongoosastic = require('../lib/mongoosastic');
 
 // -- Only index specific field
 var MovieSchema = new Schema({
-  title: {type: String, required: true, default: '', es_indexed: true},
-  genre: {type: String, required:true, default: '', enum: ['horror', 'action', 'adventure', 'other'], es_indexed: true}
+  title: {
+    type: String,
+    required: true,
+    default: '',
+    es_indexed: true
+  },
+  genre: {
+    type: String,
+    required: true,
+    default: '',
+    enum: ['horror', 'action', 'adventure', 'other'],
+    es_indexed: true
+  }
 });
+
 
 MovieSchema.plugin(mongoosastic, {
   filter: function(self) {
@@ -15,18 +28,16 @@ MovieSchema.plugin(mongoosastic, {
   }
 });
 
-var Movie = mongoose.model('Movie', MovieSchema);
+Movie = mongoose.model('Movie', MovieSchema);
 
 describe('Filter mode', function() {
-  var movies = null;
-  this.timeout(5000);
+  this.timeout(7000);
 
   before(function(done) {
     config.deleteIndexIfExists(['movies'], function() {
       mongoose.connect(config.mongoUrl, function() {
         var client = mongoose.connections[0].db;
-        client.collection('movies', function(err, _movies) {
-          movies = _movies;
+        client.collection('movies', function() {
           Movie.remove(done);
         });
       });
@@ -40,8 +51,15 @@ describe('Filter mode', function() {
   });
 
   it('should index horror genre', function(done) {
-    config.createModelAndEnsureIndex(Movie, {title: 'LOTR', genre: 'horror'}, function() {
-      Movie.search({term: {genre: 'horror'}}, function(err, results) {
+    config.createModelAndEnsureIndex(Movie, {
+      title: 'LOTR',
+      genre: 'horror'
+    }, function() {
+      Movie.search({
+        term: {
+          genre: 'horror'
+        }
+      }, function(err, results) {
         results.hits.total.should.eql(1);
         done();
       });
@@ -49,10 +67,46 @@ describe('Filter mode', function() {
   });
 
   it('should not index action genre', function(done) {
-    config.createModelAndSave(Movie, {title: 'Man in Black', genre: 'action'}, function() {
-      Movie.search({term: {genre: 'action'}}, function(err, results) {
+    config.createModelAndSave(Movie, {
+      title: 'Man in Black',
+      genre: 'action'
+    }, function() {
+      Movie.search({
+        term: {
+          genre: 'action'
+        }
+      }, function(err, results) {
         results.hits.total.should.eql(0);
         done();
+      });
+    });
+  });
+
+  it('should unindex filtered models', function(done) {
+    config.createModelAndEnsureIndex(Movie, {
+      title: 'REC',
+      genre: 'horror'
+    }, function(errSave, movie) {
+      Movie.search({
+        term: {
+          title: 'rec'
+        }
+      }, function(err, results) {
+        results.hits.total.should.eql(1);
+
+        movie.genre = 'action';
+        config.saveAndWaitIndex(movie, function() {
+          setTimeout(function() {
+            Movie.search({
+              term: {
+                title: 'rec'
+              }
+            }, function(errSearch2, results2) {
+              results2.hits.total.should.eql(0);
+              done();
+            });
+          }, config.INDEXING_TIMEOUT);
+        });
       });
     });
   });

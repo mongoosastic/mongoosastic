@@ -17,7 +17,9 @@ describe('GeoTest', function() {
           myId: Number,
           frame: {
             coordinates: [],
-            type: {type: String},
+            type: {
+              type: String
+            },
             geo_shape: {
               type: String,
               es_type: 'geo_shape',
@@ -30,7 +32,7 @@ describe('GeoTest', function() {
         GeoSchema.plugin(mongoosastic);
         GeoModel = mongoose.model('geodoc', GeoSchema);
 
-        GeoModel.createMapping(function(err, mapping) {
+        GeoModel.createMapping(function() {
           GeoModel.remove(function() {
 
             esClient.indices.getMapping({
@@ -80,14 +82,14 @@ describe('GeoTest', function() {
         throw err;
       }
 
-      config.saveAndWaitIndex(geo2, function(err) {
-        if (err) {
-          throw err;
+      config.saveAndWaitIndex(geo2, function(err2) {
+        if (err2) {
+          throw err2;
         }
 
         // Mongodb request
-        GeoModel.find({}, function(err, res) {
-          if (err) throw err;
+        GeoModel.find({}, function(err3, res) {
+          if (err3) throw err3;
           res.length.should.eql(2);
           res[0].frame.type.should.eql('envelope');
           res[0].frame.coordinates[0].should.eql([1, 4]);
@@ -104,7 +106,9 @@ describe('GeoTest', function() {
       // ES request
       GeoModel.search({
         match_all: {}
-      }, {sort: 'myId:asc'}, function(err, res) {
+      }, {
+        sort: 'myId:asc'
+      }, function(err, res) {
         if (err) throw err;
         res.hits.total.should.eql(2);
         res.hits.hits[0]._source.frame.type.should.eql('envelope');
@@ -116,11 +120,11 @@ describe('GeoTest', function() {
 
   it('should be able to resync geo coordinates from the database', function(done) {
     config.deleteIndexIfExists(['geodocs'], function() {
-      GeoModel.createMapping(function(err, mapping) {
+      GeoModel.createMapping(function() {
         var stream = GeoModel.synchronize(),
           count = 0;
 
-        stream.on('data', function(err, doc) {
+        stream.on('data', function() {
           count++;
         });
 
@@ -130,7 +134,9 @@ describe('GeoTest', function() {
           setTimeout(function() {
             GeoModel.search({
               match_all: {}
-            }, {sort: 'myId:asc'}, function(err, res) {
+            }, {
+              sort: 'myId:asc'
+            }, function(err, res) {
               if (err) throw err;
               res.hits.total.should.eql(2);
               res.hits.hits[0]._source.frame.type.should.eql('envelope');
@@ -163,25 +169,25 @@ describe('GeoTest', function() {
     };
 
     setTimeout(function() {
-      GeoModel.search(geoQuery, function(err, res) {
-        if (err) throw err;
-        res.hits.total.should.eql(1);
-        res.hits.hits[0]._source.myId.should.eql(2);
+      GeoModel.search(geoQuery, function(err1, res1) {
+        if (err1) throw err1;
+        res1.hits.total.should.eql(1);
+        res1.hits.hits[0]._source.myId.should.eql(2);
         geoQuery.filtered.filter.geo_shape.frame.shape.coordinates = [1.5, 2.5];
-        GeoModel.search(geoQuery, function(err, res) {
-          if (err) throw err;
-          res.hits.total.should.eql(1);
-          res.hits.hits[0]._source.myId.should.eql(1);
+        GeoModel.search(geoQuery, function(err2, res2) {
+          if (err2) throw err2;
+          res2.hits.total.should.eql(1);
+          res2.hits.hits[0]._source.myId.should.eql(1);
 
           geoQuery.filtered.filter.geo_shape.frame.shape.coordinates = [3, 2];
-          GeoModel.search(geoQuery, function(err, res) {
-            if (err) throw err;
-            res.hits.total.should.eql(2);
+          GeoModel.search(geoQuery, function(err3, res3) {
+            if (err3) throw err3;
+            res3.hits.total.should.eql(2);
 
             geoQuery.filtered.filter.geo_shape.frame.shape.coordinates = [0, 3];
-            GeoModel.search(geoQuery, function(err, res) {
-              if (err) throw err;
-              res.hits.total.should.eql(0);
+            GeoModel.search(geoQuery, function(err4, res4) {
+              if (err4) throw err4;
+              res4.hits.total.should.eql(0);
               done();
             });
           });

@@ -9,22 +9,6 @@ var elasticsearch = require('elasticsearch'),
 const INDEXING_TIMEOUT = process.env.INDEXING_TIMEOUT || 2000;
 const BULK_ACTION_TIMEOUT = process.env.BULK_ACTION_TIMEOUT || 4000;
 
-module.exports = {
-  mongoUrl: 'mongodb://localhost/es-test',
-  INDEXING_TIMEOUT: INDEXING_TIMEOUT,
-  BULK_ACTION_TIMEOUT: BULK_ACTION_TIMEOUT,
-  deleteIndexIfExists: deleteIndexIfExists,
-  createModelAndEnsureIndex: createModelAndEnsureIndex,
-  createModelAndSave: createModelAndSave,
-  saveAndWaitIndex: saveAndWaitIndex,
-  bookTitlesArray: bookTitlesArray,
-  getClient: function() {
-    return esClient;
-  },
-  close: function() {
-    esClient.close();
-  }
-};
 
 function deleteIndexIfExists(indexes, done) {
   async.forEach(indexes, function(index, cb) {
@@ -44,9 +28,13 @@ function deleteIndexIfExists(indexes, done) {
 
 function createModelAndEnsureIndex(Model, obj, cb) {
   var dude = new Model(obj);
-  dude.save(function() {
-    dude.on('es-indexed', function(err, res) {
-      setTimeout(cb, INDEXING_TIMEOUT);
+  dude.save(function(err) {
+    if (err) return dude(err);
+
+    dude.on('es-indexed', function() {
+      setTimeout(function() {
+        cb(null, dude);
+      }, INDEXING_TIMEOUT);
     });
   });
 }
@@ -59,18 +47,39 @@ function createModelAndSave(Model, obj, cb) {
 function saveAndWaitIndex(model, cb) {
   model.save(function(err) {
     if (err) cb(err);
-    else model.on('es-indexed', cb);
+    else {
+      model.once('es-indexed', cb);
+      model.once('es-filtered', cb);
+    }
   });
 }
 
 function bookTitlesArray() {
   var books = [
-    'American Gods',
-    'Gods of the Old World',
-    'American Gothic'
-  ];
-  for (var i = 0; i < 50; i++) {
-    books.push('ABABABA' + i);
+      'American Gods',
+      'Gods of the Old World',
+      'American Gothic'
+    ],
+    idx;
+  for (idx = 0; idx < 50; idx++) {
+    books.push('ABABABA' + idx);
   }
   return books;
 }
+
+module.exports = {
+  mongoUrl: 'mongodb://localhost/es-test',
+  INDEXING_TIMEOUT: INDEXING_TIMEOUT,
+  BULK_ACTION_TIMEOUT: BULK_ACTION_TIMEOUT,
+  deleteIndexIfExists: deleteIndexIfExists,
+  createModelAndEnsureIndex: createModelAndEnsureIndex,
+  createModelAndSave: createModelAndSave,
+  saveAndWaitIndex: saveAndWaitIndex,
+  bookTitlesArray: bookTitlesArray,
+  getClient: function() {
+    return esClient;
+  },
+  close: function() {
+    esClient.close();
+  }
+};

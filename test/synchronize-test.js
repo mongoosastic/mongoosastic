@@ -2,6 +2,7 @@ var mongoose = require('mongoose'),
   async = require('async'),
   config = require('./config'),
   mongoosastic = require('../lib/mongoosastic'),
+  Book,
   Schema = mongoose.Schema;
 
 var BookSchema = new Schema({
@@ -10,7 +11,7 @@ var BookSchema = new Schema({
 
 BookSchema.plugin(mongoosastic);
 
-var Book = mongoose.model('Book', BookSchema);
+Book = mongoose.model('Book', BookSchema);
 
 describe('Synchronize', function() {
   var books = null;
@@ -37,7 +38,9 @@ describe('Synchronize', function() {
 
     before(function(done) {
       async.forEach(config.bookTitlesArray(), function(title, cb) {
-        books.insert({title: title}, cb);
+        books.insert({
+          title: title
+        }, cb);
       }, done);
     });
 
@@ -45,14 +48,18 @@ describe('Synchronize', function() {
       var stream = Book.synchronize(),
         count = 0;
 
-      stream.on('data', function(err, doc) {
+      stream.on('data', function() {
         count++;
       });
 
       stream.on('close', function() {
         count.should.eql(53);
         setTimeout(function() {
-          Book.search({query_string: {query: 'American'}}, function(err, results) {
+          Book.search({
+            query_string: {
+              query: 'American'
+            }
+          }, function(err, results) {
             results.hits.total.should.eql(2);
             done();
           });

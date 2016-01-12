@@ -8,7 +8,29 @@ var mongoose = require('mongoose'),
 var DummySchema = new Schema({
   text: String
 });
+
 var Dummy = mongoose.model('Dummy1', DummySchema, 'dummys');
+
+function tryDummySearch(model, cb) {
+  setTimeout(function() {
+    model.search({
+      simple_query_string: {
+        query: 'Text1'
+      }
+    }, {
+      index: '_all'
+    }, function(err, results) {
+      if (err) {
+        return cb(err);
+      }
+
+      results.hits.total.should.eql(0);
+      model.esClient.close();
+      cb(err);
+    });
+  }, config.INDEXING_TIMEOUT);
+
+}
 
 describe('Elasticsearch Connection', function() {
 
@@ -42,28 +64,31 @@ describe('Elasticsearch Connection', function() {
   });
 
   it('should be able to connect with default options', function(done) {
+    var Dummy2;
 
     DummySchema.plugin(mongoosastic);
-    var Dummy = mongoose.model('Dummy2', DummySchema, 'dummys');
+    Dummy2 = mongoose.model('Dummy2', DummySchema, 'dummys');
 
-    tryDummySearch(Dummy, done);
+    tryDummySearch(Dummy2, done);
 
   });
 
   it('should be able to connect with explicit options', function(done) {
+    var Dummy3;
 
     DummySchema.plugin(mongoosastic, {
       host: 'localhost',
       port: 9200
     });
 
-    var Dummy = mongoose.model('Dummy3', DummySchema, 'dummys');
+    Dummy3 = mongoose.model('Dummy3', DummySchema, 'dummys');
 
-    tryDummySearch(Dummy, done);
+    tryDummySearch(Dummy3, done);
 
   });
 
   it('should be able to connect with an array of hosts', function(done) {
+    var Dummy4;
 
     DummySchema.plugin(mongoosastic, {
       hosts: [
@@ -71,19 +96,24 @@ describe('Elasticsearch Connection', function() {
         'localhost:9200'
       ]
     });
-    var Dummy = mongoose.model('Dummy4', DummySchema, 'dummys');
 
-    tryDummySearch(Dummy, done);
+    Dummy4 = mongoose.model('Dummy4', DummySchema, 'dummys');
+
+    tryDummySearch(Dummy4, done);
 
   });
 
   it('should be able to connect with an existing elasticsearch client', function(done) {
 
-    var esClient = new elasticsearch.Client({host: 'localhost:9200'});
+    var esClient = new elasticsearch.Client({
+      host: 'localhost:9200'
+    });
 
     esClient.ping({
       requestTimeout: 1000
     }, function(err) {
+      var Dummy5;
+
       if (err) {
         return done(err);
       }
@@ -91,34 +121,12 @@ describe('Elasticsearch Connection', function() {
       DummySchema.plugin(mongoosastic, {
         esClient: esClient
       });
-      var Dummy = mongoose.model('Dummy5', DummySchema, 'dummys');
 
-      tryDummySearch(Dummy, done);
+      Dummy5 = mongoose.model('Dummy5', DummySchema, 'dummys');
+
+      tryDummySearch(Dummy5, done);
     });
 
   });
 
 });
-
-function tryDummySearch(model, cb) {
-  setTimeout(function() {
-    model.search({
-        simple_query_string: {
-          query: 'Text1'
-        }
-      },
-      {
-        index: '_all'
-      },
-      function(err, results) {
-        if (err) {
-          return cb(err);
-        }
-
-        results.hits.total.should.eql(0);
-        model.esClient.close();
-        cb(err);
-      });
-  }, config.INDEXING_TIMEOUT);
-
-}

@@ -6,18 +6,28 @@ var mongoose = require('mongoose'),
   }),
   config = require('./config'),
   Schema = mongoose.Schema,
+  BlogPost,
   mongoosastic = require('../lib/mongoosastic');
 
 var TweetSchema = new Schema({
   user: String,
-  post_date: {type: Date, es_type: 'date'},
-  message: {type: String},
-  title: {type: String, es_boost: 2.0}
+  post_date: {
+    type: Date,
+    es_type: 'date'
+  },
+  message: {
+    type: String
+  },
+  title: {
+    type: String,
+    es_boost: 2.0
+  }
 });
+
 
 TweetSchema.plugin(mongoosastic);
 
-var BlogPost = mongoose.model('BlogPost', TweetSchema);
+BlogPost = mongoose.model('BlogPost', TweetSchema);
 
 describe('Add Boost Option Per Field', function() {
   before(function(done) {

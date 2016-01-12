@@ -1,3 +1,46 @@
+3.4.0 / 2015-11-07
+==================
+  * Merge pull request [#120](https://github.com/mongoosastic/mongoosastic/issues/120) from JasonMore/master
+    Recognizes an es_type of nested with es_fields and maps it
+  * added ability to define a nested type
+  * Merge pull request [#122](https://github.com/mongoosastic/mongoosastic/issues/122) from guumaster/updated-travis-coveralls
+    updated yml config for travisci and coveralls
+  * added coverage script
+  * Update README.md
+  * Create .coveralls.yml
+
+3.3.2 / 2015-09-27
+==================
+
+  * Merge pull request [#107](https://github.com/mongoosastic/mongoosastic/issues/107)
+  * added AUTHORS file
+  * Merge pull request [#106](https://github.com/mongoosastic/mongoosastic/issues/106)
+  * updated travis config
+  * removed gulp dependency. moved to ESLint instead of jshint/jscs
+
+3.3.0 / 2015-09-13
+==================
+
+  * updated README
+  * Merge pull request [#100](https://github.com/mongoosastic/mongoosastic/issues/100)
+  * Merge pull request [#104](https://github.com/mongoosastic/mongoosastic/issues/104)
+  * fixed suggesters tests
+  * fix(postSave): fix findOneAndUpdate if document doesn't exist
+  * added support for suggesters
+  * small json typo
+
+3.2.0 / 2015-09-07
+==================
+  * 3.2.0
+  * Merge pull request [#98](https://github.com/mongoosastic/mongoosastic/issues/98)
+    added fuzzy search test
+  * added fuzzy search test
+  * Merge pull request [#99](https://github.com/mongoosastic/mongoosastic/issues/99)
+  * package.json updated. and src linted
+  * Merge pull request [#97](https://github.com/mongoosastic/mongoosastic/issues/97)
+  * update dependency elasticsearch to ^8.0.0
+  * index/unindex when findOneAndUpdate/findOneAndRemove
+
 3.1.4 / 2015-07-19
 ==================
 

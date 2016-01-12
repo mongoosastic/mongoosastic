@@ -1,0 +1,16 @@
+{
+  "env":  {
+    "node": true,
+    "mocha": true
+  },
+  "extends": "airbnb/base",
+  "rules": {
+    "func-names": 0,
+    "no-use-before-define": 1,
+    "one-var": 0,
+    "no-var": 0,
+    "comma-dangle": 0,
+    "padded-blocks": 0,
+    "object-shorthand": 0
+  }
+}
