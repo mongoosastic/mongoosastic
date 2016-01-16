@@ -433,6 +433,27 @@ describe('indexing', function() {
       });
     });
 
+    it('should hydrate returned documents if desired with promise too', function(done) {
+      Talk.search({
+        query_string: {
+          query: 'cool'
+        }
+      }, {
+        hydrate: true
+      }).then(function(res) {
+        var talk = res.hits.hits[0];
+        res.hits.total.should.eql(1);
+        talk.should.have.property('title');
+        talk.should.have.property('year');
+        talk.should.have.property('abstract');
+        talk.should.have.property('speaker');
+        talk.should.have.property('bio');
+        talk.should.be.an.instanceof(Talk);
+        done();
+      });
+    });    
+
+
     describe('Sub-object Fields', function() {
       before(function(done) {
         config.createModelAndEnsureIndex(Person, {

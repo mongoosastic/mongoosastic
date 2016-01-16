@@ -110,7 +110,7 @@ describe('Filter mode', function() {
       });
     });
   });
-  it('should unindex filtered models With promise', function(done) {
+  it('should unindex filtered models with promise', function(done) {
     config.createModelAndEnsureIndex(Movie, {
       title: 'Star Wars: The Force Awakens',
       genre: 'adventure'
