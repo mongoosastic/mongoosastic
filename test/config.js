@@ -29,7 +29,7 @@ function deleteIndexIfExists(indexes, done) {
 function createModelAndEnsureIndex(Model, obj, cb) {
   var dude = new Model(obj);
   dude.save(function(err) {
-    if (err) return dude(err);
+    if (err) return cb(err);
 
     dude.on('es-indexed', function() {
       setTimeout(function() {
