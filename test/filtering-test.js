@@ -110,4 +110,19 @@ describe('Filter mode', function() {
       });
     });
   });
+  it('should unindex filtered models With promise', function(done) {
+    config.createModelAndEnsureIndex(Movie, {
+      title: 'Star Wars: The Force Awakens',
+      genre: 'adventure'
+    }, function(errSave, movie) {
+      Movie.search({
+        term: {
+          title: 'star'
+        }
+      }).then(function(results) {
+        results.hits.total.should.eql(1);
+        done();
+      });
+    });
+  });  
 });
