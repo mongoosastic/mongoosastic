@@ -119,6 +119,21 @@ User.search({
 
 ```
 
+Or if you prefer as a promise
+
+```javascript
+User.search({
+  query_string: {
+    query: "john"
+  }
+}).then(function(results) {
+  // results here
+}).catch(function(err) {
+  // errors here
+});
+
+```
+
 To connect to more than one host, you can use an array of hosts. 
 
 ```javascript
