@@ -16,7 +16,8 @@
   },
   "main": "lib/mongoosastic.js",
   "dependencies": {
-    "elasticsearch": "^8.2.0"
+    "elasticsearch": "^8.2.0",
+    "q": "^1.4.1"
   },
   "devDependencies": {
     "async": "^1.4.2",
