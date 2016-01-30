@@ -62,6 +62,7 @@ Options are:
 * `filter` - the function used for filtered indexing
 * `transform` - the function used to transform serialized document before indexing
 * `populate` - an Array of Mongoose populate options objects
+* `indexAutomatically` - allows indexing after model save to be disabled for when you need finer control over when documents are indexed. Defaults to true
 
 
 To have a model indexed into Elasticsearch simply add the plugin.
