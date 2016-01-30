@@ -30,16 +30,10 @@ Mongoosastic is a [mongoose](http://mongoosejs.com/) plugin that can automatical
 
 ## Installation
 
-The latest version of this package will be as close as possible to the latest `elasticsearch` and `mongoose` packages. If you are working with latest mongoose package, install normally: 
+The latest version of this package will be as close as possible to the latest `elasticsearch` and `mongoose` packages. 
 
 ```bash
 npm install -S mongoosastic
-```
-
-If you are working with `mongoose@3.8.x` use `mongoosastic@2.x` and install a specific version: 
-
-```bash
-npm install -S mongoosastic@^2.x
 ```
 
 ## Setup
