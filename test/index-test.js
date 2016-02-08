@@ -4,7 +4,7 @@ var mongoose = require('mongoose'),
   esClient = new elasticsearch.Client(),
   config = require('./config'),
   Schema = mongoose.Schema,
-  Person, Talk, Bum,
+  Person, Talk, Bum, Dog,
   mongoosastic = require('../lib/mongoosastic'),
   Tweet = require('./models/tweet');
 
@@ -52,6 +52,10 @@ var PersonSchema = new Schema({
   }
 });
 
+var DogSchema = new Schema({
+  name: {type: String, es_indexed: true}
+});
+
 TalkSchema.plugin(mongoosastic);
 
 PersonSchema.plugin(mongoosastic, {
@@ -70,10 +74,14 @@ BumSchema.plugin(mongoosastic, {
   type: 'bum'
 });
 
+DogSchema.plugin(mongoosastic, {
+  indexAutomatically: false
+});
+
 Person = mongoose.model('Person', PersonSchema);
 Talk = mongoose.model('Talk', TalkSchema);
 Bum = mongoose.model('bum', BumSchema);
-
+Dog = mongoose.model('dog', DogSchema);
 
 // -- alright let's test this shiznit!
 describe('indexing', function() {
@@ -549,4 +557,21 @@ describe('indexing', function() {
     });
   });
 
+  describe('Disable automatic indexing', function() {
+    it('should save but not index', function(done) {
+      var newDog = new Dog({name: 'Sparky'});
+      newDog.save(function() {
+        var whoopsIndexed = false;
+
+        newDog.on('es-indexed', function() {
+          whoopsIndexed = true;
+        });
+
+        setTimeout(function() {
+          whoopsIndexed.should.be.false();
+          done();
+        }, config.INDEXING_TIMEOUT);
+      });
+    });
+  });
 });
