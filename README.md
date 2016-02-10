@@ -587,8 +587,8 @@ For example:
 
 ```javascript
 Person.es_search({
-  from: 60
-  size: 20
+  from: 60,
+  size: 20,
   query: {
     range: {
       age:{
@@ -598,7 +598,7 @@ Person.es_search({
     }
   }
 }, function(err, people){
-   // only the 60th to 79th ranked people who fit the age group are here!   
+   // only the 61st to 80th ranked people who fit the age group are here!   
 });
 ```
 
