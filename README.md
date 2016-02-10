@@ -568,6 +568,39 @@ Person.search({/* ... */}, {
 
 Options for queries must adhere to the [javascript elasticsearch driver specs](http://www.elasticsearch.org/guide/en/elasticsearch/client/javascript-api/current/api-reference.html#api-search).
 
+### Raw queries
+A full ElasticSearch query object can be provided to mongoosastic through `.es_search()` method. 
+It can be useful when paging results. The query to be provided wraps the query object provided to `.search()` method and
+accepts the same options:
+
+```javascript
+var rawQuery = {
+    from: 60,
+    size: 20,
+    query: /* query object as in .search() */
+};
+
+Model.es_search(rawQuery, options, cb);
+```
+
+For example:
+
+```javascript
+Person.es_search({
+  from: 60
+  size: 20
+  query: {
+    range: {
+      age:{
+        from:21,
+        to: 30
+      }
+    }
+  }
+}, function(err, people){
+   // only the 60th to 79th ranked people who fit the age group are here!   
+});
+```
 
 ### Hydration
 By default objects returned from performing a search will be the objects
