@@ -276,7 +276,7 @@ var stream = Book.synchronize({}, {saveOnSynchronize: true})
 
 Options are:
 
- * `saveOnSynchronize` - triggers Mongoose save (and pre-save) method when synchronizing a collection/index. Defaults to false
+ * `saveOnSynchronize` - triggers Mongoose save (and pre-save) method when synchronizing a collection/index. Defaults to false (or global `saveOnSynchronize`)
 
 
 
