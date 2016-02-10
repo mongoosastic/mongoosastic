@@ -57,7 +57,7 @@ Options are:
 * `transform` - the function used to transform serialized document before indexing
 * `populate` - an Array of Mongoose populate options objects
 * `indexAutomatically` - allows indexing after model save to be disabled for when you need finer control over when documents are indexed. Defaults to true
-* `saveOnSynchronize` - triggers Mongoose save (and pre-save) method when synchronizing a collection/index. Defaults to false
+* `saveOnSynchronize` - triggers Mongoose save (and pre-save) method when synchronizing a collection/index. Defaults to true
 
 
 To have a model indexed into Elasticsearch simply add the plugin.
@@ -276,7 +276,7 @@ var stream = Book.synchronize({}, {saveOnSynchronize: true})
 
 Options are:
 
- * `saveOnSynchronize` - triggers Mongoose save (and pre-save) method when synchronizing a collection/index. Defaults to false (or global `saveOnSynchronize`)
+ * `saveOnSynchronize` - triggers Mongoose save (and pre-save) method when synchronizing a collection/index. Defaults to global `saveOnSynchronize` option
 
 
 
