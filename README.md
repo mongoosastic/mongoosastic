@@ -569,7 +569,7 @@ Person.search({/* ... */}, {
 Options for queries must adhere to the [javascript elasticsearch driver specs](http://www.elasticsearch.org/guide/en/elasticsearch/client/javascript-api/current/api-reference.html#api-search).
 
 ### Raw queries
-A full ElasticSearch query object can be provided to mongoosastic through `.es_search()` method. 
+A full ElasticSearch query object can be provided to mongoosastic through `.esSearch()` method. 
 It can be useful when paging results. The query to be provided wraps the query object provided to `.search()` method and
 accepts the same options:
 
@@ -580,13 +580,13 @@ var rawQuery = {
     query: /* query object as in .search() */
 };
 
-Model.es_search(rawQuery, options, cb);
+Model.esSearch(rawQuery, options, cb);
 ```
 
 For example:
 
 ```javascript
-Person.es_search({
+Person.esSearch({
   from: 60,
   size: 20,
   query: {
