@@ -1,3 +1,9 @@
+4.0.0 / 2016-02-13
+==========
+
+  * Merge pull request [#144](https://github.com/mongoosastic/mongoosastic/issues/144) from Alexandre-io/feat/elasticsearch2.x
+    Add support for ElasticSearch 2.x
+
 3.6.1 / 2016-01-30
 ==========
 
