@@ -6,9 +6,19 @@ node_js:
   - 4
   - stable
 
+before_install:
+  - npm i -g npm@"^3.0.0"
+
 services:
   - mongodb
   - elasticsearch
 
 env:
-  - BULK_ACTION_TIMEOUT=30000 INDEXING_TIMEOUT=3000
+  - BULK_ACTION_TIMEOUT=30000 INDEXING_TIMEOUT=3000 CXX=g++-4.8
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-4.8
