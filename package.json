@@ -21,6 +21,7 @@
   "devDependencies": {
     "async": "^1.5.2",
     "babel-eslint": "^4.1.8",
+    "changelog": "^1.0.7",
     "coveralls": "^2.11.6",
     "eslint": "^1.10.0",
     "eslint-config-airbnb": "^5.0.1",
@@ -37,7 +38,8 @@
     "lint": "eslint lib",
     "mocha": "mocha test/*-test.js -R spec -t 600000",
     "test": "npm run lint && npm run coverage",
-    "coverage": "istanbul cover _mocha --report lcovonly -- -R spec test/*-test.js -t 600000 && cat ./coverage/lcov.info | coveralls"
+    "coverage": "istanbul cover _mocha --report lcovonly -- -R spec test/*-test.js -t 600000 && cat ./coverage/lcov.info | coveralls",
+    "changelog": "changelog mongoosastic/mongoosastic latest -m"
   },
   "license": "MIT"
 }

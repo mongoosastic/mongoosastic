@@ -1,3 +1,11 @@
+4.0.2 2016-02-14
+==========
+
+  * Merge pull request [#170](https://github.com/mongoosastic/mongoosastic/issues/170) from mongoosastic/updated-dependencies
+    updated deps
+  * Merge pull request [#169](https://github.com/mongoosastic/mongoosastic/issues/169) from nschloe/patch-1
+    Update README.md
+
 4.0.0 / 2016-02-13
 ==========
 
