@@ -332,7 +332,7 @@ describe('MappingGenerator', function() {
       });
     });
 
-    it.only('recognizes when "type" in an array', function(done) {
+    it('recognizes when "type" in an array', function(done) {
       generator.generateMapping(new Schema({
         entities: [{
           type: {
