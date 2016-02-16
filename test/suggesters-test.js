@@ -20,8 +20,7 @@ describe('Suggesters', function() {
           name: {
             type: String,
             es_type: 'completion',
-            es_index_analyzer: 'simple',
-            es_search_analyzer: 'simple',
+            es_analyzer: 'simple',
             es_indexed: true
           },
           breed: {
