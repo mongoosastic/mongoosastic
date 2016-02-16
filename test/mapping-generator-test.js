@@ -319,6 +319,33 @@ describe('MappingGenerator', function() {
         done();
       });
     });
+
+    it('recognizes "type" as field when "type" is defined a model property (it needs es_indexed)', function(done) {
+      generator.generateMapping(new Schema({
+        type: {
+          type:String,
+          es_indexed: true
+        }
+      }), function(err, mapping) {
+        mapping.properties.type.type.should.eql('string')
+        done();
+      });
+    });
+
+    it.only('recognizes when "type" in an array', function(done) {
+      generator.generateMapping(new Schema({
+        entities: [{
+          type: {
+            type:String,
+            es_indexed: true
+          }
+        }]
+      }), function(err, mapping) {
+        console.log(mapping.properties)
+        done();
+      });
+    });
+
   });
 
   describe('elastic search fields', function() {
