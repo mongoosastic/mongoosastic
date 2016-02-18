@@ -361,12 +361,21 @@ describe('MappingGenerator', function() {
         explicit_field_2: {
           type: String,
           es_indexed: true
+        },
+        implicit_field_3: {
+          type: [Number]
+        },
+        explicit_field_3: {
+          type: [Number],
+          es_indexed: true
         }
       }), function(err, mapping) {
         mapping.properties.should.have.property('explicit_field_1');
         mapping.properties.should.have.property('explicit_field_2');
+        mapping.properties.should.have.property('explicit_field_3');
         mapping.properties.should.not.have.property('implicit_field_1');
         mapping.properties.should.not.have.property('implicit_field_2');
+        mapping.properties.should.not.have.property('implicit_field_3');
         done();
       });
     });
