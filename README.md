@@ -57,6 +57,7 @@ Options are:
 * `transform` - the function used to transform serialized document before indexing
 * `populate` - an Array of Mongoose populate options objects
 * `indexAutomatically` - allows indexing after model save to be disabled for when you need finer control over when documents are indexed. Defaults to true
+* `saveOnSynchronize` - triggers Mongoose save (and pre-save) method when synchronizing a collection/index. Defaults to true
 
 
 To have a model indexed into Elasticsearch simply add the plugin.
@@ -153,7 +154,7 @@ doc.save(function(err){
 ```
 
 
-###Indexing Nested Models
+### Indexing Nested Models
 In order to index nested models you can refer following example.
 
 ```javascript
@@ -174,7 +175,7 @@ var User = new Schema({
 User.plugin(mongoosastic)
 ```
 
-###Elasticsearch [Nested datatype](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/nested.html)
+### Elasticsearch [Nested datatype](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/nested.html)
 Since the default in Elasticsearch is to take arrays and flatten them into objects,
 it can make it hard to write queries where you need to maintain the relationships 
 between objects in the array, per .
@@ -204,7 +205,7 @@ var User = new Schema({
 User.plugin(mongoosastic)
 ```
 
-###Indexing Mongoose References
+### Indexing Mongoose References
 In order to index mongoose references you can refer following example.
 
 ```javascript
@@ -267,6 +268,18 @@ You can also synchronize a subset of documents based on a query!
 var stream = Book.synchronize({author: 'Arthur C. Clarke'})
 ```
 
+As well as specifying synchronization options
+
+```javascript
+var stream = Book.synchronize({}, {saveOnSynchronize: true})
+```
+
+Options are:
+
+ * `saveOnSynchronize` - triggers Mongoose save (and pre-save) method when synchronizing a collection/index. Defaults to global `saveOnSynchronize` option
+
+
+
 ### Bulk Indexing
 
 You can also specify `bulk` options with mongoose which will utilize Elasticsearch's bulk indexing api. This will cause the `synchronize` function to use bulk indexing as well. 
@@ -328,7 +341,7 @@ mongodb. Use save for that.
 
 ### Truncating an index
 
-The static method `esTruncate` will delete all documents from the associated index. This method combined with synchronise can be usefull in case of integration tests for example when each test case needs a cleaned up index in Elasticsearch.
+The static method `esTruncate` will delete all documents from the associated index. This method combined with `synchronize()` can be useful in case of integration tests for example when each test case needs a cleaned up index in Elasticsearch.
 
 ```javascript
 GarbageModel.esTruncate(function(err){...});
