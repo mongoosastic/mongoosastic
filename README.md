@@ -580,8 +580,11 @@ provide {hydrate:true} as the second argument to a search call.
 
 ```javascript
 
-User.search({query_string: {query: "john"}}, {hydrate:true}, function(err, results) {
-  // results here
+User.search(
+  {query_string: {query: 'john'}},
+  {hydrate: true},
+  function(err, results) {
+    // results here
 });
 
 ```
@@ -591,11 +594,46 @@ how to query for the mongoose object.
 
 ```javascript
 
-User.search({query_string: {query: "john"}}, {hydrate:true, hydrateOptions: {select: 'name age'}}, function(err, results) {
-  // results here
+User.search(
+  {query_string: {query: 'john'}},
+  {
+    hydrate: true,
+    hydrateOptions: {select: 'name age'}
+  },
+  function(err, results) {
+    // results here
 });
 
 ```
+
+Original ElasticSearch result data can be kept with `hydrateWithESResults` option. Documents are then enhanced with a
+`_esResult` property
+
+```javascript
+
+User.search(
+  {query_string: {query: 'john'}},
+  {
+    hydrate: true,
+    hydrateWithESResults: true,
+    hydrateOptions: {select: 'name age'}
+  },
+  function(err, results) {
+    // results here
+    results.hits.hits.forEach(function(result) {
+      console.log(
+        'score',
+        result._id,
+        result._esResult._score
+      );
+    });
+});
+
+```
+
+By default the `_esResult._source` document is skipped. It can be added with the option `hydrateWithESResults: {source: false}`.
+
+
 
 Note using hydrate will be a degree slower as it will perform an Elasticsearch
 query and then do a query against mongodb for all the ids returned from
