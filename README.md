@@ -60,6 +60,7 @@ Options are:
 * `populate` - an Array of Mongoose populate options objects
 * `indexAutomatically` - allows indexing after model save to be disabled for when you need finer control over when documents are indexed. Defaults to true
 * `customProperties` - an object detailing additional properties which will be merged onto the type's default mapping when `createMapping` is called.
+* `saveOnSynchronize` - triggers Mongoose save (and pre-save) method when synchronizing a collection/index. Defaults to true
 
 
 To have a model indexed into Elasticsearch simply add the plugin.
@@ -178,7 +179,7 @@ MyModel.remove({ _id: doc.id }, function(err) {
 });
 ```
 
-###Indexing Nested Models
+### Indexing Nested Models
 In order to index nested models you can refer following example.
 
 ```javascript
@@ -199,7 +200,7 @@ var User = new Schema({
 User.plugin(mongoosastic)
 ```
 
-###Elasticsearch [Nested datatype](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/nested.html)
+### Elasticsearch [Nested datatype](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/nested.html)
 Since the default in Elasticsearch is to take arrays and flatten them into objects,
 it can make it hard to write queries where you need to maintain the relationships
 between objects in the array, per .
@@ -229,7 +230,7 @@ var User = new Schema({
 User.plugin(mongoosastic)
 ```
 
-###Indexing Mongoose References
+### Indexing Mongoose References
 In order to index mongoose references you can refer following example.
 
 ```javascript
@@ -291,6 +292,17 @@ You can also synchronize a subset of documents based on a query!
 ```javascript
 var stream = Book.synchronize({author: 'Arthur C. Clarke'})
 ```
+
+As well as specifying synchronization options
+
+```javascript
+var stream = Book.synchronize({}, {saveOnSynchronize: true})
+```
+
+Options are:
+
+ * `saveOnSynchronize` - triggers Mongoose save (and pre-save) method when synchronizing a collection/index. Defaults to global `saveOnSynchronize` option
+
 
 ### Bulk Indexing
 
@@ -370,7 +382,7 @@ The unIndex method takes 2 arguments:
 
 ### Truncating an index
 
-The static method `esTruncate` will delete all documents from the associated index. This method combined with synchronise can be usefull in case of integration tests for example when each test case needs a cleaned up index in Elasticsearch.
+The static method `esTruncate` will delete all documents from the associated index. This method combined with `synchronise()` can be useful in case of integration tests for example when each test case needs a cleaned up index in Elasticsearch.
 
 ```javascript
 GarbageModel.esTruncate(function(err){...});
