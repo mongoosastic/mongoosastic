@@ -1,11 +1,14 @@
-var mongoose = require('mongoose'),
-  async = require('async'),
-  config = require('./config'),
-  mongoosastic = require('../lib/mongoosastic'),
-  Book,
-  Schema = mongoose.Schema;
+'use strict';
 
-var BookSchema = new Schema({
+const mongoose = require('mongoose');
+const async = require('async');
+const config = require('./config');
+const mongoosastic = require('../lib/mongoosastic');
+
+let Book;
+const Schema = mongoose.Schema;
+
+const BookSchema = new Schema({
   title: String
 });
 
@@ -13,14 +16,14 @@ BookSchema.plugin(mongoosastic);
 
 Book = mongoose.model('Book', BookSchema);
 
-describe('Synchronize', function() {
+describe('Synchronize', () => {
   var books = null;
 
-  before(function(done) {
-    config.deleteIndexIfExists(['books'], function() {
-      mongoose.connect(config.mongoUrl, function() {
-        var client = mongoose.connections[0].db;
-        client.collection('books', function(err, _books) {
+  before(done => {
+    config.deleteIndexIfExists(['books'], () => {
+      mongoose.connect(config.mongoUrl, () => {
+        const client = mongoose.connections[0].db;
+        client.collection('books', (err, _books) => {
           books = _books;
           Book.remove(done);
         });
@@ -28,38 +31,38 @@ describe('Synchronize', function() {
     });
   });
 
-  after(function(done) {
+  after(done => {
     Book.esClient.close();
     mongoose.disconnect();
     done();
   });
 
-  describe('existing collection', function() {
+  describe('an existing collection', () => {
 
-    before(function(done) {
-      async.forEach(config.bookTitlesArray(), function(title, cb) {
+    before(done => {
+      async.forEach(config.bookTitlesArray(), (title, cb) => {
         books.insert({
           title: title
         }, cb);
       }, done);
     });
 
-    it('should index all existing objects', function(done) {
+    it('should index all existing objects', done => {
       var stream = Book.synchronize(),
         count = 0;
 
-      stream.on('data', function() {
-        count++;
+      stream.on('data', (err, doc) => {
+        if (doc._id) count++;
       });
 
-      stream.on('close', function() {
+      stream.on('close', () => {
         count.should.eql(53);
-        setTimeout(function() {
+        setTimeout(() => {
           Book.search({
             query_string: {
               query: 'American'
             }
-          }, function(err, results) {
+          }, (err, results) => {
             results.hits.total.should.eql(2);
             done();
           });
