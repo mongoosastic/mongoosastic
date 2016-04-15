@@ -382,7 +382,7 @@ The unIndex method takes 2 arguments:
 
 ### Truncating an index
 
-The static method `esTruncate` will delete all documents from the associated index. This method combined with `synchronise()` can be useful in case of integration tests for example when each test case needs a cleaned up index in Elasticsearch.
+The static method `esTruncate` will delete all documents from the associated index. This method combined with `synchronize()` can be useful in case of integration tests for example when each test case needs a cleaned up index in Elasticsearch.
 
 ```javascript
 GarbageModel.esTruncate(function(err){...});

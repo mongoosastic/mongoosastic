@@ -15,12 +15,6 @@ esResultTextSchema.plugin(mongoosastic);
 esResultText = mongoose.model('esResultText', esResultTextSchema);
 
 describe('Hydrate with ES data', function() {
-  var responses = [
-    'You don\'t see people at their best in this job, said <em>Death</em>.',
-    'The <em>death</em> of the warrior or the old man or the little child, this I understand, and I take away the',
-    ' pain and end the suffering. I do not understand this <em>death</em>-of-the-mind',
-    'The only reason for walking into the jaws of <em>Death</em> is so\'s you can steal his gold teeth'
-  ];
 
   before(function(done) {
     mongoose.connect(config.mongoUrl, function() {
@@ -72,6 +66,7 @@ describe('Hydrate with ES data', function() {
       }, {
         hydrate: true
       }, function(err, res) {
+        if (err) done(err);
 
         res.hits.total.should.eql(3);
         res.hits.hits.forEach(function(text) {
@@ -100,6 +95,7 @@ describe('Hydrate with ES data', function() {
           }
         }
       }, function(err, res) {
+        if (err) done(err);
 
         res.hits.total.should.eql(3);
         res.hits.hits.forEach(function(model) {
@@ -135,7 +131,7 @@ describe('Hydrate with ES data', function() {
           }
         }
       }, function(err, res) {
-
+        if (err) done(err);
         res.hits.total.should.eql(3);
         res.hits.hits.forEach(function(model) {
 
