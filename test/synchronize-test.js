@@ -14,6 +14,13 @@ const BookSchema = new Schema({
 
 BookSchema.plugin(mongoosastic);
 
+var saveCounter = 0;
+BookSchema.pre('save', function(next) {
+  // Count save
+  ++saveCounter;
+  next();
+});
+
 Book = mongoose.model('Book', BookSchema);
 
 describe('Synchronize', () => {
@@ -48,7 +55,35 @@ describe('Synchronize', () => {
     });
 
     it('should index all existing objects', done => {
+      saveCounter = 0;
       var stream = Book.synchronize(),
+        count = 0;
+      // var stream = Book.synchronize({}, {saveOnSynchronize: true}), // default behaviour
+
+      stream.on('data', () => {
+        count++;
+      });
+
+      stream.on('close', () => {
+        count.should.eql(53);
+        saveCounter.should.eql(count);
+
+        setTimeout(() => {
+          Book.search({
+            query_string: {
+              query: 'American'
+            }
+          }, (err, results) => {
+            results.hits.total.should.eql(2);
+            done();
+          });
+        }, config.INDEXING_TIMEOUT);
+      });
+    });
+
+    it('should index all existing objects without saving them in MongoDB', done => {
+      saveCounter = 0;
+      var stream = Book.synchronize({}, {saveOnSynchronize: false}),
         count = 0;
 
       stream.on('data', (err, doc) => {
@@ -57,7 +92,10 @@ describe('Synchronize', () => {
 
       stream.on('close', () => {
         count.should.eql(53);
+        saveCounter.should.eql(0);
+
         setTimeout(() => {
+
           Book.search({
             query_string: {
               query: 'American'
