@@ -13,6 +13,9 @@
     "no-var": 0,
     "comma-dangle": 0,
     "padded-blocks": 0,
-    "object-shorthand": 0
+    "object-shorthand": 0,
+    "no-restricted-syntax": ["error", "FunctionExpression", "WithStatement"],
+    "no-underscore-dangle": 0,
+    "consistent-return": 0
   }
 }
