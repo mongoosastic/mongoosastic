@@ -2,8 +2,7 @@ var mongoose = require('mongoose'),
   config = require('./config'),
   Schema = mongoose.Schema,
   Food,
-  mongoosastic = require('../lib/mongoosastic'),
-  _ = require('lodash');
+  mongoosastic = require('../lib/mongoosastic');
 
 var FoodSchema = new Schema({
   name: {
@@ -15,7 +14,6 @@ FoodSchema.set('toObject', { getters: true, virtuals: true, versionKey: false })
 
 
 FoodSchema.plugin(mongoosastic, {
-  esClient: config.getClient(),
   customSerialize(model) {
     var data = model.toObject();
     delete data.id;
