@@ -29,7 +29,7 @@ function deleteIndexIfExists(indexes, done) {
 function createModelAndEnsureIndex(Model, obj, cb) {
   var dude = new Model(obj);
   dude.save(function(err) {
-    if (err) return dude(err);
+    if (err) return cb(err);
 
     dude.on('es-indexed', function() {
       setTimeout(function() {
@@ -68,7 +68,7 @@ function bookTitlesArray() {
 }
 
 module.exports = {
-  mongoUrl: 'mongodb://localhost/es-test',
+  mongoUrl: 'mongodb://192.168.99.100:27001/es-test',
   INDEXING_TIMEOUT: INDEXING_TIMEOUT,
   BULK_ACTION_TIMEOUT: BULK_ACTION_TIMEOUT,
   deleteIndexIfExists: deleteIndexIfExists,
