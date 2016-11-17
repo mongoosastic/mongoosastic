@@ -147,6 +147,27 @@ describe('MappingGenerator', function() {
       });
     });
 
+    it('recognizes an object and handles lack of explicit es_indexed', function(done) {
+      generator.generateMapping(new Schema({
+        name: {
+          type: String,
+          es_indexed: true
+        },
+        auth: {
+          passwordHash: {
+            type: String
+          },
+          oauthToken: {
+            type: String
+          }
+        }
+      }), function(err, mapping) {
+        mapping.properties.name.type.should.eql('string');
+        mapping.properties.should.not.have.property('auth');
+        done();
+      });
+    });
+
     it('recognizes a nested schema and handles explict es_indexed', function(done) {
 
       var ContactSchema = new Schema({
