@@ -1,3 +1,79 @@
+4.2.1 2016-11-20
+==========
+
+  * update dependencies ([#246](https://github.com/mongoosastic/mongoosastic/issues/246))
+  * eslint updated ([#245](https://github.com/mongoosastic/mongoosastic/issues/245))
+    * eslint updated
+    * dependencies updated & added strict mode
+
+4.1.0 2016-11-17
+==========
+
+  * Fixed: [#207](https://github.com/mongoosastic/mongoosastic/issues/207) Add min_score to search function ([#218](https://github.com/mongoosastic/mongoosastic/issues/218))
+  * Reset bulk to original options.bulk instead of false. Fixes [#161](https://github.com/mongoosastic/mongoosastic/issues/161) ([#237](https://github.com/mongoosastic/mongoosastic/issues/237))
+  * fix a bug where calling doc.index would overwrite all plugin options! ([#187](https://github.com/mongoosastic/mongoosastic/issues/187))
+  * Custom serializer ([#241](https://github.com/mongoosastic/mongoosastic/issues/241))
+    * updated the index method to allow for specifying a custom serialize method
+    * added test for the custom serializer
+    * removed lodash include
+    * fixed a bug/typo in the config.js createModelAndEnsureIndex method
+    * removed debug code from config.js
+  * Eliminate Mongoose Query.prototype.stream() deprecation warning ([#243](https://github.com/mongoosastic/mongoosastic/issues/243))
+    * Eliminate Mongoose deprecation warning for Query.prototype.stream() [#230](https://github.com/mongoosastic/mongoosastic/issues/230)
+    * Add "Matt Audesse <matt@mattaudesse.com>" to AUTHORS
+
+2016-04-17
+==========
+
+  * readme ([#205](https://github.com/mongoosastic/mongoosastic/issues/205))
+    Add unit test for saveOnSynchronize
+    describe only removed
+
+2016-04-15
+==========
+
+  * Fixes [#86](https://github.com/mongoosastic/mongoosastic/issues/86): Callback function in index schema method was not being called with arguments needed for emitter ([#202](https://github.com/mongoosastic/mongoosastic/issues/202))
+  * Hydration preserve ES ordering (if no hydrateOptions.sort is set) ([#194](https://github.com/mongoosastic/mongoosastic/issues/194))
+    * Hydration preserve ES ordering (if no hydrateOptions.sort is set)
+    * Adding tests
+
+2016-04-13
+==========
+
+  * Raw search: providing unwrapped query object. For paging, for example. ([#162](https://github.com/mongoosastic/mongoosastic/issues/162))
+    * es_search function added to mongoosastic.js in order to generalize search query parameter, i.e. add size and from first order parameters
+  * Hydrated results are augmented with the raw ES result: useful for retrieving ES scores ([#163](https://github.com/mongoosastic/mongoosastic/issues/163))
+  * Clone Mongoose tree and path in getCleanTree and mutate the clone ([#197](https://github.com/mongoosastic/mongoosastic/issues/197))
+
+2016-04-12
+==========
+
+  * Synchronise option: decide whether to save or not documents with mongoose before updating ES. ([#200](https://github.com/mongoosastic/mongoosastic/issues/200))
+
+2016-03-03
+==========
+
+  * Merge pull request [#185](https://github.com/mongoosastic/mongoosastic/issues/185) from StickyCube/master
+    :memo: Add documentation for customProperties and unIndex
+
+2016-03-02
+==========
+
+  * :memo: Add documentation for customProperties and unIndex
+
+2016-02-23
+==========
+
+  * Merge pull request [#177](https://github.com/mongoosastic/mongoosastic/issues/177) from jbdemonte/master
+    Fix explicit es_indexed on array. Also close [#178](https://github.com/mongoosastic/mongoosastic/issues/178) and [#179](https://github.com/mongoosastic/mongoosastic/issues/179)
+
+2016-02-18
+==========
+
+  * support for nested schema
+  * Fix explicit es_indexed on array
+
+
 4.0.2 2016-02-14
 ==========
 
