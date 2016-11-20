@@ -1,45 +1,46 @@
-var mongoose = require('mongoose'),
-  should = require('should'),
-  Schema = mongoose.Schema,
-  Generator = require('../lib/mapping-generator'),
-  generator = new Generator();
+'use strict'
 
-describe('MappingGenerator', function() {
+const mongoose = require('mongoose')
+const should = require('should')
+const Schema = mongoose.Schema
+const Generator = require('../lib/mapping-generator')
+const generator = new Generator()
 
-  describe('type mapping', function() {
-    it('maps field with simple String type', function(done) {
+describe('MappingGenerator', function () {
+  describe('type mapping', function () {
+    it('maps field with simple String type', function (done) {
       generator.generateMapping(new Schema({
         name: String
-      }), function(err, mapping) {
-        mapping.properties.name.type.should.eql('string');
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.name.type.should.eql('string')
+        done()
+      })
+    })
 
-    it('maps field with String type attribute', function(done) {
+    it('maps field with String type attribute', function (done) {
       generator.generateMapping(new Schema({
         name: {
           type: String
         }
-      }), function(err, mapping) {
-        mapping.properties.name.type.should.eql('string');
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.name.type.should.eql('string')
+        done()
+      })
+    })
 
-    it('converts Date type to date', function(done) {
+    it('converts Date type to date', function (done) {
       generator.generateMapping(new Schema({
         graduationDate: {
           type: Date,
           es_format: 'YYYY-MM-dd'
         }
-      }), function(err, mapping) {
-        mapping.properties.graduationDate.type.should.eql('date');
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.graduationDate.type.should.eql('date')
+        done()
+      })
+    })
 
-    it('removes _id field without prefix', function(done) {
+    it('removes _id field without prefix', function (done) {
       generator.generateMapping(new Schema({
         _id: {
           type: Schema.Types.ObjectId
@@ -52,13 +53,13 @@ describe('MappingGenerator', function() {
             type: String
           }
         }
-      }), function(err, mapping) {
-        mapping.properties.should.not.have.property('_id');
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.should.not.have.property('_id')
+        done()
+      })
+    })
 
-    it('does not remove _id field with prefix', function(done) {
+    it('does not remove _id field with prefix', function (done) {
       generator.generateMapping(new Schema({
         _id: {
           type: Schema.Types.ObjectId
@@ -71,36 +72,36 @@ describe('MappingGenerator', function() {
             type: String
           }
         }
-      }), function(err, mapping) {
-        mapping.properties.user.properties.should.have.property('_id');
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.user.properties.should.have.property('_id')
+        done()
+      })
+    })
 
-    it('converts object id to string if not _id', function(done) {
+    it('converts object id to string if not _id', function (done) {
       generator.generateMapping(new Schema({
         oid: {
           type: Schema.Types.ObjectId
         }
-      }), function(err, mapping) {
-        mapping.properties.oid.type.should.eql('string');
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.oid.type.should.eql('string')
+        done()
+      })
+    })
 
-    it('does not modify the original schema tree', function(done) {
-      var schema = new Schema({
+    it('does not modify the original schema tree', function (done) {
+      const schema = new Schema({
         oid: Schema.ObjectId
-      });
+      })
 
-      generator.generateMapping(schema, function(err, mapping) {
-        mapping.properties.oid.type.should.eql('string');
-        should.not.exist(schema.tree.oid.type);
-        done();
-      });
-    });
+      generator.generateMapping(schema, function (err, mapping) {
+        mapping.properties.oid.type.should.eql('string')
+        should.not.exist(schema.tree.oid.type)
+        done()
+      })
+    })
 
-    it('recognizes an object and maps it as one', function(done) {
+    it('recognizes an object and maps it as one', function (done) {
       generator.generateMapping(new Schema({
         contact: {
           email: {
@@ -110,14 +111,14 @@ describe('MappingGenerator', function() {
             type: String
           }
         }
-      }), function(err, mapping) {
-        mapping.properties.contact.properties.email.type.should.eql('string');
-        mapping.properties.contact.properties.telephone.type.should.eql('string');
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.contact.properties.email.type.should.eql('string')
+        mapping.properties.contact.properties.telephone.type.should.eql('string')
+        done()
+      })
+    })
 
-    it('recognizes an object and handles explict es_indexed', function(done) {
+    it('recognizes an object and handles explict es_indexed', function (done) {
       generator.generateMapping(new Schema({
         name: {
           type: String,
@@ -137,19 +138,18 @@ describe('MappingGenerator', function() {
             es_indexed: true
           }
         }
-      }), function(err, mapping) {
-        mapping.properties.name.type.should.eql('string');
-        mapping.properties.contact.properties.email.type.should.eql('string');
-        mapping.properties.contact.properties.tags.type.should.eql('string');
-        mapping.properties.contact.properties.should.not.have.property('telephone');
-        mapping.properties.contact.properties.should.not.have.property('keys');
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.name.type.should.eql('string')
+        mapping.properties.contact.properties.email.type.should.eql('string')
+        mapping.properties.contact.properties.tags.type.should.eql('string')
+        mapping.properties.contact.properties.should.not.have.property('telephone')
+        mapping.properties.contact.properties.should.not.have.property('keys')
+        done()
+      })
+    })
 
-    it('recognizes a nested schema and handles explict es_indexed', function(done) {
-
-      var ContactSchema = new Schema({
+    it('recognizes a nested schema and handles explict es_indexed', function (done) {
+      const ContactSchema = new Schema({
         email: {
           type: String,
           es_indexed: true
@@ -162,7 +162,7 @@ describe('MappingGenerator', function() {
           type: [String],
           es_indexed: true
         }
-      });
+      })
 
       generator.generateMapping(new Schema({
         name: {
@@ -173,17 +173,17 @@ describe('MappingGenerator', function() {
           type: ContactSchema,
           select: false
         }
-      }), function(err, mapping) {
-        mapping.properties.name.type.should.eql('string');
-        mapping.properties.contact.properties.email.type.should.eql('string');
-        mapping.properties.contact.properties.tags.type.should.eql('string');
-        mapping.properties.contact.properties.should.not.have.property('telephone');
-        mapping.properties.contact.properties.should.not.have.property('keys');
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.name.type.should.eql('string')
+        mapping.properties.contact.properties.email.type.should.eql('string')
+        mapping.properties.contact.properties.tags.type.should.eql('string')
+        mapping.properties.contact.properties.should.not.have.property('telephone')
+        mapping.properties.contact.properties.should.not.have.property('keys')
+        done()
+      })
+    })
 
-    it('recognizes an multi_field and maps it as one', function(done) {
+    it('recognizes an multi_field and maps it as one', function (done) {
       generator.generateMapping(new Schema({
         test: {
           type: String,
@@ -200,29 +200,29 @@ describe('MappingGenerator', function() {
             }
           }
         }
-      }), function(err, mapping) {
-        mapping.properties.test.type.should.eql('multi_field');
-        mapping.properties.test.fields.test.type.should.eql('string');
-        mapping.properties.test.fields.test.index.should.eql('analyzed');
-        mapping.properties.test.fields.untouched.type.should.eql('string');
-        mapping.properties.test.fields.untouched.index.should.eql('not_analyzed');
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.test.type.should.eql('multi_field')
+        mapping.properties.test.fields.test.type.should.eql('string')
+        mapping.properties.test.fields.test.index.should.eql('analyzed')
+        mapping.properties.test.fields.untouched.type.should.eql('string')
+        mapping.properties.test.fields.untouched.index.should.eql('not_analyzed')
+        done()
+      })
+    })
 
-    it('recognizes an geo_point and maps it as one', function(done) {
+    it('recognizes an geo_point and maps it as one', function (done) {
       generator.generateMapping(new Schema({
         geo: {
           type: String,
           es_type: 'geo_point'
         }
-      }), function(err, mapping) {
-        mapping.properties.geo.type.should.eql('geo_point');
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.geo.type.should.eql('geo_point')
+        done()
+      })
+    })
 
-    it('recognizes an geo_point with independent lat lon fields and maps it as one', function(done) {
+    it('recognizes an geo_point with independent lat lon fields and maps it as one', function (done) {
       generator.generateMapping(new Schema({
         geo_with_lat_lon: {
           geo_point: {
@@ -237,34 +237,34 @@ describe('MappingGenerator', function() {
             type: Number
           }
         }
-      }), function(err, mapping) {
-        mapping.properties.geo_with_lat_lon.type.should.eql('geo_point');
-        mapping.properties.geo_with_lat_lon.lat_lon.should.eql(true);
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.geo_with_lat_lon.type.should.eql('geo_point')
+        mapping.properties.geo_with_lat_lon.lat_lon.should.eql(true)
+        done()
+      })
+    })
 
-    it('recognizes an nested schema and maps it', function(done) {
-      var NameSchema = new Schema({
+    it('recognizes an nested schema and maps it', function (done) {
+      const NameSchema = new Schema({
         first_name: {
           type: String
         },
         last_name: {
           type: String
         }
-      });
+      })
       generator.generateMapping(new Schema({
         name: [NameSchema]
-      }), function(err, mapping) {
-        mapping.properties.name.type.should.eql('object');
-        mapping.properties.name.properties.first_name.type.should.eql('string');
-        mapping.properties.name.properties.last_name.type.should.eql('string');
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.name.type.should.eql('object')
+        mapping.properties.name.properties.first_name.type.should.eql('string')
+        mapping.properties.name.properties.last_name.type.should.eql('string')
+        done()
+      })
+    })
 
-    it('recognizes an es_type of nested with es_fields and maps it', function(done) {
-      var NameSchema = new Schema({
+    it('recognizes an es_type of nested with es_fields and maps it', function (done) {
+      const NameSchema = new Schema({
         first_name: {
           type: String,
           es_index: 'not_analyzed'
@@ -273,7 +273,7 @@ describe('MappingGenerator', function() {
           type: String,
           es_index: 'not_analyzed'
         }
-      });
+      })
       generator.generateMapping(new Schema({
         name: {
           type: [NameSchema],
@@ -281,42 +281,42 @@ describe('MappingGenerator', function() {
           es_type: 'nested',
           es_include_in_parent: true
         }
-      }), function(err, mapping) {
-        mapping.properties.name.type.should.eql('nested');
-        mapping.properties.name.include_in_parent.should.eql(true);
-        mapping.properties.name.properties.first_name.type.should.eql('string');
-        mapping.properties.name.properties.first_name.index.should.eql('not_analyzed');
-        mapping.properties.name.properties.last_name.type.should.eql('string');
-        mapping.properties.name.properties.last_name.index.should.eql('not_analyzed');
-        should.not.exist(mapping.properties.name.properties.es_include_in_parent);
-        should.not.exist(mapping.properties.name.properties.es_type);
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.name.type.should.eql('nested')
+        mapping.properties.name.include_in_parent.should.eql(true)
+        mapping.properties.name.properties.first_name.type.should.eql('string')
+        mapping.properties.name.properties.first_name.index.should.eql('not_analyzed')
+        mapping.properties.name.properties.last_name.type.should.eql('string')
+        mapping.properties.name.properties.last_name.index.should.eql('not_analyzed')
+        should.not.exist(mapping.properties.name.properties.es_include_in_parent)
+        should.not.exist(mapping.properties.name.properties.es_type)
+        done()
+      })
+    })
 
-    it('recognizes a nested array with a simple type and maps it as a simple attribute', function(done) {
+    it('recognizes a nested array with a simple type and maps it as a simple attribute', function (done) {
       generator.generateMapping(new Schema({
         contacts: [String]
-      }), function(err, mapping) {
-        mapping.properties.contacts.type.should.eql('string');
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.contacts.type.should.eql('string')
+        done()
+      })
+    })
 
-    it('recognizes a nested array with a simple type and additional attributes and maps it as a simple attribute', function(done) {
+    it('recognizes a nested array with a simple type and additional attributes and maps it as a simple attribute', function (done) {
       generator.generateMapping(new Schema({
         contacts: [{
           type: String,
           es_index: 'not_analyzed'
         }]
-      }), function(err, mapping) {
-        mapping.properties.contacts.type.should.eql('string');
-        mapping.properties.contacts.index.should.eql('not_analyzed');
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.contacts.type.should.eql('string')
+        mapping.properties.contacts.index.should.eql('not_analyzed')
+        done()
+      })
+    })
 
-    it('recognizes a nested array with a complex object and maps it', function(done) {
+    it('recognizes a nested array with a complex object and maps it', function (done) {
       generator.generateMapping(new Schema({
         name: String,
         contacts: [{
@@ -326,17 +326,17 @@ describe('MappingGenerator', function() {
           },
           telephone: String
         }]
-      }), function(err, mapping) {
-        mapping.properties.name.type.should.eql('string');
-        mapping.properties.contacts.properties.email.type.should.eql('string');
-        mapping.properties.contacts.properties.email.index.should.eql('not_analyzed');
-        mapping.properties.contacts.properties.telephone.type.should.eql('string');
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.name.type.should.eql('string')
+        mapping.properties.contacts.properties.email.type.should.eql('string')
+        mapping.properties.contacts.properties.email.index.should.eql('not_analyzed')
+        mapping.properties.contacts.properties.telephone.type.should.eql('string')
+        done()
+      })
+    })
 
-    it('excludes a virtual property from mapping', function(done) {
-      var PersonSchema = new Schema({
+    it('excludes a virtual property from mapping', function (done) {
+      const PersonSchema = new Schema({
         first_name: {
           type: String
         },
@@ -346,50 +346,50 @@ describe('MappingGenerator', function() {
         age: {
           type: Number
         }
-      });
+      })
 
-      PersonSchema.virtual('birthYear').set(function(year) {
-        this.age = new Date().getFullYear() - year;
-      });
+      PersonSchema.virtual('birthYear').set(function (year) {
+        this.age = new Date().getFullYear() - year
+      })
 
       generator.generateMapping(new Schema({
         name: [PersonSchema]
-      }), function(err, mapping) {
-        mapping.properties.name.properties.first_name.type.should.eql('string');
-        mapping.properties.name.properties.last_name.type.should.eql('string');
-        mapping.properties.name.properties.age.type.should.eql('double');
-        should.not.exist(mapping.properties.name.properties.birthYear);
-        done();
-      });
-    });
-  });
+      }), function (err, mapping) {
+        mapping.properties.name.properties.first_name.type.should.eql('string')
+        mapping.properties.name.properties.last_name.type.should.eql('string')
+        mapping.properties.name.properties.age.type.should.eql('double')
+        should.not.exist(mapping.properties.name.properties.birthYear)
+        done()
+      })
+    })
+  })
 
-  describe('elastic search fields', function() {
-    it('type can be overridden', function(done) {
+  describe('elastic search fields', function () {
+    it('type can be overridden', function (done) {
       generator.generateMapping(new Schema({
         name: {
           type: String,
           es_type: 'date'
         }
-      }), function(err, mapping) {
-        mapping.properties.name.type.should.eql('date');
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.name.type.should.eql('date')
+        done()
+      })
+    })
 
-    it('adds the boost field', function(done) {
+    it('adds the boost field', function (done) {
       generator.generateMapping(new Schema({
         name: {
           type: String,
           es_boost: 2.2
         }
-      }), function(err, mapping) {
-        mapping.properties.name.boost.should.eql(2.2);
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.name.boost.should.eql(2.2)
+        done()
+      })
+    })
 
-    it('respects schemas with explicit es_indexes', function(done) {
+    it('respects schemas with explicit es_indexes', function (done) {
       generator.generateMapping(new Schema({
         implicit_field_1: {
           type: String
@@ -412,18 +412,18 @@ describe('MappingGenerator', function() {
           type: [Number],
           es_indexed: true
         }
-      }), function(err, mapping) {
-        mapping.properties.should.have.property('explicit_field_1');
-        mapping.properties.should.have.property('explicit_field_2');
-        mapping.properties.should.have.property('explicit_field_3');
-        mapping.properties.should.not.have.property('implicit_field_1');
-        mapping.properties.should.not.have.property('implicit_field_2');
-        mapping.properties.should.not.have.property('implicit_field_3');
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.should.have.property('explicit_field_1')
+        mapping.properties.should.have.property('explicit_field_2')
+        mapping.properties.should.have.property('explicit_field_3')
+        mapping.properties.should.not.have.property('implicit_field_1')
+        mapping.properties.should.not.have.property('implicit_field_2')
+        mapping.properties.should.not.have.property('implicit_field_3')
+        done()
+      })
+    })
 
-    it('maps all fields when schema has no es_indexed flag', function(done) {
+    it('maps all fields when schema has no es_indexed flag', function (done) {
       generator.generateMapping(new Schema({
         implicit_field_1: {
           type: String
@@ -431,41 +431,41 @@ describe('MappingGenerator', function() {
         implicit_field_2: {
           type: Number
         }
-      }), function(err, mapping) {
-        mapping.properties.should.have.property('implicit_field_1');
-        mapping.properties.should.have.property('implicit_field_2');
-        done();
-      });
-    });
-  });
+      }), function (err, mapping) {
+        mapping.properties.should.have.property('implicit_field_1')
+        mapping.properties.should.have.property('implicit_field_2')
+        done()
+      })
+    })
+  })
 
-  describe('ref mapping', function() {
-    it('maps all fields from referenced schema', function(done) {
-      var Name = new Schema({
+  describe('ref mapping', function () {
+    it('maps all fields from referenced schema', function (done) {
+      const Name = new Schema({
         firstName: String,
         lastName: String
-      });
+      })
       generator.generateMapping(new Schema({
         name: {type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name}
-      }), function(err, mapping) {
-        mapping.properties.name.properties.firstName.type.should.eql('string');
-        mapping.properties.name.properties.lastName.type.should.eql('string');
-        done();
-      });
-    });
+      }), function (err, mapping) {
+        mapping.properties.name.properties.firstName.type.should.eql('string')
+        mapping.properties.name.properties.lastName.type.should.eql('string')
+        done()
+      })
+    })
 
-    it('maps only selected fields from referenced schema', function(done) {
-      var Name = new Schema({
+    it('maps only selected fields from referenced schema', function (done) {
+      const Name = new Schema({
         firstName: String,
         lastName: String
-      });
+      })
       generator.generateMapping(new Schema({
         name: {type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name, es_select: 'firstName'}
-      }), function(err, mapping) {
-        mapping.properties.name.properties.firstName.type.should.eql('string');
-        should.not.exist(mapping.properties.name.properties.lastName);
-        done();
-      });
-    });
-  });
-});
+      }), function (err, mapping) {
+        mapping.properties.name.properties.firstName.type.should.eql('string')
+        should.not.exist(mapping.properties.name.properties.lastName)
+        done()
+      })
+    })
+  })
+})

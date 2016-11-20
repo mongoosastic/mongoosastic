@@ -1,70 +1,71 @@
-var elasticsearch = require('elasticsearch'),
-  esClient = new elasticsearch.Client({
-    host: 'localhost:9200',
-    deadTimeout: 0,
-    keepAlive: false
-  }),
-  async = require('async');
+'use strict'
 
-const INDEXING_TIMEOUT = process.env.INDEXING_TIMEOUT || 2000;
-const BULK_ACTION_TIMEOUT = process.env.BULK_ACTION_TIMEOUT || 4000;
+const elasticsearch = require('elasticsearch')
+const esClient = new elasticsearch.Client({
+  host: 'localhost:9200',
+  deadTimeout: 0,
+  keepAlive: false
+})
+const async = require('async')
 
+const INDEXING_TIMEOUT = process.env.INDEXING_TIMEOUT || 2000
+const BULK_ACTION_TIMEOUT = process.env.BULK_ACTION_TIMEOUT || 4000
 
-function deleteIndexIfExists(indexes, done) {
-  async.forEach(indexes, function(index, cb) {
+function deleteIndexIfExists (indexes, done) {
+  async.forEach(indexes, function (index, cb) {
     esClient.indices.exists({
       index: index
-    }, function(err, exists) {
+    }, function (err, exists) {
       if (exists) {
         esClient.indices.delete({
           index: index
-        }, cb);
+        }, cb)
       } else {
-        cb();
+        cb()
       }
-    });
-  }, done);
+    })
+  }, done)
 }
 
-function createModelAndEnsureIndex(Model, obj, cb) {
-  var dude = new Model(obj);
-  dude.save(function(err) {
-    if (err) return cb(err);
+function createModelAndEnsureIndex (Model, obj, cb) {
+  const dude = new Model(obj)
+  dude.save(function (err) {
+    if (err) return cb(err)
 
-    dude.on('es-indexed', function() {
-      setTimeout(function() {
-        cb(null, dude);
-      }, INDEXING_TIMEOUT);
-    });
-  });
+    dude.on('es-indexed', function () {
+      setTimeout(function () {
+        cb(null, dude)
+      }, INDEXING_TIMEOUT)
+    })
+  })
 }
 
-function createModelAndSave(Model, obj, cb) {
-  var dude = new Model(obj);
-  dude.save(cb);
+function createModelAndSave (Model, obj, cb) {
+  const dude = new Model(obj)
+  dude.save(cb)
 }
 
-function saveAndWaitIndex(model, cb) {
-  model.save(function(err) {
-    if (err) cb(err);
+function saveAndWaitIndex (model, cb) {
+  model.save(function (err) {
+    if (err) cb(err)
     else {
-      model.once('es-indexed', cb);
-      model.once('es-filtered', cb);
+      model.once('es-indexed', cb)
+      model.once('es-filtered', cb)
     }
-  });
+  })
 }
 
-function bookTitlesArray() {
-  var books = [
-      'American Gods',
-      'Gods of the Old World',
-      'American Gothic'
-    ],
-    idx;
+function bookTitlesArray () {
+  const books = [
+    'American Gods',
+    'Gods of the Old World',
+    'American Gothic'
+  ]
+  let idx
   for (idx = 0; idx < 50; idx++) {
-    books.push('ABABABA' + idx);
+    books.push('ABABABA' + idx)
   }
-  return books;
+  return books
 }
 
 module.exports = {
@@ -76,10 +77,10 @@ module.exports = {
   createModelAndSave: createModelAndSave,
   saveAndWaitIndex: saveAndWaitIndex,
   bookTitlesArray: bookTitlesArray,
-  getClient: function() {
-    return esClient;
+  getClient: function () {
+    return esClient
   },
-  close: function() {
-    esClient.close();
+  close: function () {
+    esClient.close()
   }
-};
+}

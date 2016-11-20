@@ -1,30 +1,30 @@
-var mongoose = require('mongoose'),
-  async = require('async'),
-  config = require('./config'),
-  Schema = mongoose.Schema,
-  Bond,
-  mongoosastic = require('../lib/mongoosastic');
+'use strict'
 
-var BondSchema = new Schema({
+const mongoose = require('mongoose')
+const async = require('async')
+const config = require('./config')
+const Schema = mongoose.Schema
+const mongoosastic = require('../lib/mongoosastic')
+
+const BondSchema = new Schema({
   name: String,
   type: {
     type: String,
     default: 'Other Bond'
   },
   price: Number
-});
+})
 
+BondSchema.plugin(mongoosastic)
 
-BondSchema.plugin(mongoosastic);
+const Bond = mongoose.model('Bond', BondSchema)
 
-Bond = mongoose.model('Bond', BondSchema);
-
-describe('Query DSL', function() {
-  before(function(done) {
-    mongoose.connect(config.mongoUrl, function() {
-      Bond.remove(function() {
-        config.deleteIndexIfExists(['bonds'], function() {
-          var bonds = [
+describe('Query DSL', function () {
+  before(function (done) {
+    mongoose.connect(config.mongoUrl, function () {
+      Bond.remove(function () {
+        config.deleteIndexIfExists(['bonds'], function () {
+          const bonds = [
             new Bond({
               name: 'Bail',
               type: 'A',
@@ -45,24 +45,24 @@ describe('Query DSL', function() {
               type: 'C',
               price: 30000
             })
-          ];
-          async.forEach(bonds, config.saveAndWaitIndex, function() {
-            setTimeout(done, config.INDEXING_TIMEOUT);
-          });
-        });
-      });
-    });
-  });
+          ]
+          async.forEach(bonds, config.saveAndWaitIndex, function () {
+            setTimeout(done, config.INDEXING_TIMEOUT)
+          })
+        })
+      })
+    })
+  })
 
-  after(function(done) {
-    Bond.remove();
-    Bond.esClient.close();
-    mongoose.disconnect();
-    done();
-  });
+  after(function (done) {
+    Bond.remove()
+    Bond.esClient.close()
+    mongoose.disconnect()
+    done()
+  })
 
-  describe('range', function() {
-    it('should be able to find within range', function(done) {
+  describe('range', function () {
+    it('should be able to find within range', function (done) {
       Bond.search({
         range: {
           price: {
@@ -70,57 +70,54 @@ describe('Query DSL', function() {
             to: 30000
           }
         }
-      }, function(err, res) {
-        res.hits.total.should.eql(2);
-        res.hits.hits.forEach(function(bond) {
-          ['Legal', 'Construction'].should.containEql(bond._source.name);
-        });
+      }, function (err, res) {
+        res.hits.total.should.eql(2)
+        res.hits.hits.forEach(function (bond) {
+          ['Legal', 'Construction'].should.containEql(bond._source.name)
+        })
 
-        done();
-      });
-    });
-  });
+        done()
+      })
+    })
+  })
 
-  describe('Sort', function() {
+  describe('Sort', function () {
+    const getNames = function (res) {
+      return res._source.name
+    }
+    const expectedDesc = ['Legal', 'Construction', 'Commercial', 'Bail']
+    const expectedAsc = expectedDesc.concat([]).reverse() // clone and reverse
 
-    var getNames = function(res) {
-      return res._source.name;
-    };
-    var expectedDesc = ['Legal', 'Construction', 'Commercial', 'Bail'];
-    var expectedAsc = expectedDesc.concat([]).reverse(); // clone and reverse
-
-    describe('Simple sort', function() {
-
-      it('should be able to return all data, sorted by name ascending', function(done) {
+    describe('Simple sort', function () {
+      it('should be able to return all data, sorted by name ascending', function (done) {
         Bond.search({
           match_all: {}
         }, {
           sort: 'name:asc'
-        }, function(err, res) {
-          res.hits.total.should.eql(4);
-          expectedAsc.should.eql(res.hits.hits.map(getNames));
+        }, function (err, res) {
+          res.hits.total.should.eql(4)
+          expectedAsc.should.eql(res.hits.hits.map(getNames))
 
-          done();
-        });
-      });
+          done()
+        })
+      })
 
-      it('should be able to return all data, sorted by name descending', function(done) {
+      it('should be able to return all data, sorted by name descending', function (done) {
         Bond.search({
           match_all: {}
         }, {
           sort: ['name:desc']
-        }, function(err, res) {
-          res.hits.total.should.eql(4);
-          expectedDesc.should.eql(res.hits.hits.map(getNames));
+        }, function (err, res) {
+          res.hits.total.should.eql(4)
+          expectedDesc.should.eql(res.hits.hits.map(getNames))
 
-          done();
-        });
-      });
-    });
+          done()
+        })
+      })
+    })
 
-    describe('Complex sort', function() {
-
-      it('should be able to return all data, sorted by name ascending', function(done) {
+    describe('Complex sort', function () {
+      it('should be able to return all data, sorted by name ascending', function (done) {
         Bond.search({
           match_all: {}
         }, {
@@ -129,15 +126,15 @@ describe('Query DSL', function() {
               order: 'asc'
             }
           }
-        }, function(err, res) {
-          res.hits.total.should.eql(4);
-          expectedAsc.should.eql(res.hits.hits.map(getNames));
+        }, function (err, res) {
+          res.hits.total.should.eql(4)
+          expectedAsc.should.eql(res.hits.hits.map(getNames))
 
-          done();
-        });
-      });
+          done()
+        })
+      })
 
-      it('should be able to return all data, sorted by name descending', function(done) {
+      it('should be able to return all data, sorted by name descending', function (done) {
         Bond.search({
           match_all: {}
         }, {
@@ -149,22 +146,19 @@ describe('Query DSL', function() {
               order: 'asc'
             }
           }
-        }, function(err, res) {
-          res.hits.total.should.eql(4);
-          expectedDesc.should.eql(res.hits.hits.map(getNames));
+        }, function (err, res) {
+          res.hits.total.should.eql(4)
+          expectedDesc.should.eql(res.hits.hits.map(getNames))
 
-          done();
-        });
-      });
-    });
+          done()
+        })
+      })
+    })
+  })
 
-  });
-
-  describe('Aggregations', function() {
-
-    describe('Simple aggregation', function() {
-
-      it('should be able to group by term', function(done) {
+  describe('Aggregations', function () {
+    describe('Simple aggregation', function () {
+      it('should be able to group by term', function (done) {
         Bond.search({
           match_all: {}
         }, {
@@ -175,7 +169,7 @@ describe('Query DSL', function() {
               }
             }
           }
-        }, function(err, res) {
+        }, function (err, res) {
           res.aggregations.names.buckets.should.eql([
             {
               doc_count: 1,
@@ -193,22 +187,19 @@ describe('Query DSL', function() {
               doc_count: 1,
               key: 'legal'
             }
-          ]);
+          ])
 
-          done();
-        });
-      });
+          done()
+        })
+      })
+    })
+  })
 
-    });
-
-  });
-
-  describe('test', function() {
-
-    it('should do a fuzzy query', function(done) {
-      var getNames = function(res) {
-        return res._source.name;
-      };
+  describe('test', function () {
+    it('should do a fuzzy query', function (done) {
+      const getNames = function (res) {
+        return res._source.name
+      }
 
       Bond.search({
         match: {
@@ -217,15 +208,11 @@ describe('Query DSL', function() {
             fuzziness: 2
           }
         }
-      }, function(err, res) {
-
+      }, function (err, res) {
         res.hits.total.should.eql(1);
-        ['Commercial'].should.eql(res.hits.hits.map(getNames));
-        done();
-      });
-
-    });
-
-  });
-
-});
+        ['Commercial'].should.eql(res.hits.hits.map(getNames))
+        done()
+      })
+    })
+  })
+})
