@@ -21,15 +21,17 @@
   },
   "devDependencies": {
     "async": "^1.5.2",
-    "babel-eslint": "^4.1.8",
     "changelog": "^1.0.7",
     "coveralls": "^2.11.6",
-    "eslint": "^1.10.0",
-    "eslint-config-airbnb": "^5.0.1",
+    "eslint": "3.10.2",
+    "eslint-config-standard": "6.2.1",
+    "eslint-plugin-promise": "3.4.0",
+    "eslint-plugin-standard": "2.0.1",
     "istanbul": "^0.4.2",
     "mocha": "^2.4.5",
     "mongoose": "^4.4.3",
-    "should": "^8.2.2"
+    "should": "^8.2.2",
+    "standard": "8.5.0"
   },
   "engines": {
     "node": ">= 4.0"
