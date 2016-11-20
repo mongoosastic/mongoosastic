@@ -13,12 +13,14 @@ Mongoosastic is a [mongoose](http://mongoosejs.com/) plugin that can automatical
 - [Setup](#setup)
 - [Indexing](#indexing)
   - [Saving a document](#saving-a-document)
+  - [Removing a docuemnt](#removing-a-document)
   - [Indexing nested models](#indexing-nested-models)
   - [Indexing mongoose references](#indexing-mongoose-references)
   - [Indexing an existing collection](#indexing-an-existing-collection)
   - [Bulk indexing](#bulk-indexing)
   - [Filtered indexing](#filtered-indexing)
   - [Indexing on demand](#indexing-on-demand)
+  - [Unindexing on demand](#unindexing-on-demand)
   - [Truncating an index](#truncating-an-index)
 - [Mapping](#mapping)
   - [Geo mapping](#geo-mapping)
@@ -30,7 +32,7 @@ Mongoosastic is a [mongoose](http://mongoosejs.com/) plugin that can automatical
 
 ## Installation
 
-The latest version of this package will be as close as possible to the latest `elasticsearch` and `mongoose` packages. 
+The latest version of this package will be as close as possible to the latest `elasticsearch` and `mongoose` packages.
 
 ```bash
 npm install -S mongoosastic
@@ -57,6 +59,8 @@ Options are:
 * `transform` - the function used to transform serialized document before indexing
 * `populate` - an Array of Mongoose populate options objects
 * `indexAutomatically` - allows indexing after model save to be disabled for when you need finer control over when documents are indexed. Defaults to true
+* `customProperties` - an object detailing additional properties which will be merged onto the type's default mapping when `createMapping` is called.
+* `saveOnSynchronize` - triggers Mongoose save (and pre-save) method when synchronizing a collection/index. Defaults to true
 
 
 To have a model indexed into Elasticsearch simply add the plugin.
@@ -75,15 +79,15 @@ var User = new Schema({
 User.plugin(mongoosastic)
 ```
 
-This will by default simply use the pluralization of the model name as the index 
+This will by default simply use the pluralization of the model name as the index
 while using the model name itself as the type. So if you create a new
 User object and save it, you can see it by navigating to
 http://localhost:9200/users/user/_search (this assumes Elasticsearch is
-running locally on port 9200). 
+running locally on port 9200).
 
 The default behavior is all fields get indexed into Elasticsearch. This can be a little wasteful especially considering that
 the document is now just being duplicated between mongodb and
-Elasticsearch so you should consider opting to index only certain fields by specifying `es_indexed` on the 
+Elasticsearch so you should consider opting to index only certain fields by specifying `es_indexed` on the
 fields you want to store:
 
 
@@ -114,7 +118,7 @@ User.search({
 
 ```
 
-To connect to more than one host, you can use an array of hosts. 
+To connect to more than one host, you can use an array of hosts.
 
 ```javascript
 MyModel.plugin(mongoosastic, {
@@ -138,8 +142,8 @@ MyModel.plugin(mongoosastic, {
 ## Indexing
 
 ### Saving a document
-The indexing takes place after saving inside the mongodb and is a defered process. 
-One can check the end of the indexion catching es-indexed event. 
+The indexing takes place after saving in mongodb and is a deferred process.
+One can check the end of the indexation by catching the es-indexed event.
 
 ```javascript
 doc.save(function(err){
@@ -152,8 +156,30 @@ doc.save(function(err){
   });
 ```
 
+### Removing a document
+Removing a document, or unindexing, takes place when a document is removed by calling `.remove()` on a mongoose Document instance.
+One can check the end of the unindexing by catching the es-removed event.
 
-###Indexing Nested Models
+```javascript
+doc.remove(function(err) {
+  if (err) throw err;
+  /* Document unindexing in the background */
+  doc.on('es-removed', function(err, res) {
+    if (err) throw err;
+    /* Docuemnt is unindexed */
+  });
+});
+```
+
+Note that use of `Model.remove` does not involve mongoose documents as outlined in the [documentation](http://mongoosejs.com/docs/api.html#model_Model.remove). Therefore, the following will not unindex the document.
+
+```javascript
+MyModel.remove({ _id: doc.id }, function(err) {
+  /* doc remains in Elasticsearch cluster */
+});
+```
+
+### Indexing Nested Models
 In order to index nested models you can refer following example.
 
 ```javascript
@@ -174,11 +200,11 @@ var User = new Schema({
 User.plugin(mongoosastic)
 ```
 
-###Elasticsearch [Nested datatype](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/nested.html)
+### Elasticsearch [Nested datatype](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/nested.html)
 Since the default in Elasticsearch is to take arrays and flatten them into objects,
-it can make it hard to write queries where you need to maintain the relationships 
+it can make it hard to write queries where you need to maintain the relationships
 between objects in the array, per .
-The way to change this behavior is by changing the Elasticsearch type from `object` 
+The way to change this behavior is by changing the Elasticsearch type from `object`
 (the mongoosastic default) to `nested`
 
 ```javascript
@@ -194,9 +220,9 @@ var User = new Schema({
   , email: String
   , city: String
   , comments: {
-      type:[Comment], 
-      es_indexed: true, 
-      es_type: 'nested', 
+      type:[Comment],
+      es_indexed: true,
+      es_type: 'nested',
       es_include_in_parent: true
   }
 })
@@ -204,7 +230,7 @@ var User = new Schema({
 User.plugin(mongoosastic)
 ```
 
-###Indexing Mongoose References
+### Indexing Mongoose References
 In order to index mongoose references you can refer following example.
 
 ```javascript
@@ -267,9 +293,20 @@ You can also synchronize a subset of documents based on a query!
 var stream = Book.synchronize({author: 'Arthur C. Clarke'})
 ```
 
+As well as specifying synchronization options
+
+```javascript
+var stream = Book.synchronize({}, {saveOnSynchronize: true})
+```
+
+Options are:
+
+ * `saveOnSynchronize` - triggers Mongoose save (and pre-save) method when synchronizing a collection/index. Defaults to global `saveOnSynchronize` option
+
+
 ### Bulk Indexing
 
-You can also specify `bulk` options with mongoose which will utilize Elasticsearch's bulk indexing api. This will cause the `synchronize` function to use bulk indexing as well. 
+You can also specify `bulk` options with mongoose which will utilize Elasticsearch's bulk indexing api. This will cause the `synchronize` function to use bulk indexing as well.
 
 Mongoosastic will wait 1 second (or specified delay) until it has 1000 docs (or specified size) and then perform bulk indexing.
 
@@ -318,17 +355,34 @@ Dude.findOne({name:'Jeffrey Lebowski', function(err, dude){
 
 The index method takes 2 arguments:
 
-* `options` (optional) - {index, type} - the index and type to publish to. Defaults to the standard index and type.
+* `options` (optional) - {index, type} - the index and type to publish to. Defaults to the standard index and type that
   the model was setup with.
-* `callback` - callback function to be invoked when model has been
+* `callback` - callback function to be invoked when document has been
   indexed.
 
 Note that indexing a model does not mean it will be persisted to
 mongodb. Use save for that.
 
+### Unindexing on demand
+You can remove a document from the Elasticsearch cluster by using the `unIndex` function.
+
+```javascript
+doc.unIndex(function(err) {
+  console.log("I've been removed from the cluster :(");
+});
+```
+
+The unIndex method takes 2 arguments:
+
+* `options` (optional) - {index, type} - the index and type to publish to. Defaults to the standard index and type that
+  the model was setup with.
+* `callback` - callback function to be invoked when model has been
+  unindexed.
+
+
 ### Truncating an index
 
-The static method `esTruncate` will delete all documents from the associated index. This method combined with synchronise can be usefull in case of integration tests for example when each test case needs a cleaned up index in Elasticsearch.
+The static method `esTruncate` will delete all documents from the associated index. This method combined with `synchronize()` can be useful in case of integration tests for example when each test case needs a cleaned up index in Elasticsearch.
 
 ```javascript
 GarbageModel.esTruncate(function(err){...});
@@ -337,7 +391,7 @@ GarbageModel.esTruncate(function(err){...});
 ## Mapping
 
 Schemas can be configured to have special options per field. These match
-with the existing [field mapping configurations](http://www.elasticsearch.org/guide/reference/mapping/core-types.html) defined by Elasticsearch with the only difference being they are all prefixed by "es_". 
+with the existing [field mapping configurations](http://www.elasticsearch.org/guide/reference/mapping/core-types.html) defined by Elasticsearch with the only difference being they are all prefixed by "es_".
 
 So for example. If you wanted to index a book model and have the boost
 for title set to 2.0 (giving it greater priority when searching) you'd
@@ -347,8 +401,8 @@ define it as follows:
 var BookSchema = new Schema({
     title: {type:String, es_boost:2.0}
   , author: {type:String, es_null_value:"Unknown Author"}
-  , publicationDate: {type:Date, es_type:'date'} 
-}); 
+  , publicationDate: {type:Date, es_type:'date'}
+});
 
 ```
 This example uses a few other mapping fields... such as null_value and
@@ -371,13 +425,13 @@ var ExampleSchema = new Schema({
   // Array type
   array: {type:Array, es_type:'string'},
 
-  // Object type 
+  // Object type
   object: {
     field1: {type: String},
     field2: {type: String}
   },
 
-  // Nested type 
+  // Nested type
   nested: [SubSchema],
 
   // Multi field type
@@ -436,7 +490,7 @@ var SubSchema = new Schema({
 ```
 
 ### Geo mapping
-Prior to index any geo mapped data (or calling the synchronize), 
+Prior to index any geo mapped data (or calling the synchronize),
 the mapping must be manualy created with the createMapping (see above).
 
 Notice that the name of the field containing the ES geo data must start by
@@ -467,7 +521,7 @@ var geo = new GeoModel({
 
 Mapping, indexing and searching example for geo shape can be found in test/geo-test.js
 
-For example, one can retrieve the list of document where the shape contain a specific 
+For example, one can retrieve the list of document where the shape contain a specific
 point (or polygon...)
 
 ```javascript
@@ -479,7 +533,7 @@ var geoFilter = {
       geo_shape: {
         geo_shape: {
           shape: {
-            type: "point", 
+            type: "point",
             coordinates: [3,1]
           }
         }
@@ -493,11 +547,11 @@ GeoModel.search(geoQuery, {filter: geoFilter}, function(err, res) { /* ... */ })
 Creating the mapping is a one time operation and can be done as
 follows (using the BookSchema as an example):
 
-```javascript 
+```javascript
 var BookSchema = new Schema({
     title: {type:String, es_boost:2.0}
   , author: {type:String, es_null_value:"Unknown Author"}
-  , publicationDate: {type:Date, es_type:'date'} 
+  , publicationDate: {type:Date, es_type:'date'}
 
 BookSchema.plugin(mongoosastic);
 var Book = mongoose.model('Book', BookSchema);
@@ -519,7 +573,7 @@ This feature is still a work in progress. As of this writing you'll have
 to manage whether or not you need to create the mapping, mongoosastic
 will make no assumptions and simply attempt to create the mapping. If
 the mapping already exists, an Exception detailing such will be
-populated in the `err` argument. 
+populated in the `err` argument.
 
 
 ## Queries
@@ -568,6 +622,39 @@ Person.search({/* ... */}, {
 
 Options for queries must adhere to the [javascript elasticsearch driver specs](http://www.elasticsearch.org/guide/en/elasticsearch/client/javascript-api/current/api-reference.html#api-search).
 
+### Raw queries
+A full ElasticSearch query object can be provided to mongoosastic through `.esSearch()` method. 
+It can be useful when paging results. The query to be provided wraps the query object provided to `.search()` method and
+accepts the same options:
+
+```javascript
+var rawQuery = {
+    from: 60,
+    size: 20,
+    query: /* query object as in .search() */
+};
+
+Model.esSearch(rawQuery, options, cb);
+```
+
+For example:
+
+```javascript
+Person.esSearch({
+  from: 60,
+  size: 20,
+  query: {
+    range: {
+      age:{
+        from:21,
+        to: 30
+      }
+    }
+  }
+}, function(err, people){
+   // only the 61st to 80th ranked people who fit the age group are here!   
+});
+```
 
 ### Hydration
 By default objects returned from performing a search will be the objects
@@ -580,8 +667,11 @@ provide {hydrate:true} as the second argument to a search call.
 
 ```javascript
 
-User.search({query_string: {query: "john"}}, {hydrate:true}, function(err, results) {
-  // results here
+User.search(
+  {query_string: {query: 'john'}},
+  {hydrate: true},
+  function(err, results) {
+    // results here
 });
 
 ```
@@ -591,15 +681,50 @@ how to query for the mongoose object.
 
 ```javascript
 
-User.search({query_string: {query: "john"}}, {hydrate:true, hydrateOptions: {select: 'name age'}}, function(err, results) {
-  // results here
+User.search(
+  {query_string: {query: 'john'}},
+  {
+    hydrate: true,
+    hydrateOptions: {select: 'name age'}
+  },
+  function(err, results) {
+    // results here
 });
 
 ```
 
+Original ElasticSearch result data can be kept with `hydrateWithESResults` option. Documents are then enhanced with a
+`_esResult` property
+
+```javascript
+
+User.search(
+  {query_string: {query: 'john'}},
+  {
+    hydrate: true,
+    hydrateWithESResults: true,
+    hydrateOptions: {select: 'name age'}
+  },
+  function(err, results) {
+    // results here
+    results.hits.hits.forEach(function(result) {
+      console.log(
+        'score',
+        result._id,
+        result._esResult._score
+      );
+    });
+});
+
+```
+
+By default the `_esResult._source` document is skipped. It can be added with the option `hydrateWithESResults: {source: false}`.
+
+
+
 Note using hydrate will be a degree slower as it will perform an Elasticsearch
 query and then do a query against mongodb for all the ids returned from
-the search result. 
+the search result.
 
 You can also default this to always be the case by providing it as a
 plugin option (as well as setting default hydrate options):

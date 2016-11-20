@@ -130,12 +130,55 @@ describe('MappingGenerator', function() {
           },
           telephone: {
             type: String
+          },
+          keys: [String],
+          tags: {
+            type: [String],
+            es_indexed: true
           }
         }
       }), function(err, mapping) {
         mapping.properties.name.type.should.eql('string');
         mapping.properties.contact.properties.email.type.should.eql('string');
+        mapping.properties.contact.properties.tags.type.should.eql('string');
         mapping.properties.contact.properties.should.not.have.property('telephone');
+        mapping.properties.contact.properties.should.not.have.property('keys');
+        done();
+      });
+    });
+
+    it('recognizes a nested schema and handles explict es_indexed', function(done) {
+
+      var ContactSchema = new Schema({
+        email: {
+          type: String,
+          es_indexed: true
+        },
+        telephone: {
+          type: String
+        },
+        keys: {type: [String], es_indexed: false},
+        tags: {
+          type: [String],
+          es_indexed: true
+        }
+      });
+
+      generator.generateMapping(new Schema({
+        name: {
+          type: String,
+          es_indexed: true
+        },
+        contact: {
+          type: ContactSchema,
+          select: false
+        }
+      }), function(err, mapping) {
+        mapping.properties.name.type.should.eql('string');
+        mapping.properties.contact.properties.email.type.should.eql('string');
+        mapping.properties.contact.properties.tags.type.should.eql('string');
+        mapping.properties.contact.properties.should.not.have.property('telephone');
+        mapping.properties.contact.properties.should.not.have.property('keys');
         done();
       });
     });
@@ -361,12 +404,21 @@ describe('MappingGenerator', function() {
         explicit_field_2: {
           type: String,
           es_indexed: true
+        },
+        implicit_field_3: {
+          type: [Number]
+        },
+        explicit_field_3: {
+          type: [Number],
+          es_indexed: true
         }
       }), function(err, mapping) {
         mapping.properties.should.have.property('explicit_field_1');
         mapping.properties.should.have.property('explicit_field_2');
+        mapping.properties.should.have.property('explicit_field_3');
         mapping.properties.should.not.have.property('implicit_field_1');
         mapping.properties.should.not.have.property('implicit_field_2');
+        mapping.properties.should.not.have.property('implicit_field_3');
         done();
       });
     });
