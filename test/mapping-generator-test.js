@@ -467,5 +467,68 @@ describe('MappingGenerator', function() {
         done();
       });
     });
+
+    it('maps all fields from array of referenced schema', function(done) {
+      var Name = new Schema({
+        firstName: String,
+        lastName: String
+      });
+      generator.generateMapping(new Schema({
+        name: {
+          type: [{type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name}],
+          es_type: 'object'
+        }
+      }), function(err, mapping) {
+        mapping.properties.name.properties.firstName.type.should.eql('string');
+        mapping.properties.name.properties.lastName.type.should.eql('string');
+        done();
+      });
+    });
+
+    it('maps only selected fields from array of referenced schema', function(done) {
+      var Name = new Schema({
+        firstName: String,
+        lastName: String
+      });
+      generator.generateMapping(new Schema({
+        name: {
+          type: [{type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name, es_select: 'firstName'}],
+          es_type: 'object'
+        }
+      }), function(err, mapping) {
+        mapping.properties.name.properties.firstName.type.should.eql('string');
+        should.not.exist(mapping.properties.name.properties.lastName);
+        done();
+      });
+    });
+
+    it('maps a geo_point field of an nested referenced schema as a geo_point', function(done) {
+      var Location = new Schema({
+        name: String,
+        coordinates: {
+          type: {
+            geo_point: {
+              type: String,
+              es_type: 'geo_point',
+              es_lat_lon: true
+            },
+
+            lat: {type: Number, default: 0},
+            lon: {type: Number, default: 0}
+          },
+          es_type: 'geo_point'
+        }
+      });
+
+      generator.generateMapping(new Schema({
+        locations: {
+          type: [{type: Schema.Types.ObjectId, ref: 'Location', es_schema: Location}],
+          es_type: 'object'
+        }
+      }), function(err, mapping) {
+        mapping.properties.locations.properties.coordinates.type.should.eql('geo_point');
+        done();
+      })
+    })
   });
 });
