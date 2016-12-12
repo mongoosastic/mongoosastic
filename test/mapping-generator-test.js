@@ -528,7 +528,7 @@ describe('MappingGenerator', function() {
       }), function(err, mapping) {
         mapping.properties.locations.properties.coordinates.type.should.eql('geo_point');
         done();
-      })
-    })
+      });
+    });
   });
 });
