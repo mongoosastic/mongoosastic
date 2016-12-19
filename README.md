@@ -404,6 +404,17 @@ var BookSchema = new Schema({
   , publicationDate: {type:Date, es_type:'date'}
 });
 
+var BlogPost = mongoose.model('BlogPost', BlogPostSchema);
+
+BlogPost.createMapping(function(err, mapping) {
+  if (err) {
+    console.log('error creating mapping (you can safely ignore this)');
+    console.log(err);
+  } else {
+    console.log('mapping created!');
+    console.log(mapping);
+  }
+});
 ```
 This example uses a few other mapping fields... such as null_value and
 type (which overrides whatever value the schema type is, useful if you
@@ -594,6 +605,7 @@ Person.search({
 });
 
 ```
+
 See the Elasticsearch [Query DSL](http://www.elasticsearch.org/guide/reference/query-dsl/) docs for more information.
 
 You can also specify query options like [sorts](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-sort.html#search-request-sort)
