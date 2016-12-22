@@ -21,9 +21,9 @@ const PostCommentSchema = new Schema({
 })
 
 const PostSchema = new Schema({
-  body: {type: String, es_index: true},
-  author: {type: Schema.Types.ObjectId, ref: 'User', es_schema: UserSchema, es_index: true},
-  comments: [{type: Schema.Types.ObjectId, ref: 'PostComment', es_schema: PostComment, es_index: true}]
+  body: {type: String, es_indexed: true},
+  author: {type: Schema.Types.ObjectId, ref: 'User', es_schema: UserSchema, es_indexed: true},
+  comments: [{type: Schema.Types.ObjectId, ref: 'PostComment', es_schema: PostComment, es_indexed: true}]
 })
 
 PostSchema.plugin(mongoosastic, {
