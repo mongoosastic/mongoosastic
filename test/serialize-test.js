@@ -1,11 +1,13 @@
-var mongoose = require('mongoose'),
-  Generator = require('../lib/mapping-generator'),
-  generator = new Generator(),
-  serialize = require('../lib/serialize'),
-  Schema = mongoose.Schema;
+'use strict'
 
-var BowlingBall = mongoose.model('BowlingBall', new Schema());
-var PersonSchema22 = new Schema({
+const mongoose = require('mongoose')
+const Generator = require('../lib/mapping-generator')
+const generator = new Generator()
+const serialize = require('../lib/serialize')
+const Schema = mongoose.Schema
+
+const BowlingBall = mongoose.model('BowlingBall', new Schema())
+const PersonSchema22 = new Schema({
   name: {
     first: String,
     last: String
@@ -21,23 +23,26 @@ var PersonSchema22 = new Schema({
   }],
   somethingToCast: {
     type: String,
-    es_cast: function(element) {
-      return element + ' has been cast';
+    es_cast: function (element) {
+      return element + ' has been cast'
     }
   }
-});
+})
 
-var Person = mongoose.model('Person22', PersonSchema22);
+const Person = mongoose.model('Person22', PersonSchema22)
 
-var mapping;
+let mapping
 
 // Serialize method requires a schema mapping
-generator.generateMapping(PersonSchema22, function(err, tmp) {
-  mapping = tmp;
-});
+generator.generateMapping(PersonSchema22, function (err, tmp) {
+  if (err) {
+    // do nothing
+  }
+  mapping = tmp
+})
 
-describe('serialize', function() {
-  var dude = new Person({
+describe('serialize', function () {
+  const dude = new Person({
     name: {
       first: 'Jeffrey',
       last: 'Lebowski'
@@ -52,48 +57,48 @@ describe('serialize', function() {
       date: new Date(Date.parse('06/17/1962'))
     }],
     somethingToCast: 'Something'
-  });
+  })
 
   // another person with missing parts to test robustness
-  var millionnaire = new Person({
+  const millionnaire = new Person({
     name: {
       first: 'Jeffrey',
       last: 'Lebowski'
     }
-  });
+  })
 
-  it('should serialize a document with missing bits', function() {
-    var serialized = serialize(millionnaire, mapping);
-    serialized.should.have.property('games', []);
-  });
+  it('should serialize a document with missing bits', function () {
+    const serialized = serialize(millionnaire, mapping)
+    serialized.should.have.property('games', [])
+  })
 
-  describe('with no indexed fields', function() {
-    var serialized = serialize(dude, mapping);
-    it('should serialize model fields', function() {
-      serialized.name.first.should.eql('Jeffrey');
-      serialized.name.last.should.eql('Lebowski');
-    });
+  describe('with no indexed fields', function () {
+    const serialized = serialize(dude, mapping)
+    it('should serialize model fields', function () {
+      serialized.name.first.should.eql('Jeffrey')
+      serialized.name.last.should.eql('Lebowski')
+    })
 
-    it('should serialize object ids as strings', function() {
-      serialized.bowlingBall.should.eql(dude.bowlingBall);
-      serialized.bowlingBall.should.be.type('object');
-    });
+    it('should serialize object ids as strings', function () {
+      serialized.bowlingBall.should.eql(dude.bowlingBall)
+      serialized.bowlingBall.should.be.type('object')
+    })
 
-    it('should serialize dates in ISO 8601 format', function() {
-      serialized.dob.should.eql(dude.dob.toJSON());
-    });
+    it('should serialize dates in ISO 8601 format', function () {
+      serialized.dob.should.eql(dude.dob.toJSON())
+    })
 
-    it('should serialize nested arrays', function() {
-      serialized.games.should.have.lengthOf(2);
-      serialized.games[0].should.have.property('score', 80);
-    });
+    it('should serialize nested arrays', function () {
+      serialized.games.should.have.lengthOf(2)
+      serialized.games[0].should.have.property('score', 80)
+    })
 
-    it('should cast and serialize field', function() {
-      serialized.somethingToCast.should.eql('Something has been cast');
-    });
-  });
+    it('should cast and serialize field', function () {
+      serialized.somethingToCast.should.eql('Something has been cast')
+    })
+  })
 
-  describe('indexed fields', function() {
+  describe('indexed fields', function () {
 
-  });
-});
+  })
+})

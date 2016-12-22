@@ -1,132 +1,117 @@
-var mongoose = require('mongoose'),
-  async = require('async'),
-  elasticsearch = require('elasticsearch'),
-  config = require('./config'),
-  Schema = mongoose.Schema,
-  mongoosastic = require('../lib/mongoosastic');
+'use strict'
 
-var DummySchema = new Schema({
+const mongoose = require('mongoose')
+const async = require('async')
+const elasticsearch = require('elasticsearch')
+const config = require('./config')
+const Schema = mongoose.Schema
+const mongoosastic = require('../lib/mongoosastic')
+
+const DummySchema = new Schema({
   text: String
-});
+})
 
-var Dummy = mongoose.model('Dummy1', DummySchema, 'dummys');
+const Dummy = mongoose.model('Dummy1', DummySchema, 'dummys')
 
-function tryDummySearch(model, cb) {
-  setTimeout(function() {
+function tryDummySearch (model, cb) {
+  setTimeout(function () {
     model.search({
       simple_query_string: {
         query: 'Text1'
       }
     }, {
       index: '_all'
-    }, function(err, results) {
+    }, function (err, results) {
       if (err) {
-        return cb(err);
+        return cb(err)
       }
 
-      results.hits.total.should.eql(0);
-      model.esClient.close();
-      cb(err);
-    });
-  }, config.INDEXING_TIMEOUT);
-
+      results.hits.total.should.eql(0)
+      model.esClient.close()
+      cb(err)
+    })
+  }, config.INDEXING_TIMEOUT)
 }
 
-describe('Elasticsearch Connection', function() {
-
-  before(function(done) {
-
-    mongoose.connect(config.mongoUrl, function() {
-      Dummy.remove(function() {
-        config.deleteIndexIfExists(['dummys'], function() {
-          var dummies = [
+describe('Elasticsearch Connection', function () {
+  before(function (done) {
+    mongoose.connect(config.mongoUrl, function () {
+      Dummy.remove(function () {
+        config.deleteIndexIfExists(['dummys'], function () {
+          const dummies = [
             new Dummy({
               text: 'Text1'
             }),
             new Dummy({
               text: 'Text2'
             })
-          ];
-          async.forEach(dummies, function(item, cb) {
-            item.save(cb);
-          }, function() {
-            setTimeout(done, config.INDEXING_TIMEOUT);
-          });
-        });
-      });
-    });
-  });
+          ]
+          async.forEach(dummies, function (item, cb) {
+            item.save(cb)
+          }, function () {
+            setTimeout(done, config.INDEXING_TIMEOUT)
+          })
+        })
+      })
+    })
+  })
 
-  after(function(done) {
-    Dummy.remove();
-    mongoose.disconnect();
-    done();
-  });
+  after(function (done) {
+    Dummy.remove()
+    mongoose.disconnect()
+    done()
+  })
 
-  it('should be able to connect with default options', function(done) {
-    var Dummy2;
+  it('should be able to connect with default options', function (done) {
+    DummySchema.plugin(mongoosastic)
+    const Dummy2 = mongoose.model('Dummy2', DummySchema, 'dummys')
 
-    DummySchema.plugin(mongoosastic);
-    Dummy2 = mongoose.model('Dummy2', DummySchema, 'dummys');
+    tryDummySearch(Dummy2, done)
+  })
 
-    tryDummySearch(Dummy2, done);
-
-  });
-
-  it('should be able to connect with explicit options', function(done) {
-    var Dummy3;
-
+  it('should be able to connect with explicit options', function (done) {
     DummySchema.plugin(mongoosastic, {
       host: 'localhost',
       port: 9200
-    });
+    })
 
-    Dummy3 = mongoose.model('Dummy3', DummySchema, 'dummys');
+    const Dummy3 = mongoose.model('Dummy3', DummySchema, 'dummys')
 
-    tryDummySearch(Dummy3, done);
+    tryDummySearch(Dummy3, done)
+  })
 
-  });
-
-  it('should be able to connect with an array of hosts', function(done) {
-    var Dummy4;
-
+  it('should be able to connect with an array of hosts', function (done) {
     DummySchema.plugin(mongoosastic, {
       hosts: [
         'localhost:9200',
         'localhost:9200'
       ]
-    });
+    })
 
-    Dummy4 = mongoose.model('Dummy4', DummySchema, 'dummys');
+    const Dummy4 = mongoose.model('Dummy4', DummySchema, 'dummys')
 
-    tryDummySearch(Dummy4, done);
+    tryDummySearch(Dummy4, done)
+  })
 
-  });
-
-  it('should be able to connect with an existing elasticsearch client', function(done) {
-
-    var esClient = new elasticsearch.Client({
+  it('should be able to connect with an existing elasticsearch client', function (done) {
+    const esClient = new elasticsearch.Client({
       host: 'localhost:9200'
-    });
+    })
 
     esClient.ping({
       requestTimeout: 1000
-    }, function(err) {
-      var Dummy5;
-
+    }, function (err) {
       if (err) {
-        return done(err);
+        return done(err)
       }
 
       DummySchema.plugin(mongoosastic, {
         esClient: esClient
-      });
+      })
 
-      Dummy5 = mongoose.model('Dummy5', DummySchema, 'dummys');
+      const Dummy5 = mongoose.model('Dummy5', DummySchema, 'dummys')
 
-      tryDummySearch(Dummy5, done);
-    });
-
-  });
-
-});
+      tryDummySearch(Dummy5, done)
+    })
+  })
+})
