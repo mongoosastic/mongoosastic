@@ -1,4 +1,5 @@
 var mongoose = require('mongoose'),
+  ObjectId = mongoose.Types.ObjectId,
   should = require('should'),
   async = require('async'),
   elasticsearch = require('elasticsearch'),
@@ -18,9 +19,9 @@ var PostCommentSchema = new Schema({
 });
 
 var PostSchema = new Schema({
-  body: {type: String, es_index: true},
-  author: {type: Schema.Types.ObjectId, ref: 'User', es_schema: UserSchema, es_index: true},
-  comments: [{type: Schema.Types.ObjectId, ref: 'PostComment', es_schema: PostComment, es_index: true}]
+  body: {type: String, es_indexed: true},
+  author: {type: Schema.Types.ObjectId, ref: 'User', es_schema: UserSchema, es_indexed: true},
+  comments: [{type: Schema.Types.ObjectId, ref: 'PostComment', es_schema: PostComment, es_indexed: true}]
 });
 
 PostSchema.plugin(mongoosastic, {
@@ -53,18 +54,25 @@ describe('references', function() {
   });
 
   describe('indexing', function() {
+    var user
+
     before(function(done) {
-      var user = new User({
+      user = new User({
         name: 'jake'
       });
-      user.save(function(err, savedUser) {
-        if (err) return done(err);
-        config.createModelAndEnsureIndex(Post, {
-          body: 'A very short post',
-          author: savedUser._id
-        }, done);
-      });
+      user.save(done);
     });
+
+    it('should keep populated field of source doc unchanged', function(done) {
+      config.createModelAndEnsureIndex(Post, {
+        body: 'A very short post',
+        author: user._id
+      }, function(err, post) {
+        if (err) return done(err)
+        post.author.should.be.instanceof(ObjectId)
+        done()
+      });
+    })
 
     it('should index selected fields from referenced schema', function(done) {
       Post.findOne({}, function(err, post) {
