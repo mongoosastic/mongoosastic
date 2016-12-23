@@ -7,7 +7,7 @@
 
 [![NPM](https://nodei.co/npm/mongoosastic.png)](https://nodei.co/npm/mongoosastic/)
 
-Mongoosastic is a [mongoose](http://mongoosejs.com/) plugin that can automatically index your models into [elasticsearch](http://www.elasticsearch.org/).
+Mongoosastic is a [mongoose](http://mongoosejs.com/) plugin that can automatically index your models into [elasticsearch](https://www.elastic.co/).
 
 - [Installation](#installation)
 - [Setup](#setup)
@@ -105,7 +105,7 @@ In this case only the name field will be indexed for searching.
 
 Now, by adding the plugin, the model will have a new method called
 `search` which can be used to make simple to complex searches. The `search`
-method accepts [standard Elasticsearch query DSL](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/query-dsl-queries.html)
+method accepts [standard Elasticsearch query DSL](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-queries.html)
 
 ```javascript
 User.search({
@@ -200,7 +200,7 @@ var User = new Schema({
 User.plugin(mongoosastic)
 ```
 
-### Elasticsearch [Nested datatype](https://www.elastic.co/guide/en/elasticsearch/reference/2.0/nested.html)
+### Elasticsearch [Nested datatype](https://www.elastic.co/guide/en/elasticsearch/reference/current/nested.html)
 Since the default in Elasticsearch is to take arrays and flatten them into objects,
 it can make it hard to write queries where you need to maintain the relationships
 between objects in the array, per .
@@ -391,7 +391,7 @@ GarbageModel.esTruncate(function(err){...});
 ## Mapping
 
 Schemas can be configured to have special options per field. These match
-with the existing [field mapping configurations](http://www.elasticsearch.org/guide/reference/mapping/core-types.html) defined by Elasticsearch with the only difference being they are all prefixed by "es_".
+with the existing [field mapping configurations](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html) defined by Elasticsearch with the only difference being they are all prefixed by "es_".
 
 So for example. If you wanted to index a book model and have the boost
 for title set to 2.0 (giving it greater priority when searching) you'd
@@ -409,7 +409,7 @@ This example uses a few other mapping fields... such as null_value and
 type (which overrides whatever value the schema type is, useful if you
 want stronger typing such as float).
 
-There are various mapping options that can be defined in Elasticsearch. Check out [http://www.elasticsearch.org/guide/reference/mapping/](http://www.elasticsearch.org/guide/reference/mapping/) for more information. Here are examples to the currently possible definitions in mongoosastic:
+There are various mapping options that can be defined in Elasticsearch. Check out [https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html) for more information. Here are examples to the currently possible definitions in mongoosastic:
 
 ```javascript
 var ExampleSchema = new Schema({
@@ -590,13 +590,13 @@ Person.search({
     }
   }
 }, function(err, people){
-   // all the people who fit the age group are here!   
+   // all the people who fit the age group are here!
 });
 
 ```
-See the Elasticsearch [Query DSL](http://www.elasticsearch.org/guide/reference/query-dsl/) docs for more information.
+See the Elasticsearch [Query DSL](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html) docs for more information.
 
-You can also specify query options like [sorts](http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-request-sort.html#search-request-sort)
+You can also specify query options like [sorts](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html#search-request-sort)
 
 ```javascript
 Person.search({/* ... */}, {sort: "age:asc"}, function(err, people){
@@ -620,10 +620,10 @@ Person.search({/* ... */}, {
 });
 ```
 
-Options for queries must adhere to the [javascript elasticsearch driver specs](http://www.elasticsearch.org/guide/en/elasticsearch/client/javascript-api/current/api-reference.html#api-search).
+Options for queries must adhere to the [javascript elasticsearch driver specs](https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/api-reference.html#api-search).
 
 ### Raw queries
-A full ElasticSearch query object can be provided to mongoosastic through `.esSearch()` method. 
+A full ElasticSearch query object can be provided to mongoosastic through `.esSearch()` method.
 It can be useful when paging results. The query to be provided wraps the query object provided to `.search()` method and
 accepts the same options:
 
@@ -652,7 +652,7 @@ Person.esSearch({
     }
   }
 }, function(err, people){
-   // only the 61st to 80th ranked people who fit the age group are here!   
+   // only the 61st to 80th ranked people who fit the age group are here!
 });
 ```
 
