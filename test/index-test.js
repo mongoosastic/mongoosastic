@@ -315,6 +315,16 @@ describe('indexing', function () {
         })
       })
     })
+
+    it('should be able to execute findOneAndRemove if document doesn\'t exist', function (done) {
+      Tweet.findOneAndRemove({
+        message: 'Not existing document'
+      }, function (err, doc) {
+        should.not.exist(err)
+        should.not.exist(doc)
+        done()
+      })
+    })
   })
 
   describe('Isolated Models', function () {
