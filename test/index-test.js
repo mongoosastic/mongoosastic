@@ -281,16 +281,12 @@ describe('indexing', function () {
 
     it('should queue for later removal if not in index', function (done) {
       // behavior here is to try 3 times and then give up.
-      const nTweet = new Tweet({
-        user: 'jamescarr',
-        message: 'ABBA'
-      })
-
-      nTweet.save(function () {
-        setTimeout(function () {
-          nTweet.remove()
-          nTweet.on('es-removed', done)
-        }, 200)
+      var tweet = new Tweet()
+      var opts = { tries: 2 }
+      tweet.unIndex(opts, function (err) {
+        should.exist(err)
+        opts.tries.should.eql(0)
+        done()
       })
     })
 
