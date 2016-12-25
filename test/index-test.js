@@ -283,9 +283,15 @@ describe('indexing', function () {
       // behavior here is to try 3 times and then give up.
       var tweet = new Tweet()
       var opts = { tries: 2 }
+      var triggerRemoved = false
+
+      tweet.on('es-removed', function (err, res) {
+        triggerRemoved = true
+      })
       tweet.unIndex(opts, function (err) {
         should.exist(err)
         opts.tries.should.eql(0)
+        triggerRemoved.should.eql(true)
         done()
       })
     })
