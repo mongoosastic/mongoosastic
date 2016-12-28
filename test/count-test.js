@@ -70,4 +70,11 @@ describe('Count', function () {
       done(err)
     })
   })
+
+  it('should count a type without query', function (done) {
+    Comment.esCount(function (err, results) {
+      results.count.should.eql(2)
+      done(err)
+    })
+  })
 })
