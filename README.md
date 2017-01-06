@@ -1,5 +1,5 @@
 # Mongoosastic
-[![Build Status](https://secure.travis-ci.org/mongoosastic/mongoosastic.png?branch=master)](http://travis-ci.org/mongoosastic/mongoosastic)
+[![Build Status](https://travis-ci.org/mongoosastic/mongoosastic.svg?branch=master)](https://travis-ci.org/mongoosastic/mongoosastic)
 [![NPM version](https://img.shields.io/npm/v/mongoosastic.svg)](https://www.npmjs.com/package/mongoosastic)
 [![Coverage Status](https://coveralls.io/repos/mongoosastic/mongoosastic/badge.svg?branch=master&service=github)](https://coveralls.io/github/mongoosastic/mongoosastic?branch=master)
 [![Downloads](https://img.shields.io/npm/dm/mongoosastic.svg)](https://www.npmjs.com/package/mongoosastic)
