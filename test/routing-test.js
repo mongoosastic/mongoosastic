@@ -14,6 +14,7 @@ TaskSchema.plugin(mongoosastic, {
     return doc.content
   }
 })
+
 let Task = mongoose.model('Task', TaskSchema)
 
 describe('Routing', function () {
@@ -48,7 +49,8 @@ describe('Routing', function () {
   })
 
   it('should found task if routing with task.content', function * () {
-    let task = yield Task.create({content: Date.now()})
+    let now = Date.now()
+    let task = yield Task.create({content: now})
     yield (done) => setTimeout(done, config.INDEXING_TIMEOUT)
 
     res = yield (done) => Task.search({
@@ -66,7 +68,8 @@ describe('Routing', function () {
   })
 
   it('should not found task if routing with invalid routing', function * () {
-    let task = yield Task.create({content: Date.now()})
+    let now = Date.now()
+    let task = yield Task.create({content: now})
     yield (done) => setTimeout(done, config.INDEXING_TIMEOUT)
 
     res = yield (done) => Task.search({
@@ -74,7 +77,7 @@ describe('Routing', function () {
         query: task.content
       }
     }, {
-      routing: task.content + 1
+      routing: `${now + 1}`
     }, done)
 
     res.hits.total.should.eql(0)
