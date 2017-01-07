@@ -40,9 +40,9 @@
   "scripts": {
     "authors": "./scripts/update_authors.sh",
     "lint": "eslint lib test",
-    "mocha": "mocha test/*-test.js --require co-mocha -R spec -t 600000",
-    "test": "npm run lint && npm run coverage",
-    "coverage": "istanbul cover _mocha --report lcovonly -- -R spec test/*-test.js --require co-mocha -t 600000 && cat ./coverage/lcov.info | coveralls",
+    "mocha": "mocha test/*-test.js",
+    "test": "npm run lint && istanbul cover _mocha --report lcovonly -- test/*-test.js",
+    "coverage": "cat ./coverage/lcov.info | coveralls",
     "changelog": "changelog mongoosastic/mongoosastic latest -m"
   },
   "license": "MIT"
