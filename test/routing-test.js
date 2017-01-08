@@ -2,7 +2,6 @@
 
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
-require('should')
 const config = require('./config')
 const mongoosastic = require('../lib/mongoosastic')
 

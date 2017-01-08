@@ -1,3 +1,4 @@
+--require should
 --require co-mocha
 --timeout 600000
 --reporter spec
