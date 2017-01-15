@@ -544,8 +544,9 @@ GeoModel.search(geoQuery, {filter: geoFilter}, function(err, res) { /* ... */ })
 ```
 
 ### Creating Mappings On Demand
-Creating the mapping is a one time operation and can be done as
-follows (using the BookSchema as an example):
+Creating the mapping is a **one time operation** and **should be called manualy**.
+
+A BookSchema as an example:
 
 ```javascript
 var BookSchema = new Schema({
