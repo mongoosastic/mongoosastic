@@ -5,6 +5,9 @@ const should = require('should')
 const Schema = mongoose.Schema
 const Generator = require('../lib/mapping-generator')
 const generator = new Generator()
+const config = require('./config')
+mongoose.Promise = require('bluebird')
+const mongoosastic = require('../lib/mongoosastic')
 
 describe('MappingGenerator', function () {
   describe('type mapping', function () {
@@ -528,6 +531,150 @@ describe('MappingGenerator', function () {
       }), function (err, mapping) {
         mapping.properties.locations.properties.coordinates.type.should.eql('geo_point')
         done()
+      })
+    })
+  })
+
+  const mapIdSchema = new Schema({
+    id: { type: String, es_indexed: true }
+  })
+  mapIdSchema.plugin(mongoosastic)
+
+  const Id = mongoose.model('Id', mapIdSchema)
+
+  describe('Mapping for custom id with name "id"', function () {
+    this.timeout(3000)
+
+    before(function (done) {
+      config.deleteIndexIfExists(['ids'], function () {
+        mongoose.connect(config.mongoUrl, function () {
+          const client = mongoose.connections[0].db
+          client.collection('ids', function () {
+            Id.remove(done)
+          })
+        })
+      })
+    })
+
+    after(function (done) {
+      mongoose.disconnect()
+      Id.esClient.close()
+      done()
+    })
+
+    it('should index with field id and return id', function (done) {
+      config.createModelAndEnsureIndex(Id, {
+        _id: new mongoose.Types.ObjectId('589350a056b00d2a906abcd0'),
+        id: 'aaaa-aaaa'
+      }, function () {
+        Id.search({
+          query_string: {
+            query: 'aaaa-aaaa'
+          }
+        }, function (err, results) {
+          results.hits.total.should.eql(1)
+          results.hits.hits[0]._source.id.should.eql('aaaa-aaaa')
+          done()
+        })
+      })
+    })
+  })
+
+  const indexIdSchema = new Schema({
+    _id: { type: Schema.Types.ObjectId, es_indexed: true },
+    name: { type: String, es_indexed: true }
+  })
+  indexIdSchema.plugin(mongoosastic)
+
+  const Id2 = mongoose.model('Id2', indexIdSchema)
+
+  describe('Mapping for custom _id with name "_id"', function () {
+    this.timeout(3000)
+
+    before(function (done) {
+      config.deleteIndexIfExists(['id2s'], function () {
+        mongoose.connect(config.mongoUrl, function () {
+          const client = mongoose.connections[0].db
+          client.collection('id2s', function () {
+            Id2.remove(done)
+          })
+        })
+      })
+    })
+
+    after(function (done) {
+      mongoose.disconnect()
+      Id2.esClient.close()
+      done()
+    })
+
+    it('Don\'t map custom index _id, even when is_indexed: true', function (done) {
+      var customId = new mongoose.Types.ObjectId()
+      config.createModelAndEnsureIndex(Id2, {
+        _id: customId,
+        name: 'test'
+      }, function () {
+        Id2.search({
+          query_string: {
+            query: 'test'
+          }
+        }, function (err, results) {
+          results.hits.total.should.eql(1)
+          done()
+        })
+      })
+    })
+  })
+  const nestedIndex = new Schema({
+    name: { type: String, es_indexed: true },
+    ids: {
+      type: Schema.Types.ObjectId,
+      ref: 'Id',
+      es_schema: mapIdSchema,
+      es_indexed: true,
+      es_select: 'id'
+    }
+  })
+  nestedIndex.plugin(mongoosastic, {populate: [
+    {path: 'ids', select: 'id'}
+  ]})
+
+  const Id3 = mongoose.model('Id3', nestedIndex)
+
+  describe('Nested id ', function () {
+    this.timeout(3000)
+
+    before(function (done) {
+      config.deleteIndexIfExists(['id3s'], function () {
+        mongoose.connect(config.mongoUrl, function () {
+          const client = mongoose.connections[0].db
+          client.collection('id3s', function () {
+            Id3.remove(done)
+          })
+        })
+      })
+    })
+
+    after(function (done) {
+      mongoose.disconnect()
+      Id3.esClient.close()
+      done()
+    })
+
+    it('Make sure nested id is mapped', function (done) {
+      config.createModelAndEnsureIndex(Id3, {
+        name: 'nested',
+        ids: new mongoose.Types.ObjectId('589350a056b00d2a906abcd0')
+      }, function () {
+        Id3.search({
+          query_string: {
+            query: 'nested'
+          }
+        }, function (err, results) {
+          results.hits.total.should.eql(1)
+          results.hits.hits[0]._source.ids.id.should.eql('aaaa-aaaa')
+          done()
+        })
       })
     })
   })
