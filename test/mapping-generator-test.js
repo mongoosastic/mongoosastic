@@ -543,7 +543,7 @@ describe('MappingGenerator', function () {
   const Id = mongoose.model('Id', mapIdSchema)
 
   describe('Mapping for custom id with name "id"', function () {
-    this.timeout(3000)
+    this.timeout(5000)
 
     before(function (done) {
       config.deleteIndexIfExists(['ids'], function () {
@@ -589,7 +589,7 @@ describe('MappingGenerator', function () {
   const Id2 = mongoose.model('Id2', indexIdSchema)
 
   describe('Mapping for custom _id with name "_id"', function () {
-    this.timeout(3000)
+    this.timeout(5000)
 
     before(function (done) {
       config.deleteIndexIfExists(['id2s'], function () {
@@ -642,7 +642,7 @@ describe('MappingGenerator', function () {
   const Id3 = mongoose.model('Id3', nestedIndex)
 
   describe('Nested id ', function () {
-    this.timeout(3000)
+    this.timeout(5000)
 
     before(function (done) {
       config.deleteIndexIfExists(['id3s'], function () {
