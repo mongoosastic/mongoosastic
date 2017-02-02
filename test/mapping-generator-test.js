@@ -550,7 +550,7 @@ describe('MappingGenerator', function () {
         mongoose.connect(config.mongoUrl, function () {
           const client = mongoose.connections[0].db
           client.collection('ids', function () {
-            Id.remove(done)
+            Id.remove(done).catch(err => done(err))
           })
         })
       })
@@ -596,7 +596,7 @@ describe('MappingGenerator', function () {
         mongoose.connect(config.mongoUrl, function () {
           const client = mongoose.connections[0].db
           client.collection('id2s', function () {
-            Id2.remove(done)
+            Id2.remove(done).catch(err => done(err))
           })
         })
       })
@@ -649,7 +649,7 @@ describe('MappingGenerator', function () {
         mongoose.connect(config.mongoUrl, function () {
           const client = mongoose.connections[0].db
           client.collection('id3s', function () {
-            Id3.remove(done)
+            Id3.remove(done).catch(err => done(err))
           })
         })
       })
