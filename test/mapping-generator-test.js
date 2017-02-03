@@ -6,7 +6,6 @@ const Schema = mongoose.Schema
 const Generator = require('../lib/mapping-generator')
 const generator = new Generator()
 const config = require('./config')
-mongoose.Promise = require('bluebird')
 const mongoosastic = require('../lib/mongoosastic')
 
 describe('MappingGenerator', function () {
