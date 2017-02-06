@@ -5,8 +5,6 @@ const should = require('should')
 const Schema = mongoose.Schema
 const Generator = require('../lib/mapping-generator')
 const generator = new Generator()
-// const config = require('./config')
-// const mongoosastic = require('../lib/mongoosastic')
 
 describe('MappingGenerator', function () {
   describe('type mapping', function () {
