@@ -423,6 +423,27 @@ describe('MappingGenerator', function () {
       })
     })
 
+    it('make sure id is mapped', function (done) {
+      generator.generateMapping(new Schema({
+        name: {
+          type: String
+        },
+        id: {
+          type: String,
+          es_indexed: true
+        },
+        _id: {
+          type: String,
+          es_indexed: true
+        }
+      }), function (err, mapping) {
+        mapping.properties.should.have.property('id')
+        mapping.properties.should.not.have.property('name')
+        mapping.properties.should.not.have.property('_id')
+        done()
+      })
+    })
+
     it('maps all fields when schema has no es_indexed flag', function (done) {
       generator.generateMapping(new Schema({
         implicit_field_1: {
