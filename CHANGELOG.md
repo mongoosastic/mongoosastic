@@ -1,3 +1,88 @@
+4.3.0 2017-02-21
+==========
+  * chore(package): update eslint to version 3.16.0
+    https://greenkeeper.io/
+  * chore(package): update mongoose to version 4.8.4
+    https://greenkeeper.io/
+  * chore(package): update async to version 2.1.5
+    https://greenkeeper.io/
+  * chore(package): update eslint-plugin-promise to version 3.4.2
+    https://greenkeeper.io/
+  * chore(package): update mongoose to version 4.8.3
+    https://greenkeeper.io/
+  * chore(package): update standard to version 9.0.0-beta.0 ([#292](https://github.com/mongoosastic/mongoosastic/issues/292))
+    https://greenkeeper.io/
+  * chore(package): update mongoose to version 4.8.2 ([#293](https://github.com/mongoosastic/mongoosastic/issues/293))
+    https://greenkeeper.io/
+  * chore(package): update eslint-plugin-promise to version 3.4.1
+    https://greenkeeper.io/
+  * Fix mapping issue for id.
+    Create mocha test for mapping id
+  * chore(package): update coveralls to version 2.11.16
+    https://greenkeeper.io/
+  * chore(package): update mongoose to version 4.8.1 ([#286](https://github.com/mongoosastic/mongoosastic/issues/286))
+    Closes [#281](https://github.com/mongoosastic/mongoosastic/issues/281)
+    https://greenkeeper.io/
+  * chore(package): update eslint to version 3.15.0 ([#285](https://github.com/mongoosastic/mongoosastic/issues/285))
+    https://greenkeeper.io/
+  * chore(package): update mongoose to version 4.8.0
+    https://greenkeeper.io/
+  * chore(package): update mongoose to version 4.7.9
+    https://greenkeeper.io/
+  * chore(package): update eslint to version 3.14.1 ([#279](https://github.com/mongoosastic/mongoosastic/issues/279))
+    https://greenkeeper.io/
+  * chore(package): update mongoose to version 4.7.7 ([#273](https://github.com/mongoosastic/mongoosastic/issues/273))
+    https://greenkeeper.io/
+  * docs: createMapping should called manualy
+  * chore(package): update eslint to version 3.13.1
+    https://greenkeeper.io/
+  * add test for refresh
+  * update coverage when tests passed; use mocha.opts
+  * fix for stable test results
+
+4.2.4 2017-01-06
+==========
+
+  * chore(package): update eslint to version 3.13.0 ([#267](https://github.com/mongoosastic/mongoosastic/issues/267))
+    https://greenkeeper.io/
+  * chore(package): update dependencies ([#266](https://github.com/mongoosastic/mongoosastic/issues/266))
+    https://greenkeeper.io/
+  * resolve [#95](https://github.com/mongoosastic/mongoosastic/issues/95), support routing on index/unIndex/esSearch. ([#260](https://github.com/mongoosastic/mongoosastic/issues/260))
+    * support routing on index/unIndex/esSearch.
+  * update travis build badge to precise one ([#265](https://github.com/mongoosastic/mongoosastic/issues/265))
+  * support auto index when call Model.insertMany
+  * add co-mocha: write tests with generator function
+  * fix bad request when esCount without query ([#261](https://github.com/mongoosastic/mongoosastic/issues/261))
+  * unIndex should retry when unindex failed ([#259](https://github.com/mongoosastic/mongoosastic/issues/259))
+  * unIndex should retry when unindex failed
+  * should trigger removed event when retry failed
+  * fix [#111](https://github.com/mongoosastic/mongoosastic/issues/111), findOneAndRemove should work fine when no document found ([#258](https://github.com/mongoosastic/mongoosastic/issues/258))
+  * add *.swp to .gitignore
+  * Merge pull request [#257](https://github.com/mongoosastic/mongoosastic/issues/257) from mongoosastic/issue/docs
+    update elasticsearch.org to elastic.co
+  * update elasticsearch.org to elastic.co
+
+4.2.2 2016-12-22
+==========
+
+  * test folder linted ([#247](https://github.com/mongoosastic/mongoosastic/issues/247))
+  * test folder linted
+  * Exclude aggs from being added to the esQuery, as they're already added to the body. Fixes errors with Elasticsearch v5.0.0.
+  * added a catch to the populate promise call in postSave ([#248](https://github.com/mongoosastic/mongoosastic/issues/248))
+  * should keep populated field of source doc unchanged ([#254](https://github.com/mongoosastic/mongoosastic/issues/254))
+  * should keep populated field of source doc unchanged
+  * fix typo
+
+2016-12-12
+==========
+
+  * Fix ([#5](https://github.com/mongoosastic/mongoosastic/issues/5)) mapping creation of nested references ([#252](https://github.com/mongoosastic/mongoosastic/issues/252))
+  * Update mapping-generator.js
+  * Test proving that mongoosastic fails when mapping a geo_point field inside a nested referenced schema
+  * Restoring original mapping-generator.js file
+  * Tests fixed and array of nested referenced object now correctly mapped
+
+
 4.2.1 2016-11-20
 ==========
 
