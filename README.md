@@ -22,6 +22,9 @@ Mongoosastic is a [mongoose](http://mongoosejs.com/) plugin that can automatical
   - [Indexing on demand](#indexing-on-demand)
   - [Unindexing on demand](#unindexing-on-demand)
   - [Truncating an index](#truncating-an-index)
+  - [Restrictions](#restrictions)
+    - [Auto indexing](#auto-indexing)
+    - [Search immediately after es-indexed event](#search-immediately-after-es-indexed-event)
 - [Mapping](#mapping)
   - [Geo mapping](#geo-mapping)
     - [Indexing a geo point](#indexing-a-geo-point)
@@ -387,6 +390,22 @@ The static method `esTruncate` will delete all documents from the associated ind
 ```javascript
 GarbageModel.esTruncate(function(err){...});
 ```
+
+### Restrictions
+
+#### Auto indexing
+
+Mongoosastic try to auto index documents in favor of mongoose's [middleware](http://mongoosejs.com/docs/middleware.html) feature.
+
+Mongoosastic will auto index when `document.save`/`Model.findOneAndUpdate`/`Model.insertMany`/`document.remove`/`Model.findOneAndRemove`, but not include `Model.remove`/`Model.update`.
+
+And you should have `new: true` options when `findOneAndUpdate` so that mongoosastic can get new values in post hook.
+
+#### Search immediately after es-indexed event
+
+> Elasticsearch by default refreshes each shard every 1s, so the document will be available to search 1s after indexing it.
+
+The event `es-indexed` means that elasticsearch received the index request, and if you want to search the document, please try after 1s. See [Document not found immediately after it is saved ](https://github.com/elastic/elasticsearch-js/issues/231)
 
 ## Mapping
 
