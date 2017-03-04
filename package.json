@@ -28,6 +28,7 @@
     "eslint-config-standard": "8.0.0-beta.0",
     "eslint-plugin-promise": "3.5.0",
     "eslint-plugin-standard": "2.0.1",
+    "eslint-plugin-impor": "2.2.2",
     "istanbul": "0.4.5",
     "mocha": "3.2.0",
     "mongoose": "4.8.5",
