@@ -23,7 +23,7 @@
     "async": "2.2.0",
     "changelog": "^1.0.7",
     "co-mocha": "^1.1.3",
-    "coveralls": "2.12.0",
+    "coveralls": "2.13.0",
     "eslint": "3.18.0",
     "eslint-config-standard": "6.2.1",
     "eslint-plugin-promise": "3.5.0",
