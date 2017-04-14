@@ -33,7 +33,7 @@
     "mocha": "3.2.0",
     "should": "11.2.1",
     "mongoose": "4.9.4",
-    "standard": "10.0.1"
+    "standard": "10.0.2"
   },
   "engines": {
     "node": ">= 4.0"
