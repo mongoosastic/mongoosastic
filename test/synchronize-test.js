@@ -8,7 +8,10 @@ const mongoosastic = require('../lib/mongoosastic')
 const Schema = mongoose.Schema
 
 const BookSchema = new Schema({
-  title: String
+  title: {
+    type: String,
+    required: true
+  }
 })
 
 BookSchema.plugin(mongoosastic)
@@ -25,17 +28,17 @@ const Book = mongoose.model('Book', BookSchema)
 describe('Synchronize', () => {
   let books = null
 
-  before(done => {
+  const clearData = (cb) => {
     config.deleteIndexIfExists(['books'], () => {
       mongoose.connect(config.mongoUrl, () => {
         const client = mongoose.connections[0].db
         client.collection('books', (err, _books) => {
           books = _books
-          Book.remove(done)
+          Book.remove(cb)
         })
       })
     })
-  })
+  }
 
   after(done => {
     Book.esClient.close()
@@ -43,13 +46,59 @@ describe('Synchronize', () => {
     done()
   })
 
+  describe('an existing collection with invalid field values', () => {
+    before(done => {
+      clearData(() => {
+        async.forEach(config.bookTitlesArray(), (title, cb) => {
+          books.insert({
+            title: title
+          }, cb)
+        }, () => {
+          books.insert({
+          }, done)
+        })
+      })
+    })
+
+    it('should index all but one document', done => {
+      saveCounter = 0
+      const stream = Book.synchronize()
+      let count = 0
+      let errorCount = 0
+      stream.on('data', () => {
+        count++
+      })
+      stream.on('error', () => {
+        errorCount += 1
+      })
+      stream.on('close', () => {
+        count.should.eql(53)
+        saveCounter.should.eql(count)
+
+        setTimeout(() => {
+          Book.search({
+            query_string: {
+              query: 'American'
+            }
+          }, (err, results) => {
+            results.hits.total.should.eql(2)
+            errorCount.should.eql(1)
+            done()
+          })
+        }, config.INDEXING_TIMEOUT)
+      })
+    })
+  })
+
   describe('an existing collection', () => {
     before(done => {
-      async.forEach(config.bookTitlesArray(), (title, cb) => {
-        books.insert({
-          title: title
-        }, cb)
-      }, done)
+      clearData(() => {
+        async.forEach(config.bookTitlesArray(), (title, cb) => {
+          books.insert({
+            title: title
+          }, cb)
+        }, done)
+      })
     })
 
     it('should index all existing objects', done => {
