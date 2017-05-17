@@ -1,6 +1,7 @@
 'use strict'
 
 const mongoose = require('mongoose')
+const should = require('should')
 const async = require('async')
 const config = require('./config')
 const mongoosastic = require('../lib/mongoosastic')
@@ -49,7 +50,25 @@ describe('Synchronize', () => {
         books.insert({
           title: title
         }, cb)
-      }, done)
+      }, () => {
+        config.deleteIndexIfExists(['books'], done)
+      })
+    })
+
+    it('should auto create index if nonexistent', (done) => {
+      Book.esClient.indices.exists({ index: 'books' }, (err, exists) => {
+        should.not.exist(err)
+        exists.should.eql(false)
+
+        let stream = Book.synchronize()
+        stream.on('close', () => {
+          Book.esClient.indices.exists({ index: 'books' }, (err, exists) => {
+            should.not.exist(err)
+            exists.should.eql(true)
+            done()
+          })
+        })
+      })
     })
 
     it('should index all existing objects', done => {
