@@ -51,7 +51,7 @@ describe('forceIndexRefresh connection option', function () {
     done()
   })
   
-  it('should refresh the index immediately (forceIndexRefresh: true)', function (done) {
+  it('should always suceed: refresh the index immediately on insert', function (done) {
     DummySchema.plugin(mongoosastic, {
       esClient: esClient,
       index: indexName,
@@ -60,10 +60,10 @@ describe('forceIndexRefresh connection option', function () {
     const Dummy3 = mongoose.model('Dummy', DummySchema)
     const d = new Dummy3({text: 'Text1'})
 
-    doOperation(Dummy3, d, indexName, 1, done)
+    doInsertOperation(Dummy3, d, indexName, done)
   })
 
-  it('should not refresh the index immediately (forceIndexRefresh: false)', function (done) {
+  it('should fail randomly: refresh the index every 1s on insert', function (done) {
     DummySchema.plugin(mongoosastic, {
       esClient: esClient,
       index: indexName,
@@ -72,11 +72,35 @@ describe('forceIndexRefresh connection option', function () {
     const Dummy2 = mongoose.model('Dummy', DummySchema)
     const d = new Dummy2({text: 'Text1'})
 
-    doOperation(Dummy2, d, indexName, 0, done)
+    doInsertOperation(Dummy2, d, indexName, done)
+  })
+
+  it('should always suceed: refresh the index immediately on update', function (done) {
+    DummySchema.plugin(mongoosastic, {
+      esClient: esClient,
+      index: indexName,
+      forceIndexRefresh: true
+    });
+    const Dummy3 = mongoose.model('Dummy', DummySchema)
+    const d = new Dummy3({text: 'Text1'})
+
+    doUpdateOperation(Dummy3, d, "this is the new text", indexName, done)
+  })
+
+  it('should fail randomly: refresh the index every 1s on update', function (done) {
+    DummySchema.plugin(mongoosastic, {
+      esClient: esClient,
+      index: indexName,
+      forceIndexRefresh: false
+    });
+    const Dummy2 = mongoose.model('Dummy', DummySchema)
+    const d = new Dummy2({text: 'Text1'})
+
+    doUpdateOperation(Dummy2, d, "this is the new text", indexName, done)
   })
 })
 
-function doOperation(Model, object, indexName, resultNumber, callback) {
+function doInsertOperation(Model, object, indexName, callback) {
   // save object
   object.save(function(err, savedObject) {
     if(err) {
@@ -92,7 +116,7 @@ function doOperation(Model, object, indexName, resultNumber, callback) {
         term: {_id: savedObject._id}
       },
       function (err, results) {
-        results.hits.total.should.eql(resultNumber)
+        results.hits.total.should.eql(1)
         // clean the db
         savedObject.remove(function(err) {
           if (err) {
@@ -102,7 +126,51 @@ function doOperation(Model, object, indexName, resultNumber, callback) {
             if (err) {
               return callback(err)
             }
-            setTimeout(callback, config.INDEXING_TIMEOUT);
+			      callback()
+          })
+        })
+      })
+    })
+  })
+}
+
+function doUpdateOperation(Model, object, newText, indexName, callback) {
+  //save object
+  object.save(function(err, savedObject) {
+    if(err) {
+      return callback(err)
+    }
+    // update object
+    Model
+    .findOneAndUpdate({_id: savedObject._id}, {text: newText}, {"new": true})
+    .exec(function(err, updatedObject) {
+      if(err) {
+        return callback(err)
+      }
+      // wait for indexing
+      updatedObject.on('es-indexed', function(err){
+        if (err) {
+          return callback(err)
+        }
+        // look for the object just saved
+        Model.search({
+          term: {_id: savedObject._id.toString()}
+        },
+        function (err, results) {
+          results.hits.total.should.eql(1)
+          results.hits.hits[0]._source.text.should.eql(newText)
+          
+          // clean the db
+          updatedObject.remove(function(err) {
+            if (err) {
+              return callback(err)
+            }
+            updatedObject.on('es-removed', function(err) {
+              if (err) {
+                return callback(err)
+              }
+			        callback()
+            })
           })
         })
       })
