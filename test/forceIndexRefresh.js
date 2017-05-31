@@ -2,7 +2,7 @@
 
 const mongoose = require('mongoose')
 const config = require('./config')
-const esClient = config.getClient();
+const esClient = config.getClient()
 const Schema = mongoose.Schema
 const mongoosastic = require('../lib/mongoosastic')
 const indexName = 'es-test'
@@ -23,7 +23,7 @@ describe('forceIndexRefresh connection option', function () {
       config.deleteIndexIfExists([indexName], function (err) {
         // recreate the index
         Dummy.createMapping({
-          'analysis' : {
+          'analysis': {
             'analyzer': {
               'content': {
                 'type': 'custom',
@@ -116,7 +116,7 @@ function doInsertOperation (Model, object, indexName, callback) {
       function (err, results) {
         results.hits.total.should.eql(1)
         // clean the db
-        savedObject.remove( function(err) {
+        savedObject.remove(function (err) {
           if (err) {
             return callback(err)
           }
