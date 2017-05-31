@@ -1,20 +1,18 @@
 'use strict'
 
 const mongoose = require('mongoose')
-const should = require('should')
-const elasticsearch = require('elasticsearch')
 const config = require('./config')
 const esClient = config.getClient();
 const Schema = mongoose.Schema
 const mongoosastic = require('../lib/mongoosastic')
-const indexName = "es-test"
+const indexName = 'es-test'
 const DummySchema = new Schema({
   text: String
 })
 DummySchema.plugin(mongoosastic, {
   esClient: esClient,
   index: indexName
-});
+})
 const Dummy = mongoose.model('Dummy', DummySchema)
 
 describe('forceIndexRefresh connection option', function () {
@@ -25,15 +23,15 @@ describe('forceIndexRefresh connection option', function () {
       config.deleteIndexIfExists([indexName], function (err) {
         // recreate the index
         Dummy.createMapping({
-        "analysis" : {
-          "analyzer":{
-            "content":{
-            "type":"custom",
-            "tokenizer":"whitespace"
+          'analysis' : {
+            'analyzer': {
+              'content': {
+                'type': 'custom',
+                'tokenizer': 'whitespace'
+              }
             }
           }
-        }
-      }, function(err, mapping) {
+        }, function (err, mapping) {
           // clean mongodb
           Dummy.remove(function (err) {
             setTimeout(done, config.INDEXING_TIMEOUT)
@@ -42,7 +40,7 @@ describe('forceIndexRefresh connection option', function () {
       })
     })
   })
-  
+
   after(function (done) {
     // disconnect mongodb
     mongoose.disconnect()
@@ -50,13 +48,13 @@ describe('forceIndexRefresh connection option', function () {
     config.close()
     done()
   })
-  
+
   it('should always suceed: refresh the index immediately on insert', function (done) {
     DummySchema.plugin(mongoosastic, {
       esClient: esClient,
       index: indexName,
       forceIndexRefresh: true
-    });
+    })
     const Dummy3 = mongoose.model('Dummy', DummySchema)
     const d = new Dummy3({text: 'Text1'})
 
@@ -68,7 +66,7 @@ describe('forceIndexRefresh connection option', function () {
       esClient: esClient,
       index: indexName,
       forceIndexRefresh: false
-    });
+    })
     const Dummy2 = mongoose.model('Dummy', DummySchema)
     const d = new Dummy2({text: 'Text1'})
 
@@ -80,11 +78,11 @@ describe('forceIndexRefresh connection option', function () {
       esClient: esClient,
       index: indexName,
       forceIndexRefresh: true
-    });
+    })
     const Dummy3 = mongoose.model('Dummy', DummySchema)
     const d = new Dummy3({text: 'Text1'})
 
-    doUpdateOperation(Dummy3, d, "this is the new text", indexName, done)
+    doUpdateOperation(Dummy3, d, 'this is the new text', indexName, done)
   })
 
   it('should fail randomly: refresh the index every 1s on update', function (done) {
@@ -92,22 +90,22 @@ describe('forceIndexRefresh connection option', function () {
       esClient: esClient,
       index: indexName,
       forceIndexRefresh: false
-    });
+    })
     const Dummy2 = mongoose.model('Dummy', DummySchema)
     const d = new Dummy2({text: 'Text1'})
 
-    doUpdateOperation(Dummy2, d, "this is the new text", indexName, done)
+    doUpdateOperation(Dummy2, d, 'this is the new text', indexName, done)
   })
 })
 
-function doInsertOperation(Model, object, indexName, callback) {
+function doInsertOperation (Model, object, indexName, callback) {
   // save object
-  object.save(function(err, savedObject) {
-    if(err) {
+  object.save(function (err, savedObject) {
+    if (err) {
       return callback(err)
     }
     // wait for indexing
-    savedObject.on('es-indexed', function(err){
+    savedObject.on('es-indexed', function (err) {
       if (err) {
         return callback(err)
       }
@@ -118,15 +116,15 @@ function doInsertOperation(Model, object, indexName, callback) {
       function (err, results) {
         results.hits.total.should.eql(1)
         // clean the db
-        savedObject.remove(function(err) {
+        savedObject.remove( function(err) {
           if (err) {
             return callback(err)
           }
-          savedObject.on('es-removed', function(err) {
+          savedObject.on('es-removed', function (err) {
             if (err) {
               return callback(err)
             }
-			      callback()
+            callback()
           })
         })
       })
@@ -134,21 +132,21 @@ function doInsertOperation(Model, object, indexName, callback) {
   })
 }
 
-function doUpdateOperation(Model, object, newText, indexName, callback) {
-  //save object
-  object.save(function(err, savedObject) {
-    if(err) {
+function doUpdateOperation (Model, object, newText, indexName, callback) {
+  // save object
+  object.save(function (err, savedObject) {
+    if (err) {
       return callback(err)
     }
     // update object
     Model
-    .findOneAndUpdate({_id: savedObject._id}, {text: newText}, {"new": true})
-    .exec(function(err, updatedObject) {
-      if(err) {
+    .findOneAndUpdate({_id: savedObject._id}, {text: newText}, {'new': true})
+    .exec(function (err, updatedObject) {
+      if (err) {
         return callback(err)
       }
       // wait for indexing
-      updatedObject.on('es-indexed', function(err){
+      updatedObject.on('es-indexed', function (err) {
         if (err) {
           return callback(err)
         }
@@ -159,17 +157,17 @@ function doUpdateOperation(Model, object, newText, indexName, callback) {
         function (err, results) {
           results.hits.total.should.eql(1)
           results.hits.hits[0]._source.text.should.eql(newText)
-          
+
           // clean the db
-          updatedObject.remove(function(err) {
+          updatedObject.remove(function (err) {
             if (err) {
               return callback(err)
             }
-            updatedObject.on('es-removed', function(err) {
+            updatedObject.on('es-removed', function (err) {
               if (err) {
                 return callback(err)
               }
-			        callback()
+              callback()
             })
           })
         })
