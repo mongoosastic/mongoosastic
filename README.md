@@ -348,7 +348,7 @@ Instances of Movie model having 'action' as their genre will not be indexed to E
 You can do on-demand indexes using the `index` function
 
 ```javascript
-Dude.findOne({name:'Jeffrey Lebowski', function(err, dude){
+Dude.findOne({name:'this name has just been changed', function(err, dude){
   dude.awesome = true;
   dude.index(function(err, res){
     console.log("egads! I've been indexed!");
