@@ -13,7 +13,7 @@ Mongoosastic is a [mongoose](http://mongoosejs.com/) plugin that can automatical
 - [Setup](#setup)
 - [Indexing](#indexing)
   - [Saving a document](#saving-a-document)
-  - [Removing a docuemnt](#removing-a-document)
+  - [Removing a document](#removing-a-document)
   - [Indexing nested models](#indexing-nested-models)
   - [Indexing mongoose references](#indexing-mongoose-references)
   - [Indexing an existing collection](#indexing-an-existing-collection)
