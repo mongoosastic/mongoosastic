@@ -36,10 +36,11 @@ describe('Hydrate with ES data', function () {
             }),
             new RankModel({
               title: 'MorzartEstLà',
-              rank: -10.4
+              rank: -10
             })
           ]
-          async.forEach(esResultTexts, config.saveAndWaitIndex, function () {
+          async.forEach(esResultTexts, config.saveAndWaitIndex, function (err) {
+            if (err) { throw err }
             setTimeout(done, config.INDEXING_TIMEOUT)
           })
         })
@@ -66,7 +67,7 @@ describe('Hydrate with ES data', function () {
         res.hits.hits[0].rank.should.eql(4)
         res.hits.hits[1].rank.should.eql(2)
         res.hits.hits[2].rank.should.eql(0)
-        res.hits.hits[3].rank.should.eql(-10.4)
+        res.hits.hits[3].rank.should.eql(-10)
 
         done()
       })
@@ -82,7 +83,7 @@ describe('Hydrate with ES data', function () {
         if (err) done(err)
 
         res.hits.total.should.eql(4)
-        res.hits.hits[0].rank.should.eql(-10.4)
+        res.hits.hits[0].rank.should.eql(-10)
         res.hits.hits[1].rank.should.eql(0)
         res.hits.hits[2].rank.should.eql(2)
         res.hits.hits[3].rank.should.eql(4)
@@ -109,7 +110,7 @@ describe('Hydrate with ES data', function () {
         res.hits.hits[0].rank.should.eql(4)
         res.hits.hits[1].rank.should.eql(2)
         res.hits.hits[2].rank.should.eql(0)
-        res.hits.hits[3].rank.should.eql(-10.4)
+        res.hits.hits[3].rank.should.eql(-10)
 
         done()
       })
@@ -130,7 +131,7 @@ describe('Hydrate with ES data', function () {
       }, function (err, res) {
         if (err) done(err)
         res.hits.total.should.eql(4)
-        res.hits.hits[0].rank.should.eql(-10.4)
+        res.hits.hits[0].rank.should.eql(-10)
         res.hits.hits[1].rank.should.eql(0)
         res.hits.hits[2].rank.should.eql(2)
         res.hits.hits[3].rank.should.eql(4)

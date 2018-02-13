@@ -91,7 +91,7 @@ describe('Index Method', function () {
             res.hits.hits[0]._source.message.should.eql('I know taebo!')
             done()
           })
-        }, config.INDEXING_TIMEOUT)
+        }, config.INDEXING_TIMEOUT + 1000)
       })
     })
   })

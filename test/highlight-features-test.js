@@ -18,8 +18,8 @@ const Text = mongoose.model('Text', TextSchema)
 describe('Highlight search', function () {
   const responses = [
     'You don\'t see people at their best in this job, said <em>Death</em>.',
-    'The <em>death</em> of the warrior or the old man or the little child, this I understand, and I take away the',
-    ' pain and end the suffering. I do not understand this <em>death</em>-of-the-mind',
+    'The <em>death</em> of the warrior or the old man or the little child, this I understand, and I take away the pain',
+    'I do not understand this <em>death</em>-of-the-mind',
     'The only reason for walking into the jaws of <em>Death</em> is so\'s you can steal his gold teeth'
   ]
 
@@ -47,7 +47,8 @@ describe('Highlight search', function () {
               quote: 'You don\'t see people at their best in this job, said Death.'
             })
           ]
-          async.forEach(texts, config.saveAndWaitIndex, function () {
+          async.forEach(texts, config.saveAndWaitIndex, function (err) {
+            if (err) { throw err }
             setTimeout(done, config.INDEXING_TIMEOUT)
           })
         })
@@ -75,6 +76,7 @@ describe('Highlight search', function () {
           }
         }
       }, function (err, res) {
+        if (err) { done(err) }
         res.hits.total.should.eql(3)
         res.hits.hits.forEach(function (text) {
           text.should.have.property('highlight')

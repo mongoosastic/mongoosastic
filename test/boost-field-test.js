@@ -57,7 +57,7 @@ describe('Add Boost Option Per Field', function () {
           : mapping.blogposts.mappings.blogpost.properties
         /* ES 1.0.0 */
 
-        props.title.type.should.eql('string')
+        props.title.type.should.eql('text')
         props.title.boost.should.eql(2.0)
         done()
       })
