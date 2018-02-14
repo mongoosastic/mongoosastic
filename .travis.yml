@@ -3,15 +3,12 @@ sudo: false
 language: node_js
 
 node_js:
-  - 4
+  - 8
   - stable
 
-before_install:
-  - npm i -g npm@"^3.0.0"
-
 services:
-  - mongodb
-  - elasticsearch
+  - mongodb:3.2
+  - elasticsearch:2.4
 
 env:
   - BULK_ACTION_TIMEOUT=30000 INDEXING_TIMEOUT=3000 CXX=g++-4.8
