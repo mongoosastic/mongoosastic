@@ -32,7 +32,7 @@ describe('Routing', function () {
   })
 
   it('should found task if no routing', function * () {
-    let task = yield Task.create({content: Date.now()})
+    let task = yield Task.create({ content: Date.now() })
     yield (done) => setTimeout(done, config.INDEXING_TIMEOUT)
 
     res = yield (done) => Task.search({
@@ -49,7 +49,7 @@ describe('Routing', function () {
 
   it('should found task if routing with task.content', function * () {
     let now = Date.now()
-    let task = yield Task.create({content: now})
+    let task = yield Task.create({ content: now })
     yield (done) => setTimeout(done, config.INDEXING_TIMEOUT)
 
     res = yield (done) => Task.search({
@@ -68,7 +68,7 @@ describe('Routing', function () {
 
   it('should not found task if routing with invalid routing', function * () {
     let now = Date.now()
-    let task = yield Task.create({content: now})
+    let task = yield Task.create({ content: now })
     yield (done) => setTimeout(done, config.INDEXING_TIMEOUT)
 
     res = yield (done) => Task.search({
@@ -86,7 +86,7 @@ describe('Routing', function () {
   })
 
   it('should not found task after remove', function * () {
-    let task = yield Task.create({content: Date.now()})
+    let task = yield Task.create({ content: Date.now() })
     yield task.remove()
     yield (done) => setTimeout(done, config.INDEXING_TIMEOUT)
 
@@ -101,7 +101,7 @@ describe('Routing', function () {
   })
 
   it('should not found task after unIndex', function * () {
-    let task = yield Task.create({content: Date.now()})
+    let task = yield Task.create({ content: Date.now() })
     yield (done) => task.unIndex(done)
     yield (done) => setTimeout(done, config.INDEXING_TIMEOUT)
 
@@ -118,7 +118,7 @@ describe('Routing', function () {
   })
 
   it('should not found task after esTruncate', function * () {
-    let task = yield Task.create({content: Date.now()})
+    let task = yield Task.create({ content: Date.now() })
     yield (done) => setTimeout(done, config.INDEXING_TIMEOUT)
     yield (done) => Task.esTruncate(done)
     yield (done) => setTimeout(done, config.INDEXING_TIMEOUT)

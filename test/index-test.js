@@ -54,7 +54,7 @@ const PersonSchema = new Schema({
 })
 
 const DogSchema = new Schema({
-  name: {type: String, es_indexed: true}
+  name: { type: String, es_indexed: true }
 })
 
 TalkSchema.plugin(mongoosastic)
@@ -566,7 +566,7 @@ describe('indexing', function () {
 
   describe('Disable automatic indexing', function () {
     it('should save but not index', function (done) {
-      const newDog = new Dog({name: 'Sparky'})
+      const newDog = new Dog({ name: 'Sparky' })
       newDog.save(function () {
         let whoopsIndexed = false
 
