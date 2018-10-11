@@ -28,7 +28,7 @@ describe('Refresh', function () {
 
   it('should flushed after refresh', function * () {
     yield (done) => Refresh.createMapping(done)
-    let refresh = new Refresh({title: `${Date.now()}`})
+    let refresh = new Refresh({ title: `${Date.now()}` })
     yield (done) => config.saveAndWaitIndex(refresh, done)
     yield (done) => Refresh.refresh(done)
 

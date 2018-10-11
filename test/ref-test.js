@@ -12,24 +12,24 @@ const mongoosastic = require('../lib/mongoosastic')
 let User, PostComment, Post
 
 const UserSchema = new Schema({
-  name: {type: String}
+  name: { type: String }
 })
 
 const PostCommentSchema = new Schema({
-  author: {type: Schema.Types.ObjectId, ref: 'User'},
-  text: {type: String}
+  author: { type: Schema.Types.ObjectId, ref: 'User' },
+  text: { type: String }
 })
 
 const PostSchema = new Schema({
-  body: {type: String, es_indexed: true},
-  author: {type: Schema.Types.ObjectId, ref: 'User', es_schema: UserSchema, es_indexed: true},
-  comments: [{type: Schema.Types.ObjectId, ref: 'PostComment', es_schema: PostComment, es_indexed: true}]
+  body: { type: String, es_indexed: true },
+  author: { type: Schema.Types.ObjectId, ref: 'User', es_schema: UserSchema, es_indexed: true },
+  comments: [{ type: Schema.Types.ObjectId, ref: 'PostComment', es_schema: PostComment, es_indexed: true }]
 })
 
 PostSchema.plugin(mongoosastic, {
   populate: [
-    {path: 'author'},
-    {path: 'comments', select: 'text'}
+    { path: 'author' },
+    { path: 'comments', select: 'text' }
   ]
 })
 
@@ -102,8 +102,8 @@ describe('references', function () {
         }, function (err, models) {
           if (err) return done(err)
           const comments = [
-            new PostComment({author: models.user._id, text: 'good post'}),
-            new PostComment({author: models.user._id, text: 'really'})
+            new PostComment({ author: models.user._id, text: 'good post' }),
+            new PostComment({ author: models.user._id, text: 'really' })
           ]
           async.forEach(comments, function (comment, cb) {
             comment.save(cb)

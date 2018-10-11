@@ -58,7 +58,7 @@ describe('Hydrate with ES data', function () {
     it('should return an array of objects ordered \'desc\' by MongoDB', function (done) {
       RankModel.esSearch({}, {
         hydrate: true,
-        hydrateOptions: {sort: '-rank'}
+        hydrateOptions: { sort: '-rank' }
       }, function (err, res) {
         if (err) done(err)
 
@@ -77,7 +77,7 @@ describe('Hydrate with ES data', function () {
     it('should return an array of objects ordered \'asc\' by MongoDB', function (done) {
       RankModel.esSearch({}, {
         hydrate: true,
-        hydrateOptions: {sort: 'rank'}
+        hydrateOptions: { sort: 'rank' }
       }, function (err, res) {
         if (err) done(err)
 
@@ -102,7 +102,7 @@ describe('Hydrate with ES data', function () {
         }]
       }, {
         hydrate: true,
-        hydrateOptions: {sort: undefined}
+        hydrateOptions: { sort: undefined }
       }, function (err, res) {
         if (err) done(err)
         res.hits.total.should.eql(4)
@@ -126,7 +126,7 @@ describe('Hydrate with ES data', function () {
         }]
       }, {
         hydrate: true,
-        hydrateOptions: {sort: undefined}
+        hydrateOptions: { sort: undefined }
       }, function (err, res) {
         if (err) done(err)
         res.hits.total.should.eql(4)

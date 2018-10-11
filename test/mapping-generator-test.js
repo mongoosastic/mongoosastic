@@ -157,7 +157,7 @@ describe('MappingGenerator', function () {
         telephone: {
           type: String
         },
-        keys: {type: [String], es_indexed: false},
+        keys: { type: [String], es_indexed: false },
         tags: {
           type: [String],
           es_indexed: true
@@ -467,7 +467,7 @@ describe('MappingGenerator', function () {
         lastName: String
       })
       generator.generateMapping(new Schema({
-        name: {type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name}
+        name: { type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name }
       }), function (err, mapping) {
         mapping.properties.name.properties.firstName.type.should.eql('string')
         mapping.properties.name.properties.lastName.type.should.eql('string')
@@ -481,7 +481,7 @@ describe('MappingGenerator', function () {
         lastName: String
       })
       generator.generateMapping(new Schema({
-        name: {type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name, es_select: 'firstName'}
+        name: { type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name, es_select: 'firstName' }
       }), function (err, mapping) {
         mapping.properties.name.properties.firstName.type.should.eql('string')
         should.not.exist(mapping.properties.name.properties.lastName)
@@ -496,7 +496,7 @@ describe('MappingGenerator', function () {
       })
       generator.generateMapping(new Schema({
         name: {
-          type: [{type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name}],
+          type: [{ type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name }],
           es_type: 'object'
         }
       }), function (err, mapping) {
@@ -513,7 +513,7 @@ describe('MappingGenerator', function () {
       })
       generator.generateMapping(new Schema({
         name: {
-          type: [{type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name, es_select: 'firstName'}],
+          type: [{ type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name, es_select: 'firstName' }],
           es_type: 'object'
         }
       }), function (err, mapping) {
@@ -534,8 +534,8 @@ describe('MappingGenerator', function () {
               es_lat_lon: true
             },
 
-            lat: {type: Number, default: 0},
-            lon: {type: Number, default: 0}
+            lat: { type: Number, default: 0 },
+            lon: { type: Number, default: 0 }
           },
           es_type: 'geo_point'
         }
@@ -543,7 +543,7 @@ describe('MappingGenerator', function () {
 
       generator.generateMapping(new Schema({
         locations: {
-          type: [{type: Schema.Types.ObjectId, ref: 'Location', es_schema: Location}],
+          type: [{ type: Schema.Types.ObjectId, ref: 'Location', es_schema: Location }],
           es_type: 'object'
         }
       }), function (err, mapping) {

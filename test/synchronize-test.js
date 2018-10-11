@@ -130,7 +130,7 @@ describe('Synchronize', () => {
 
     it('should index all existing objects without saving them in MongoDB', done => {
       saveCounter = 0
-      const stream = Book.synchronize({}, {saveOnSynchronize: false})
+      const stream = Book.synchronize({}, { saveOnSynchronize: false })
       let count = 0
 
       stream.on('data', (err, doc) => {

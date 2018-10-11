@@ -56,7 +56,7 @@ describe('forceIndexRefresh connection option', function () {
       forceIndexRefresh: true
     })
     const Dummy3 = mongoose.model('Dummy', DummySchema)
-    const d = new Dummy3({text: 'Text1'})
+    const d = new Dummy3({ text: 'Text1' })
 
     doInsertOperation(Dummy3, d, indexName, done)
   })
@@ -68,7 +68,7 @@ describe('forceIndexRefresh connection option', function () {
       forceIndexRefresh: false
     })
     const Dummy2 = mongoose.model('Dummy', DummySchema)
-    const d = new Dummy2({text: 'Text1'})
+    const d = new Dummy2({ text: 'Text1' })
 
     doInsertOperation(Dummy2, d, indexName, done)
   })
@@ -80,7 +80,7 @@ describe('forceIndexRefresh connection option', function () {
       forceIndexRefresh: true
     })
     const Dummy3 = mongoose.model('Dummy', DummySchema)
-    const d = new Dummy3({text: 'Text1'})
+    const d = new Dummy3({ text: 'Text1' })
 
     doUpdateOperation(Dummy3, d, 'this is the new text', indexName, done)
   })
@@ -92,7 +92,7 @@ describe('forceIndexRefresh connection option', function () {
       forceIndexRefresh: false
     })
     const Dummy2 = mongoose.model('Dummy', DummySchema)
-    const d = new Dummy2({text: 'Text1'})
+    const d = new Dummy2({ text: 'Text1' })
 
     doUpdateOperation(Dummy2, d, 'this is the new text', indexName, done)
   })
@@ -111,7 +111,7 @@ function doInsertOperation (Model, object, indexName, callback) {
       }
       // look for the object just saved
       Model.search({
-        term: {_id: savedObject._id}
+        term: { _id: savedObject._id }
       },
       function (err, results) {
         results.hits.total.should.eql(1)
@@ -140,38 +140,38 @@ function doUpdateOperation (Model, object, newText, indexName, callback) {
     }
     // update object
     Model
-    .findOneAndUpdate({_id: savedObject._id}, {text: newText}, {'new': true})
-    .exec(function (err, updatedObject) {
-      if (err) {
-        return callback(err)
-      }
-      // wait for indexing
-      updatedObject.on('es-indexed', function (err) {
+      .findOneAndUpdate({ _id: savedObject._id }, { text: newText }, { 'new': true })
+      .exec(function (err, updatedObject) {
         if (err) {
           return callback(err)
         }
-        // look for the object just saved
-        Model.search({
-          term: {_id: savedObject._id.toString()}
-        },
-        function (err, results) {
-          results.hits.total.should.eql(1)
-          results.hits.hits[0]._source.text.should.eql(newText)
+        // wait for indexing
+        updatedObject.on('es-indexed', function (err) {
+          if (err) {
+            return callback(err)
+          }
+          // look for the object just saved
+          Model.search({
+            term: { _id: savedObject._id.toString() }
+          },
+          function (err, results) {
+            results.hits.total.should.eql(1)
+            results.hits.hits[0]._source.text.should.eql(newText)
 
-          // clean the db
-          updatedObject.remove(function (err) {
-            if (err) {
-              return callback(err)
-            }
-            updatedObject.on('es-removed', function (err) {
+            // clean the db
+            updatedObject.remove(function (err) {
               if (err) {
                 return callback(err)
               }
-              callback()
+              updatedObject.on('es-removed', function (err) {
+                if (err) {
+                  return callback(err)
+                }
+                callback()
+              })
             })
           })
         })
       })
-    })
   })
 }

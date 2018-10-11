@@ -118,7 +118,7 @@ describe('Hydrate with ES data', function () {
         }
       }, {
         hydrate: true,
-        hydrateWithESResults: {source: true},
+        hydrateWithESResults: { source: true },
         highlight: {
           fields: {
             quote: {}
