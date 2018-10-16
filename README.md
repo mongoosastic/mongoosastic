@@ -1,3 +1,9 @@
+
+# LOOKING FOR MAINTAINERS
+
+This project is looking for contributors/maintainers. We need to get our tests passing again before publishing new versions of the library. Please check [issue #457](https://github.com/mongoosastic/mongoosastic/issues/457). If you, or anyone you know, work with Mongoose and/or ElasticSearch please let them know that we'd appreciate any help. Thanks!
+
+
 # Mongoosastic
 [![Build Status](https://travis-ci.org/mongoosastic/mongoosastic.svg?branch=master)](https://travis-ci.org/mongoosastic/mongoosastic)
 [![NPM version](https://img.shields.io/npm/v/mongoosastic.svg)](https://www.npmjs.com/package/mongoosastic)
