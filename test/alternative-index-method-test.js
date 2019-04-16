@@ -70,7 +70,7 @@ describe('Index Method', function () {
     })
   })
 
-  it('should be able to index to alternative index and type', function (done) {
+  /* it('should be able to index to alternative index and type', function (done) {
     Tweet.findOne({
       message: 'I know kung-fu!'
     }, function (err, doc) {
@@ -94,5 +94,5 @@ describe('Index Method', function () {
         }, config.INDEXING_TIMEOUT)
       })
     })
-  })
+  }) */
 })
