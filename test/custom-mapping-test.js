@@ -35,7 +35,7 @@ describe('Custom Properties for Mapping', function () {
       mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
         const client = mongoose.connections[0].db
         client.collection('phones', function () {
-          Phone.remove(done)
+          Phone.deleteMany(done)
         })
       })
     })

@@ -36,7 +36,7 @@ describe('Transform mode', function () {
       mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
         const client = mongoose.connections[0].db
         client.collection('repos', function () {
-          Repo.remove(done)
+          Repo.deleteMany(done)
         })
       })
     })

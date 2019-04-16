@@ -25,7 +25,7 @@ describe('Bulk mode', function () {
       mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
         const client = mongoose.connections[0].db
         client.collection('book2s', function () {
-          Book.remove(done)
+          Book.deleteMany(done)
         })
       })
     })
@@ -43,7 +43,7 @@ describe('Bulk mode', function () {
     Book.findOne({
       title: 'American Gods'
     }, function (err, book) {
-      book.remove(done)
+      book.deleteMany(done)
     })
   })
 

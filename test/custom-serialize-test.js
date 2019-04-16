@@ -32,7 +32,7 @@ describe('Custom Serialize', function () {
       mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
         const client = mongoose.connections[0].db
         client.collection('foods', function () {
-          Food.remove(done)
+          Food.deleteMany(done)
         })
       })
     })

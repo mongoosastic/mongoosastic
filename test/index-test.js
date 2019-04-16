@@ -88,7 +88,7 @@ const Dog = mongoose.model('dog', DogSchema)
 describe('indexing', function () {
   before(function (done) {
     mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
-      Tweet.remove(function () {
+      Tweet.deleteMany(function () {
         config.deleteIndexIfExists(['tweets', 'talks', 'people', 'public_tweets'], done)
       })
     })

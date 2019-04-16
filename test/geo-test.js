@@ -34,7 +34,7 @@ describe('GeoTest', function () {
         GeoModel = mongoose.model('geodoc', GeoSchema)
 
         GeoModel.createMapping(function () {
-          GeoModel.remove(function () {
+          GeoModel.deleteMany(function () {
             esClient.indices.getMapping({
               index: 'geodocs',
               type: 'geodoc'

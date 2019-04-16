@@ -41,7 +41,7 @@ describe('references', function () {
   before(function (done) {
     mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
       async.forEach([Post, User, PostComment], function (model, cb) {
-        model.remove(cb)
+        model.deleteMany(cb)
       }, function () {
         config.deleteIndexIfExists(['posts', 'users'], done)
       })

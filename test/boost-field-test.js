@@ -32,7 +32,7 @@ const BlogPost = mongoose.model('BlogPost', TweetSchema)
 describe('Add Boost Option Per Field', function () {
   before(function (done) {
     mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
-      BlogPost.remove(function () {
+      BlogPost.deleteMany(function () {
         config.deleteIndexIfExists(['blogposts'], done)
       })
     })

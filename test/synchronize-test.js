@@ -34,7 +34,7 @@ describe('Synchronize', () => {
         const client = mongoose.connections[0].db
         client.collection('books', (err, _books) => {
           books = _books
-          Book.remove(cb)
+          Book.deleteMany(cb)
         })
       })
     })

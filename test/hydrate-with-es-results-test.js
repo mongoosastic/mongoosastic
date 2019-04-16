@@ -18,7 +18,7 @@ const EsResultText = mongoose.model('esResultText', esResultTextSchema)
 describe('Hydrate with ES data', function () {
   before(function (done) {
     mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
-      EsResultText.remove(function () {
+      EsResultText.deleteMany(function () {
         config.deleteIndexIfExists(['esresulttexts'], function () {
           // Quotes are from Terry Pratchett's Discworld books
           const esResultTexts = [
@@ -49,7 +49,7 @@ describe('Hydrate with ES data', function () {
   })
 
   after(function (done) {
-    EsResultText.remove()
+    EsResultText.deleteMany()
     EsResultText.esClient.close()
     mongoose.disconnect()
     done()

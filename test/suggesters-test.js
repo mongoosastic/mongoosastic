@@ -32,7 +32,7 @@ describe('Suggesters', function () {
         KittenSchema.plugin(mongoosastic)
         Kitten = mongoose.model('Kitten', KittenSchema)
         Kitten.createMapping({}, function () {
-          Kitten.remove(function () {
+          Kitten.deleteMany(function () {
             const kittens = [
               new Kitten({
                 name: 'Cookie',

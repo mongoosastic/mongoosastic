@@ -36,7 +36,7 @@ function tryDummySearch (model, cb) {
 describe('Elasticsearch Connection', function () {
   before(function (done) {
     mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
-      Dummy.remove(function () {
+      Dummy.deleteMany(function () {
         config.deleteIndexIfExists(['dummys'], function () {
           const dummies = [
             new Dummy({
@@ -57,7 +57,7 @@ describe('Elasticsearch Connection', function () {
   })
 
   after(function (done) {
-    Dummy.remove()
+    Dummy.deleteMany()
     mongoose.disconnect()
     done()
   })

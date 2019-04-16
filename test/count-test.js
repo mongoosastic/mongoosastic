@@ -33,7 +33,7 @@ const Comment = mongoose.model('Comment', CommentSchema)
 describe('Count', function () {
   before(function (done) {
     mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
-      Comment.remove(function () {
+      Comment.deleteMany(function () {
         config.deleteIndexIfExists(['comments'], function () {
           const comments = [
             new Comment({

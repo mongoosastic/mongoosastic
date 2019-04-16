@@ -33,7 +33,7 @@ describe('forceIndexRefresh connection option', function () {
           }
         }, function (err, mapping) {
           // clean mongodb
-          Dummy.remove(function (err) {
+          Dummy.deleteMany(function (err) {
             setTimeout(done, config.INDEXING_TIMEOUT)
           })
         })

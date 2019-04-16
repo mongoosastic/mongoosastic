@@ -38,7 +38,7 @@ describe('Filter mode', function () {
       mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
         const client = mongoose.connections[0].db
         client.collection('movies', function () {
-          Movie.remove(done)
+          Movie.deleteMany(done)
         })
       })
     })

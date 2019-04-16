@@ -8,7 +8,7 @@ describe('Index Method', function () {
   before(function (done) {
     mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
       config.deleteIndexIfExists(['tweets', 'public_tweets'], function () {
-        Tweet.remove(function () {
+        Tweet.deleteMany(function () {
           config.createModelAndEnsureIndex(Tweet, {
             user: 'jamescarr',
             message: 'I know kung-fu!',
@@ -20,7 +20,7 @@ describe('Index Method', function () {
   })
 
   after(function (done) {
-    Tweet.remove(function () {
+    Tweet.deleteMany(function () {
       mongoose.disconnect()
       done()
     })

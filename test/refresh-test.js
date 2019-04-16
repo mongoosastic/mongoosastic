@@ -17,7 +17,7 @@ describe('Refresh', function () {
   before(function * () {
     yield (done) => config.deleteIndexIfExists(['refreshs'], done)
     yield (done) => mongoose.connect(config.mongoUrl, config.mongoOpts, done)
-    yield (done) => Refresh.remove({}, done)
+    yield (done) => Refresh.deleteMany({}, done)
   })
 
   after(function * () {

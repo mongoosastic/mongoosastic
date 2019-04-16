@@ -25,7 +25,7 @@ describe('Highlight search', function () {
 
   before(function (done) {
     mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
-      Text.remove(function () {
+      Text.deleteMany(function () {
         config.deleteIndexIfExists(['texts'], function () {
           // Quotes are from Terry Pratchett's Discworld books
           const texts = [
@@ -56,7 +56,7 @@ describe('Highlight search', function () {
   })
 
   after(function (done) {
-    Text.remove()
+    Text.deleteMany()
     Text.esClient.close()
     mongoose.disconnect()
     done()
