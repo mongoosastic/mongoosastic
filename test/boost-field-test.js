@@ -49,12 +49,12 @@ describe('Add Boost Option Per Field', function () {
     BlogPost.createMapping(function () {
       esClient.indices.getMapping({
         index: 'blogposts',
-        type: 'blogpost'
+        type: '_doc'
       }, function (err, mapping) {
         /* elasticsearch 1.0 & 0.9 support */
-        const props = mapping.blogpost !== undefined
-          ? mapping.blogpost.properties /* ES 0.9.11 */
-          : mapping.blogposts.mappings.blogpost.properties
+        const props = mapping._doc !== undefined
+          ? mapping._doc.properties /* ES 0.9.11 */
+          : mapping.blogposts.mappings._doc.properties
         /* ES 1.0.0 */
 
         props.title.type.should.eql('text')
