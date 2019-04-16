@@ -24,7 +24,7 @@ describe('Highlight search', function () {
   ]
 
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
       Text.remove(function () {
         config.deleteIndexIfExists(['texts'], function () {
           // Quotes are from Terry Pratchett's Discworld books

@@ -18,7 +18,7 @@ const Dummy = mongoose.model('Dummy', DummySchema)
 describe('forceIndexRefresh connection option', function () {
   before(function (done) {
     // connect to mongodb
-    mongoose.connect(config.mongoUrl, function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
       // delete the index from elasticsearch
       config.deleteIndexIfExists([indexName], function (err) {
         // recreate the index

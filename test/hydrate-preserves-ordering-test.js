@@ -17,7 +17,7 @@ const RankModel = mongoose.model('rank', rankSchema)
 
 describe('Hydrate with ES data', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
       RankModel.remove(function () {
         config.deleteIndexIfExists(['ranks'], function () {
           // Quotes are from Terry Pratchett's Discworld books

@@ -16,7 +16,7 @@ let Kitten
 
 describe('Suggesters', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
       config.deleteIndexIfExists(['kittens'], function () {
         KittenSchema = new Schema({
           name: {

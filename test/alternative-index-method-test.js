@@ -6,7 +6,7 @@ const Tweet = require('./models/tweet')
 
 describe('Index Method', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
       config.deleteIndexIfExists(['tweets', 'public_tweets'], function () {
         Tweet.remove(function () {
           config.createModelAndEnsureIndex(Tweet, {

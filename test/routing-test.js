@@ -20,7 +20,7 @@ describe('Routing', function () {
   let res
 
   before(function * () {
-    yield (done) => mongoose.connect(config.mongoUrl, done)
+    yield (done) => mongoose.connect(config.mongoUrl, config.mongoOpts, done)
     yield (done) => config.deleteIndexIfExists(['tasks'], done)
     yield (done) => Task.remove({}, done)
   })

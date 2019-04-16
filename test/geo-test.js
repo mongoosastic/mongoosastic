@@ -12,7 +12,7 @@ let GeoModel
 
 describe('GeoTest', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
       config.deleteIndexIfExists(['geodocs'], function () {
         GeoSchema = new Schema({
           myId: Number,

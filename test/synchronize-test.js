@@ -30,7 +30,7 @@ describe('Synchronize', () => {
 
   const clearData = (cb) => {
     config.deleteIndexIfExists(['books'], () => {
-      mongoose.connect(config.mongoUrl, () => {
+      mongoose.connect(config.mongoUrl, config.mongoOpts, () => {
         const client = mongoose.connections[0].db
         client.collection('books', (err, _books) => {
           books = _books

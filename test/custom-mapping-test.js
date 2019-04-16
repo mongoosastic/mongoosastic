@@ -32,7 +32,7 @@ describe('Custom Properties for Mapping', function () {
 
   before(function (done) {
     config.deleteIndexIfExists(['phones'], function () {
-      mongoose.connect(config.mongoUrl, function () {
+      mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
         const client = mongoose.connections[0].db
         client.collection('phones', function () {
           Phone.remove(done)

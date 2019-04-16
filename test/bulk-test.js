@@ -22,7 +22,7 @@ const Book = mongoose.model('Book2', BookSchema)
 describe('Bulk mode', function () {
   before(function (done) {
     config.deleteIndexIfExists(['book2s'], function () {
-      mongoose.connect(config.mongoUrl, function () {
+      mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
         const client = mongoose.connections[0].db
         client.collection('book2s', function () {
           Book.remove(done)

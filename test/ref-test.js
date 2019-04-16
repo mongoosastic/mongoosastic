@@ -39,7 +39,7 @@ PostComment = mongoose.model('PostComment', PostCommentSchema)
 
 describe('references', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
       async.forEach([Post, User, PostComment], function (model, cb) {
         model.remove(cb)
       }, function () {

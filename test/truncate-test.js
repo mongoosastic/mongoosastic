@@ -16,7 +16,7 @@ const Dummy = mongoose.model('Dummy', DummySchema)
 
 describe('Truncate', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
       Dummy.remove(function () {
         config.deleteIndexIfExists(['dummys'], function () {
           const dummies = [

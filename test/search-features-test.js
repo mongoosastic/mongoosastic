@@ -21,7 +21,7 @@ const Bond = mongoose.model('Bond', BondSchema)
 
 describe('Query DSL', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
       Bond.remove(function () {
         config.deleteIndexIfExists(['bonds'], function () {
           const bonds = [

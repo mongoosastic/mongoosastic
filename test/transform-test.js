@@ -33,7 +33,7 @@ describe('Transform mode', function () {
 
   before(function (done) {
     config.deleteIndexIfExists(['repos'], function () {
-      mongoose.connect(config.mongoUrl, function () {
+      mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
         const client = mongoose.connections[0].db
         client.collection('repos', function () {
           Repo.remove(done)
