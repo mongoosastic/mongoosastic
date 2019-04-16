@@ -140,38 +140,38 @@ function doUpdateOperation (Model, object, newText, indexName, callback) {
     }
     // update object
     Model
-    .findOneAndUpdate({_id: savedObject._id}, {text: newText}, {'new': true})
-    .exec(function (err, updatedObject) {
-      if (err) {
-        return callback(err)
-      }
-      // wait for indexing
-      updatedObject.on('es-indexed', function (err) {
+      .findOneAndUpdate({_id: savedObject._id}, {text: newText}, {'new': true})
+      .exec(function (err, updatedObject) {
         if (err) {
           return callback(err)
         }
-        // look for the object just saved
-        Model.search({
-          term: {_id: savedObject._id.toString()}
-        },
-        function (err, results) {
-          results.hits.total.should.eql(1)
-          results.hits.hits[0]._source.text.should.eql(newText)
+        // wait for indexing
+        updatedObject.on('es-indexed', function (err) {
+          if (err) {
+            return callback(err)
+          }
+          // look for the object just saved
+          Model.search({
+            term: {_id: savedObject._id.toString()}
+          },
+          function (err, results) {
+            results.hits.total.should.eql(1)
+            results.hits.hits[0]._source.text.should.eql(newText)
 
-          // clean the db
-          updatedObject.remove(function (err) {
-            if (err) {
-              return callback(err)
-            }
-            updatedObject.on('es-removed', function (err) {
+            // clean the db
+            updatedObject.remove(function (err) {
               if (err) {
                 return callback(err)
               }
-              callback()
+              updatedObject.on('es-removed', function (err) {
+                if (err) {
+                  return callback(err)
+                }
+                callback()
+              })
             })
           })
         })
       })
-    })
   })
 }
