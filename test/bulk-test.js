@@ -43,7 +43,7 @@ describe('Bulk mode', function () {
     Book.findOne({
       title: 'American Gods'
     }, function (err, book) {
-      book.deleteMany(done)
+      book.remove(done)
     })
   })
 
