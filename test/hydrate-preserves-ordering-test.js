@@ -39,7 +39,7 @@ describe('Hydrate with ES data', function () {
               rank: -10.4
             })
           ]
-          async.forEach(esResultTexts, config.saveAndWaitIndex, function () {
+          async.mapSeries(esResultTexts, config.saveAndWaitIndex, () => {
             setTimeout(done, config.INDEXING_TIMEOUT)
           })
         })
