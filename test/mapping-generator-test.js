@@ -357,7 +357,7 @@ describe('MappingGenerator', function () {
       }), function (err, mapping) {
         mapping.properties.name.properties.first_name.type.should.eql('text')
         mapping.properties.name.properties.last_name.type.should.eql('text')
-        mapping.properties.name.properties.age.type.should.eql('double')
+        mapping.properties.name.properties.age.type.should.eql('long')
         should.not.exist(mapping.properties.name.properties.birthYear)
         done()
       })
