@@ -50,11 +50,11 @@ describe('Synchronize', () => {
     before(done => {
       clearData(() => {
         async.forEach(config.bookTitlesArray(), (title, cb) => {
-          books.insert({
+          books.insertOne({
             title: title
           }, cb)
         }, () => {
-          books.insert({
+          books.insertOne({
           }, done)
         })
       })
@@ -94,7 +94,7 @@ describe('Synchronize', () => {
     before(done => {
       clearData(() => {
         async.forEach(config.bookTitlesArray(), (title, cb) => {
-          books.insert({
+          books.insertOne({
             title: title
           }, cb)
         }, done)
