@@ -250,7 +250,7 @@ describe('indexing', function () {
       Tweet.search({
         queriez: 'jamescarr'
       }, function (err, results) {
-        err.message.should.match(/(SearchPhaseExecutionException|query_parsing_exception)/)
+        err.message.should.match(/(SearchPhaseExecutionException|parsing_exception)/)
         should.not.exist(results)
         done()
       })
