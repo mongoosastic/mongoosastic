@@ -538,7 +538,7 @@ describe('indexing', function () {
               bum: {
                 properties: {
                   name: {
-                    type: 'string'
+                    type: 'text'
                   }
                 }
               }
