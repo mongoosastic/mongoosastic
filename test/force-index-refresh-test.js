@@ -2,7 +2,6 @@
 
 const mongoose = require('mongoose')
 const config = require('./config')
-const esClient = config.getClient()
 const Schema = mongoose.Schema
 const mongoosastic = require('../lib/mongoosastic')
 const indexName = 'es-test'
@@ -13,11 +12,9 @@ const DummySchemaRefresh = new Schema({
   text: String
 })
 DummySchema.plugin(mongoosastic, {
-  esClient: esClient,
   index: indexName
 })
 DummySchemaRefresh.plugin(mongoosastic, {
-  esClient: esClient,
   index: indexName,
   forceIndexRefresh: true
 })
@@ -56,7 +53,8 @@ describe('forceIndexRefresh connection option', function () {
         // disconnect mongodb
         mongoose.disconnect()
         // disconnect elasticsearch
-        config.close()
+        Dummy.esClient.close()
+        DummyRefresh.esClient.close()
         done()
       })
     })
