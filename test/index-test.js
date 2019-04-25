@@ -88,19 +88,25 @@ const Dog = mongoose.model('dog', DogSchema)
 describe('indexing', function () {
   before(function (done) {
     mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
-      Tweet.deleteMany(function () {
-        config.deleteIndexIfExists(['tweets', 'talks', 'people', 'public_tweets'], done)
+      config.deleteDocs([Tweet, Person, Talk, Bum, Dog], function () {
+        config.deleteIndexIfExists(['tweets', 'talks', 'people', 'ms_sample', 'dogs'], function () {
+          setTimeout(done, config.INDEXING_TIMEOUT)
+        })
       })
     })
   })
 
   after(function (done) {
-    mongoose.disconnect()
-    Talk.esClient.close()
-    Person.esClient.close()
-    Bum.esClient.close()
-    esClient.close()
-    config.deleteIndexIfExists(['tweets', 'talks', 'people'], done)
+    config.deleteDocs([Tweet, Person, Talk, Bum, Dog], function () {
+      config.deleteIndexIfExists(['tweets', 'talks', 'people', 'ms_sample', 'dogs'], function () {
+        mongoose.disconnect()
+        Talk.esClient.close()
+        Person.esClient.close()
+        Bum.esClient.close()
+        esClient.close()
+        done()
+      })
+    })
   })
 
   describe('Creating Index', function () {

@@ -57,9 +57,12 @@ describe('Elasticsearch Connection', function () {
   })
 
   after(function (done) {
-    Dummy.deleteMany()
-    mongoose.disconnect()
-    done()
+    Dummy.deleteMany(function () {
+      config.deleteIndexIfExists(['dummys'], function () {
+        mongoose.disconnect()
+        done()
+      })
+    })
   })
 
   it('should be able to connect with default options', function (done) {

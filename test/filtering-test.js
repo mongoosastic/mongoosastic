@@ -45,9 +45,13 @@ describe('Filter mode', function () {
   })
 
   after(function (done) {
-    mongoose.disconnect()
-    Movie.esClient.close()
-    done()
+    config.deleteIndexIfExists(['movies'], function () {
+      Movie.deleteMany(function () {
+        mongoose.disconnect()
+        Movie.esClient.close()
+        done()
+      })
+    })
   })
 
   it('should index horror genre', function (done) {

@@ -48,10 +48,13 @@ describe('Hydrate with ES data', function () {
   })
 
   after(function (done) {
-    RankModel.deleteMany()
-    RankModel.esClient.close()
-    mongoose.disconnect()
-    done()
+    RankModel.deleteMany(function () {
+      config.deleteIndexIfExists(['ranks'], function () {
+        RankModel.esClient.close()
+        mongoose.disconnect()
+        done()
+      })
+    })
   })
 
   describe('Preserve ordering from MongoDB on hydration', function () {

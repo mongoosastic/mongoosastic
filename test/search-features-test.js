@@ -55,10 +55,13 @@ describe('Query DSL', function () {
   })
 
   after(function (done) {
-    Bond.deleteMany()
-    Bond.esClient.close()
-    mongoose.disconnect()
-    done()
+    Bond.deleteMany(function () {
+      config.deleteIndexIfExists(['bonds'], function () {
+        Bond.esClient.close()
+        mongoose.disconnect()
+        done()
+      })
+    })
   })
 
   describe('range', function () {

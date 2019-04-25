@@ -41,9 +41,13 @@ describe('Synchronize', () => {
   }
 
   after(done => {
-    Book.esClient.close()
-    mongoose.disconnect()
-    done()
+    Book.deleteMany(function () {
+      config.deleteIndexIfExists(['books'], () => {
+        Book.esClient.close()
+        mongoose.disconnect()
+        done()
+      })
+    })
   })
 
   describe('an existing collection with invalid field values', () => {

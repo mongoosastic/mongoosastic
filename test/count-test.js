@@ -56,9 +56,13 @@ describe('Count', function () {
   })
 
   after(function (done) {
-    mongoose.disconnect()
-    Comment.esClient.close()
-    done()
+    Comment.deleteMany(function () {
+      config.deleteIndexIfExists(['comments'], function () {
+        mongoose.disconnect()
+        Comment.esClient.close()
+        done()
+      })
+    })
   })
 
   it('should count a type', function (done) {

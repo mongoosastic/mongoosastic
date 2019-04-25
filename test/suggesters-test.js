@@ -61,10 +61,14 @@ describe('Suggesters', function () {
   })
 
   after(function (done) {
-    Kitten.esClient.close()
-    mongoose.disconnect()
-    esClient.close()
-    done()
+    Kitten.deleteMany(function () {
+      config.deleteIndexIfExists(['kittens'], function () {
+        Kitten.esClient.close()
+        mongoose.disconnect()
+        esClient.close()
+        done()
+      })
+    })
   })
 
   describe('Testing Suggest', function () {

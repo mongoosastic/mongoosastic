@@ -56,10 +56,13 @@ describe('Highlight search', function () {
   })
 
   after(function (done) {
-    Text.deleteMany()
-    Text.esClient.close()
-    mongoose.disconnect()
-    done()
+    Text.deleteMany(function () {
+      config.deleteIndexIfExists(['texts'], function () {
+        Text.esClient.close()
+        mongoose.disconnect()
+        done()
+      })
+    })
   })
 
   describe('Highlight without hydrating', function () {

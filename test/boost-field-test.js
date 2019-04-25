@@ -39,10 +39,14 @@ describe('Add Boost Option Per Field', function () {
   })
 
   after(function (done) {
-    mongoose.disconnect()
-    BlogPost.esClient.close()
-    esClient.close()
-    done()
+    BlogPost.deleteMany(function () {
+      config.deleteIndexIfExists(['blogposts'], function () {
+        mongoose.disconnect()
+        BlogPost.esClient.close()
+        esClient.close()
+        done()
+      })
+    })
   })
 
   it('should create a mapping with boost field added', function (done) {

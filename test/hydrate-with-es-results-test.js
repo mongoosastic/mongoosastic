@@ -49,10 +49,13 @@ describe('Hydrate with ES data', function () {
   })
 
   after(function (done) {
-    EsResultText.deleteMany()
-    EsResultText.esClient.close()
-    mongoose.disconnect()
-    done()
+    EsResultText.deleteMany(function () {
+      config.deleteIndexIfExists(['esresulttexts'], function () {
+        EsResultText.esClient.close()
+        mongoose.disconnect()
+        done()
+      })
+    })
   })
 
   describe('Hydrate without adding ES data', function () {

@@ -21,7 +21,7 @@ describe('Refresh', function () {
   })
 
   after(function * () {
-    // Refresh.esClient.close()
+    yield (done) => Refresh.deleteMany({}, done)
     yield (done) => mongoose.disconnect(done)
     yield (done) => config.deleteIndexIfExists(['refreshs'], done)
   })

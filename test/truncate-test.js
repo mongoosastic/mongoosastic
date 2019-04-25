@@ -38,10 +38,13 @@ describe('Truncate', function () {
   })
 
   after(function (done) {
-    Dummy.deleteMany()
-    Dummy.esClient.close()
-    mongoose.disconnect()
-    done()
+    Dummy.deleteMany(function () {
+      config.deleteIndexIfExists(['dummys'], function () {
+        Dummy.esClient.close()
+        mongoose.disconnect()
+        done()
+      })
+    })
   })
 
   describe('esTruncate', function () {

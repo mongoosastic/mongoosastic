@@ -39,9 +39,13 @@ describe('Custom Serialize', function () {
   })
 
   after(function (done) {
-    mongoose.disconnect()
-    Food.esClient.close()
-    done()
+    config.deleteIndexIfExists(['foods'], function () {
+      Food.deleteMany(function () {
+        mongoose.disconnect()
+        Food.esClient.close()
+        done()
+      })
+    })
   })
 
   it('should index all fields returned from the customSerialize function', function (done) {

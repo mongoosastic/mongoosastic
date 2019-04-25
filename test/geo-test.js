@@ -53,10 +53,14 @@ describe('GeoTest', function () {
   })
 
   after(function (done) {
-    GeoModel.esClient.close()
-    mongoose.disconnect()
-    esClient.close()
-    done()
+    config.deleteIndexIfExists(['geodocs'], function () {
+      GeoModel.deleteMany(function () {
+        GeoModel.esClient.close()
+        mongoose.disconnect()
+        esClient.close()
+        done()
+      })
+    })
   })
 
   it('should be able to create and store geo coordinates', function (done) {

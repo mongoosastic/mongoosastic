@@ -42,9 +42,13 @@ describe('Custom Properties for Mapping', function () {
   })
 
   after(function (done) {
-    mongoose.disconnect()
-    Phone.esClient.close()
-    done()
+    config.deleteIndexIfExists(['phones'], function () {
+      Phone.deleteMany(function () {
+        mongoose.disconnect()
+        Phone.esClient.close()
+        done()
+      })
+    })
   })
 
   it('should index with field "fullTitle"', function (done) {

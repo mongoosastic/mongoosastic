@@ -43,9 +43,13 @@ describe('Transform mode', function () {
   })
 
   after(function (done) {
-    mongoose.disconnect()
-    Repo.esClient.close()
-    done()
+    Repo.deleteMany(function () {
+      config.deleteIndexIfExists(['repos'], function () {
+        mongoose.disconnect()
+        Repo.esClient.close()
+        done()
+      })
+    })
   })
 
   it('should index with field "fullTitle"', function (done) {

@@ -48,9 +48,13 @@ describe('Bulk mode', function () {
   })
 
   after(function (done) {
-    mongoose.disconnect()
-    Book.esClient.close()
-    done()
+    config.deleteIndexIfExists(['book2s'], function () {
+      Book.deleteMany(function () {
+        mongoose.disconnect()
+        Book.esClient.close()
+        done()
+      })
+    })
   })
 
   it('should index all objects and support deletions too', function (done) {
