@@ -21,8 +21,8 @@ const Bond = mongoose.model('Bond', BondSchema)
 
 describe('Query DSL', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
-      Bond.remove(function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
+      Bond.deleteMany(function () {
         config.deleteIndexIfExists(['bonds'], function () {
           const bonds = [
             new Bond({
@@ -55,10 +55,13 @@ describe('Query DSL', function () {
   })
 
   after(function (done) {
-    Bond.remove()
-    Bond.esClient.close()
-    mongoose.disconnect()
-    done()
+    Bond.deleteMany(function () {
+      config.deleteIndexIfExists(['bonds'], function () {
+        Bond.esClient.close()
+        mongoose.disconnect()
+        done()
+      })
+    })
   })
 
   describe('range', function () {
@@ -93,7 +96,7 @@ describe('Query DSL', function () {
         Bond.search({
           match_all: {}
         }, {
-          sort: 'name:asc'
+          sort: 'name.keyword:asc'
         }, function (err, res) {
           res.hits.total.should.eql(4)
           expectedAsc.should.eql(res.hits.hits.map(getNames))
@@ -106,7 +109,7 @@ describe('Query DSL', function () {
         Bond.search({
           match_all: {}
         }, {
-          sort: ['name:desc']
+          sort: ['name.keyword:desc']
         }, function (err, res) {
           res.hits.total.should.eql(4)
           expectedDesc.should.eql(res.hits.hits.map(getNames))
@@ -122,7 +125,7 @@ describe('Query DSL', function () {
           match_all: {}
         }, {
           sort: {
-            name: {
+            'name.keyword': {
               order: 'asc'
             }
           }
@@ -139,10 +142,10 @@ describe('Query DSL', function () {
           match_all: {}
         }, {
           sort: {
-            name: {
+            'name.keyword': {
               order: 'desc'
             },
-            type: {
+            'type.keyword': {
               order: 'asc'
             }
           }
@@ -165,7 +168,7 @@ describe('Query DSL', function () {
           aggs: {
             'names': {
               'terms': {
-                'field': 'name'
+                'field': 'name.keyword'
               }
             }
           }
@@ -173,19 +176,19 @@ describe('Query DSL', function () {
           res.aggregations.names.buckets.should.eql([
             {
               doc_count: 1,
-              key: 'bail'
+              key: 'Bail'
             },
             {
               doc_count: 1,
-              key: 'commercial'
+              key: 'Commercial'
             },
             {
               doc_count: 1,
-              key: 'construction'
+              key: 'Construction'
             },
             {
               doc_count: 1,
-              key: 'legal'
+              key: 'Legal'
             }
           ])
 

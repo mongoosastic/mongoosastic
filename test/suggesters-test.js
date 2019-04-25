@@ -16,7 +16,7 @@ let Kitten
 
 describe('Suggesters', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
       config.deleteIndexIfExists(['kittens'], function () {
         KittenSchema = new Schema({
           name: {
@@ -32,7 +32,7 @@ describe('Suggesters', function () {
         KittenSchema.plugin(mongoosastic)
         Kitten = mongoose.model('Kitten', KittenSchema)
         Kitten.createMapping({}, function () {
-          Kitten.remove(function () {
+          Kitten.deleteMany(function () {
             const kittens = [
               new Kitten({
                 name: 'Cookie',
@@ -61,10 +61,14 @@ describe('Suggesters', function () {
   })
 
   after(function (done) {
-    Kitten.esClient.close()
-    mongoose.disconnect()
-    esClient.close()
-    done()
+    Kitten.deleteMany(function () {
+      config.deleteIndexIfExists(['kittens'], function () {
+        Kitten.esClient.close()
+        mongoose.disconnect()
+        esClient.close()
+        done()
+      })
+    })
   })
 
   describe('Testing Suggest', function () {
@@ -73,11 +77,11 @@ describe('Suggesters', function () {
       Kitten.createMapping(function () {
         esClient.indices.getMapping({
           index: 'kittens',
-          type: 'kitten'
+          type: '_doc'
         }, function (err, mapping) {
-          const props = mapping.kitten !== undefined /* elasticsearch 1.0 & 0.9 support */
-            ? mapping.kitten.properties /* ES 0.9.11 */
-            : mapping.kittens.mappings.kitten.properties /* ES 1.0.0 */
+          const props = mapping._doc !== undefined /* elasticsearch 1.0 & 0.9 support */
+            ? mapping._doc.properties /* ES 0.9.11 */
+            : mapping.kittens.mappings._doc.properties /* ES 1.0.0 */
           props.name.type.should.eql('completion')
           done()
         })

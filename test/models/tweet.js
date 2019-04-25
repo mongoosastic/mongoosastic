@@ -2,7 +2,6 @@
 
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
-const config = require('../config')
 const mongoosastic = require('../../lib/mongoosastic')
 
 // -- simplest indexing... index all fields
@@ -15,8 +14,7 @@ const TweetSchema = new Schema({
 
 TweetSchema.plugin(mongoosastic, {
   index: 'tweets',
-  type: 'tweet',
-  esClient: config.getClient()
+  type: 'tweet'
 })
 
 module.exports = mongoose.model('Tweet', TweetSchema)

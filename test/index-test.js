@@ -87,20 +87,26 @@ const Dog = mongoose.model('dog', DogSchema)
 // -- alright let's test this shiznit!
 describe('indexing', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
-      Tweet.remove(function () {
-        config.deleteIndexIfExists(['tweets', 'talks', 'people', 'public_tweets'], done)
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
+      config.deleteDocs([Tweet, Person, Talk, Bum, Dog], function () {
+        config.deleteIndexIfExists(['tweets', 'talks', 'people', 'ms_sample', 'dogs'], function () {
+          setTimeout(done, config.INDEXING_TIMEOUT)
+        })
       })
     })
   })
 
   after(function (done) {
-    mongoose.disconnect()
-    Talk.esClient.close()
-    Person.esClient.close()
-    Bum.esClient.close()
-    esClient.close()
-    config.deleteIndexIfExists(['tweets', 'talks', 'people'], done)
+    config.deleteDocs([Tweet, Person, Talk, Bum, Dog], function () {
+      config.deleteIndexIfExists(['tweets', 'talks', 'people', 'ms_sample', 'dogs'], function () {
+        mongoose.disconnect()
+        Talk.esClient.close()
+        Person.esClient.close()
+        Bum.esClient.close()
+        esClient.close()
+        done()
+      })
+    })
   })
 
   describe('Creating Index', function () {
@@ -250,7 +256,7 @@ describe('indexing', function () {
       Tweet.search({
         queriez: 'jamescarr'
       }, function (err, results) {
-        err.message.should.match(/(SearchPhaseExecutionException|query_parsing_exception)/)
+        err.message.should.match(/(SearchPhaseExecutionException|parsing_exception)/)
         should.not.exist(results)
         done()
       })
@@ -538,7 +544,7 @@ describe('indexing', function () {
               bum: {
                 properties: {
                   name: {
-                    type: 'string'
+                    type: 'text'
                   }
                 }
               }

@@ -12,13 +12,13 @@ const DummySchema = new Schema({
 
 DummySchema.plugin(mongoosastic)
 
-const Dummy = mongoose.model('Dummy', DummySchema)
+const Dummy = mongoose.model('DummyTruncate', DummySchema)
 
 describe('Truncate', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
-      Dummy.remove(function () {
-        config.deleteIndexIfExists(['dummys'], function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
+      Dummy.deleteMany(function () {
+        config.deleteIndexIfExists(['dummytruncates'], function () {
           const dummies = [
             new Dummy({
               text: 'Text1'
@@ -38,10 +38,13 @@ describe('Truncate', function () {
   })
 
   after(function (done) {
-    Dummy.remove()
-    Dummy.esClient.close()
-    mongoose.disconnect()
-    done()
+    Dummy.deleteMany(function () {
+      config.deleteIndexIfExists(['dummytruncates'], function () {
+        Dummy.esClient.close()
+        mongoose.disconnect()
+        done()
+      })
+    })
   })
 
   describe('esTruncate', function () {

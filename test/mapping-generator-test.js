@@ -8,22 +8,22 @@ const generator = new Generator()
 
 describe('MappingGenerator', function () {
   describe('type mapping', function () {
-    it('maps field with simple String type', function (done) {
+    it('maps field with simple text type', function (done) {
       generator.generateMapping(new Schema({
         name: String
       }), function (err, mapping) {
-        mapping.properties.name.type.should.eql('string')
+        mapping.properties.name.type.should.eql('text')
         done()
       })
     })
 
-    it('maps field with String type attribute', function (done) {
+    it('maps field with text type attribute', function (done) {
       generator.generateMapping(new Schema({
         name: {
           type: String
         }
       }), function (err, mapping) {
-        mapping.properties.name.type.should.eql('string')
+        mapping.properties.name.type.should.eql('text')
         done()
       })
     })
@@ -78,13 +78,13 @@ describe('MappingGenerator', function () {
       })
     })
 
-    it('converts object id to string if not _id', function (done) {
+    it('converts object id to text if not _id', function (done) {
       generator.generateMapping(new Schema({
         oid: {
           type: Schema.Types.ObjectId
         }
       }), function (err, mapping) {
-        mapping.properties.oid.type.should.eql('string')
+        mapping.properties.oid.type.should.eql('text')
         done()
       })
     })
@@ -95,7 +95,7 @@ describe('MappingGenerator', function () {
       })
 
       generator.generateMapping(schema, function (err, mapping) {
-        mapping.properties.oid.type.should.eql('string')
+        mapping.properties.oid.type.should.eql('text')
         should.not.exist(schema.tree.oid.type)
         done()
       })
@@ -112,8 +112,8 @@ describe('MappingGenerator', function () {
           }
         }
       }), function (err, mapping) {
-        mapping.properties.contact.properties.email.type.should.eql('string')
-        mapping.properties.contact.properties.telephone.type.should.eql('string')
+        mapping.properties.contact.properties.email.type.should.eql('text')
+        mapping.properties.contact.properties.telephone.type.should.eql('text')
         done()
       })
     })
@@ -139,9 +139,9 @@ describe('MappingGenerator', function () {
           }
         }
       }), function (err, mapping) {
-        mapping.properties.name.type.should.eql('string')
-        mapping.properties.contact.properties.email.type.should.eql('string')
-        mapping.properties.contact.properties.tags.type.should.eql('string')
+        mapping.properties.name.type.should.eql('text')
+        mapping.properties.contact.properties.email.type.should.eql('text')
+        mapping.properties.contact.properties.tags.type.should.eql('text')
         mapping.properties.contact.properties.should.not.have.property('telephone')
         mapping.properties.contact.properties.should.not.have.property('keys')
         done()
@@ -174,9 +174,9 @@ describe('MappingGenerator', function () {
           select: false
         }
       }), function (err, mapping) {
-        mapping.properties.name.type.should.eql('string')
-        mapping.properties.contact.properties.email.type.should.eql('string')
-        mapping.properties.contact.properties.tags.type.should.eql('string')
+        mapping.properties.name.type.should.eql('text')
+        mapping.properties.contact.properties.email.type.should.eql('text')
+        mapping.properties.contact.properties.tags.type.should.eql('text')
         mapping.properties.contact.properties.should.not.have.property('telephone')
         mapping.properties.contact.properties.should.not.have.property('keys')
         done()
@@ -191,20 +191,20 @@ describe('MappingGenerator', function () {
           es_type: 'multi_field',
           es_fields: {
             test: {
-              type: 'string',
+              type: 'text',
               index: 'analyzed'
             },
             untouched: {
-              type: 'string',
+              type: 'text',
               index: 'not_analyzed'
             }
           }
         }
       }), function (err, mapping) {
         mapping.properties.test.type.should.eql('multi_field')
-        mapping.properties.test.fields.test.type.should.eql('string')
+        mapping.properties.test.fields.test.type.should.eql('text')
         mapping.properties.test.fields.test.index.should.eql('analyzed')
-        mapping.properties.test.fields.untouched.type.should.eql('string')
+        mapping.properties.test.fields.untouched.type.should.eql('text')
         mapping.properties.test.fields.untouched.index.should.eql('not_analyzed')
         done()
       })
@@ -257,8 +257,8 @@ describe('MappingGenerator', function () {
         name: [NameSchema]
       }), function (err, mapping) {
         mapping.properties.name.type.should.eql('object')
-        mapping.properties.name.properties.first_name.type.should.eql('string')
-        mapping.properties.name.properties.last_name.type.should.eql('string')
+        mapping.properties.name.properties.first_name.type.should.eql('text')
+        mapping.properties.name.properties.last_name.type.should.eql('text')
         done()
       })
     })
@@ -284,9 +284,9 @@ describe('MappingGenerator', function () {
       }), function (err, mapping) {
         mapping.properties.name.type.should.eql('nested')
         mapping.properties.name.include_in_parent.should.eql(true)
-        mapping.properties.name.properties.first_name.type.should.eql('string')
+        mapping.properties.name.properties.first_name.type.should.eql('text')
         mapping.properties.name.properties.first_name.index.should.eql('not_analyzed')
-        mapping.properties.name.properties.last_name.type.should.eql('string')
+        mapping.properties.name.properties.last_name.type.should.eql('text')
         mapping.properties.name.properties.last_name.index.should.eql('not_analyzed')
         should.not.exist(mapping.properties.name.properties.es_include_in_parent)
         should.not.exist(mapping.properties.name.properties.es_type)
@@ -298,7 +298,7 @@ describe('MappingGenerator', function () {
       generator.generateMapping(new Schema({
         contacts: [String]
       }), function (err, mapping) {
-        mapping.properties.contacts.type.should.eql('string')
+        mapping.properties.contacts.type.should.eql('text')
         done()
       })
     })
@@ -310,7 +310,7 @@ describe('MappingGenerator', function () {
           es_index: 'not_analyzed'
         }]
       }), function (err, mapping) {
-        mapping.properties.contacts.type.should.eql('string')
+        mapping.properties.contacts.type.should.eql('text')
         mapping.properties.contacts.index.should.eql('not_analyzed')
         done()
       })
@@ -327,10 +327,10 @@ describe('MappingGenerator', function () {
           telephone: String
         }]
       }), function (err, mapping) {
-        mapping.properties.name.type.should.eql('string')
-        mapping.properties.contacts.properties.email.type.should.eql('string')
+        mapping.properties.name.type.should.eql('text')
+        mapping.properties.contacts.properties.email.type.should.eql('text')
         mapping.properties.contacts.properties.email.index.should.eql('not_analyzed')
-        mapping.properties.contacts.properties.telephone.type.should.eql('string')
+        mapping.properties.contacts.properties.telephone.type.should.eql('text')
         done()
       })
     })
@@ -355,9 +355,9 @@ describe('MappingGenerator', function () {
       generator.generateMapping(new Schema({
         name: [PersonSchema]
       }), function (err, mapping) {
-        mapping.properties.name.properties.first_name.type.should.eql('string')
-        mapping.properties.name.properties.last_name.type.should.eql('string')
-        mapping.properties.name.properties.age.type.should.eql('double')
+        mapping.properties.name.properties.first_name.type.should.eql('text')
+        mapping.properties.name.properties.last_name.type.should.eql('text')
+        mapping.properties.name.properties.age.type.should.eql('long')
         should.not.exist(mapping.properties.name.properties.birthYear)
         done()
       })
@@ -469,8 +469,8 @@ describe('MappingGenerator', function () {
       generator.generateMapping(new Schema({
         name: { type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name }
       }), function (err, mapping) {
-        mapping.properties.name.properties.firstName.type.should.eql('string')
-        mapping.properties.name.properties.lastName.type.should.eql('string')
+        mapping.properties.name.properties.firstName.type.should.eql('text')
+        mapping.properties.name.properties.lastName.type.should.eql('text')
         done()
       })
     })
@@ -483,7 +483,7 @@ describe('MappingGenerator', function () {
       generator.generateMapping(new Schema({
         name: { type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name, es_select: 'firstName' }
       }), function (err, mapping) {
-        mapping.properties.name.properties.firstName.type.should.eql('string')
+        mapping.properties.name.properties.firstName.type.should.eql('text')
         should.not.exist(mapping.properties.name.properties.lastName)
         done()
       })
@@ -500,8 +500,8 @@ describe('MappingGenerator', function () {
           es_type: 'object'
         }
       }), function (err, mapping) {
-        mapping.properties.name.properties.firstName.type.should.eql('string')
-        mapping.properties.name.properties.lastName.type.should.eql('string')
+        mapping.properties.name.properties.firstName.type.should.eql('text')
+        mapping.properties.name.properties.lastName.type.should.eql('text')
         done()
       })
     })
@@ -517,7 +517,7 @@ describe('MappingGenerator', function () {
           es_type: 'object'
         }
       }), function (err, mapping) {
-        mapping.properties.name.properties.firstName.type.should.eql('string')
+        mapping.properties.name.properties.firstName.type.should.eql('text')
         should.not.exist(mapping.properties.name.properties.lastName)
         done()
       })

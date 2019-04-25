@@ -17,8 +17,8 @@ const EsResultText = mongoose.model('esResultText', esResultTextSchema)
 
 describe('Hydrate with ES data', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
-      EsResultText.remove(function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
+      EsResultText.deleteMany(function () {
         config.deleteIndexIfExists(['esresulttexts'], function () {
           // Quotes are from Terry Pratchett's Discworld books
           const esResultTexts = [
@@ -49,10 +49,13 @@ describe('Hydrate with ES data', function () {
   })
 
   after(function (done) {
-    EsResultText.remove()
-    EsResultText.esClient.close()
-    mongoose.disconnect()
-    done()
+    EsResultText.deleteMany(function () {
+      config.deleteIndexIfExists(['esresulttexts'], function () {
+        EsResultText.esClient.close()
+        mongoose.disconnect()
+        done()
+      })
+    })
   })
 
   describe('Hydrate without adding ES data', function () {
@@ -99,7 +102,7 @@ describe('Hydrate with ES data', function () {
           model._esResult.should.have.property('_index')
           model._esResult._index.should.eql('esresulttexts')
           model._esResult.should.have.property('_type')
-          model._esResult._type.should.eql('esresulttext')
+          model._esResult._type.should.eql('_doc')
           model._esResult.should.have.property('_id')
           model._esResult.should.have.property('_score')
           model._esResult.should.have.property('highlight')
@@ -132,7 +135,7 @@ describe('Hydrate with ES data', function () {
           model._esResult.should.have.property('_index')
           model._esResult._index.should.eql('esresulttexts')
           model._esResult.should.have.property('_type')
-          model._esResult._type.should.eql('esresulttext')
+          model._esResult._type.should.eql('_doc')
           model._esResult.should.have.property('_id')
           model._esResult.should.have.property('_score')
           model._esResult.should.have.property('highlight')

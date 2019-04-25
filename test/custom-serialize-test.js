@@ -29,19 +29,23 @@ describe('Custom Serialize', function () {
 
   before(function (done) {
     config.deleteIndexIfExists(['foods'], function () {
-      mongoose.connect(config.mongoUrl, function () {
+      mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
         const client = mongoose.connections[0].db
         client.collection('foods', function () {
-          Food.remove(done)
+          Food.deleteMany(done)
         })
       })
     })
   })
 
   after(function (done) {
-    mongoose.disconnect()
-    Food.esClient.close()
-    done()
+    config.deleteIndexIfExists(['foods'], function () {
+      Food.deleteMany(function () {
+        mongoose.disconnect()
+        Food.esClient.close()
+        done()
+      })
+    })
   })
 
   it('should index all fields returned from the customSerialize function', function (done) {

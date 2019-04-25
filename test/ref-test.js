@@ -39,11 +39,11 @@ PostComment = mongoose.model('PostComment', PostCommentSchema)
 
 describe('references', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
       async.forEach([Post, User, PostComment], function (model, cb) {
-        model.remove(cb)
+        model.deleteMany(cb)
       }, function () {
-        config.deleteIndexIfExists(['posts', 'users'], done)
+        config.deleteIndexIfExists(['posts', 'users', 'postcomments'], done)
       })
     })
   })
@@ -52,7 +52,7 @@ describe('references', function () {
     mongoose.disconnect()
     Post.esClient.close()
     esClient.close()
-    config.deleteIndexIfExists(['posts', 'users'], done)
+    config.deleteIndexIfExists(['posts', 'users', 'postcomments'], done)
   })
 
   describe('indexing', function () {
@@ -73,7 +73,7 @@ describe('references', function () {
       Post.findOne({}, function (err, post) {
         esClient.get({
           index: 'posts',
-          type: 'post',
+          type: '_doc',
           id: post._id.toString()
         }, function (_err, res) {
           res._source.author.name.should.eql('jake')
@@ -120,7 +120,7 @@ describe('references', function () {
         Post.findOne({}, function (err, post) {
           esClient.get({
             index: 'posts',
-            type: 'post',
+            type: '_doc',
             id: post._id.toString()
           }, function (_err, res) {
             res._source.comments[0].text.should.eql('good post')
@@ -134,7 +134,7 @@ describe('references', function () {
         Post.findOne({}, function (err, post) {
           esClient.get({
             index: 'posts',
-            type: 'post',
+            type: '_doc',
             id: post._id.toString()
           }, function (_err, res) {
             res._source.comments[0].text.should.eql('good post')
