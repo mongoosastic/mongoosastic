@@ -39,7 +39,6 @@ describe('GeoTest', function () {
               index: 'geodocs',
               type: '_doc'
             }, function (err, mapping) {
-              console.log(err);
               (mapping._doc !== undefined
                 ? mapping._doc /* ES 0.9.11 */
                 : mapping.geodocs.mappings._doc /* ES 1.0.0 */
