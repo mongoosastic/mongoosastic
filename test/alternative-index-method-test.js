@@ -21,8 +21,10 @@ describe('Index Method', function () {
 
   after(function (done) {
     Tweet.deleteMany(function () {
-      mongoose.disconnect()
-      done()
+      config.deleteIndexIfExists(['tweets', 'public_tweets'], function () {
+        mongoose.disconnect()
+        done()
+      })
     })
   })
 
