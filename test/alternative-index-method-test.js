@@ -70,7 +70,9 @@ describe('Index Method', function () {
     })
   })
 
-  /* it('should be able to index to alternative index and type', function (done) {
+  // This does not work in elastic > 6.x
+  // Indices created in 6.x only allow a single-type per index
+  it('should be able to index to alternative index and type', function (done) {
     Tweet.findOne({
       message: 'I know kung-fu!'
     }, function (err, doc) {
@@ -94,5 +96,5 @@ describe('Index Method', function () {
         }, config.INDEXING_TIMEOUT)
       })
     })
-  }) */
+  })
 })
