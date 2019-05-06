@@ -37,11 +37,11 @@ describe('GeoTest', function () {
           GeoModel.deleteMany(function () {
             esClient.indices.getMapping({
               index: 'geodocs',
-              type: '_doc'
+              type: 'geodoc'
             }, function (err, mapping) {
-              (mapping._doc !== undefined
-                ? mapping._doc /* ES 0.9.11 */
-                : mapping.geodocs.mappings._doc /* ES 1.0.0 */
+              (mapping.geodoc !== undefined
+                ? mapping.geodoc /* ES 0.9.11 */
+                : mapping.geodocs.mappings.geodoc /* ES 1.0.0 */
               ).properties.frame.type.should.eql('geo_shape')
               done()
             })

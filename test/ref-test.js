@@ -73,7 +73,7 @@ describe('references', function () {
       Post.findOne({}, function (err, post) {
         esClient.get({
           index: 'posts',
-          type: '_doc',
+          type: 'post',
           id: post._id.toString()
         }, function (_err, res) {
           res._source.author.name.should.eql('jake')
@@ -120,7 +120,7 @@ describe('references', function () {
         Post.findOne({}, function (err, post) {
           esClient.get({
             index: 'posts',
-            type: '_doc',
+            type: 'post',
             id: post._id.toString()
           }, function (_err, res) {
             res._source.comments[0].text.should.eql('good post')
@@ -134,7 +134,7 @@ describe('references', function () {
         Post.findOne({}, function (err, post) {
           esClient.get({
             index: 'posts',
-            type: '_doc',
+            type: 'post',
             id: post._id.toString()
           }, function (_err, res) {
             res._source.comments[0].text.should.eql('good post')
