@@ -31,15 +31,7 @@ const PersonSchema22 = new Schema({
 
 const Person = mongoose.model('Person22', PersonSchema22)
 
-let mapping
-
-// Serialize method requires a schema mapping
-generator.generateMapping(PersonSchema22, function (err, tmp) {
-  if (err) {
-    // do nothing
-  }
-  mapping = tmp
-})
+const mapping = generator.generateMapping(PersonSchema22)
 
 describe('serialize', function () {
   const dude = new Person({
