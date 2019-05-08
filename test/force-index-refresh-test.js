@@ -2,23 +2,31 @@
 
 const mongoose = require('mongoose')
 const config = require('./config')
-const esClient = config.getClient()
 const Schema = mongoose.Schema
 const mongoosastic = require('../lib/mongoosastic')
 const indexName = 'es-test'
 const DummySchema = new Schema({
   text: String
 })
+const DummySchemaRefresh = new Schema({
+  text: String
+})
 DummySchema.plugin(mongoosastic, {
-  esClient: esClient,
-  index: indexName
+  index: indexName,
+  type: '_doc'
+})
+DummySchemaRefresh.plugin(mongoosastic, {
+  index: indexName,
+  type: '_doc',
+  forceIndexRefresh: true
 })
 const Dummy = mongoose.model('Dummy', DummySchema)
+const DummyRefresh = mongoose.model('DummyRefresh', DummySchemaRefresh)
 
 describe('forceIndexRefresh connection option', function () {
   before(function (done) {
     // connect to mongodb
-    mongoose.connect(config.mongoUrl, function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
       // delete the index from elasticsearch
       config.deleteIndexIfExists([indexName], function (err) {
         // recreate the index
@@ -33,7 +41,7 @@ describe('forceIndexRefresh connection option', function () {
           }
         }, function (err, mapping) {
           // clean mongodb
-          Dummy.remove(function (err) {
+          config.deleteDocs([Dummy, DummyRefresh], function () {
             setTimeout(done, config.INDEXING_TIMEOUT)
           })
         })
@@ -42,63 +50,48 @@ describe('forceIndexRefresh connection option', function () {
   })
 
   after(function (done) {
-    // disconnect mongodb
-    mongoose.disconnect()
-    // disconnect elasticsearch
-    config.close()
-    done()
+    config.deleteIndexIfExists([indexName], function (err) {
+      config.deleteDocs([Dummy, DummyRefresh], function () {
+        // disconnect mongodb
+        mongoose.disconnect()
+        // disconnect elasticsearch
+        Dummy.esClient.close()
+        DummyRefresh.esClient.close()
+        done()
+      })
+    })
   })
 
   it('should always suceed: refresh the index immediately on insert', function (done) {
-    DummySchema.plugin(mongoosastic, {
-      esClient: esClient,
-      index: indexName,
-      forceIndexRefresh: true
-    })
-    const Dummy3 = mongoose.model('Dummy', DummySchema)
-    const d = new Dummy3({ text: 'Text1' })
+    const d = new DummyRefresh({text: 'Text1'})
+    const refresh = true
 
-    doInsertOperation(Dummy3, d, indexName, done)
+    doInsertOperation(DummyRefresh, d, indexName, refresh, done)
   })
 
   it('should fail randomly: refresh the index every 1s on insert', function (done) {
-    DummySchema.plugin(mongoosastic, {
-      esClient: esClient,
-      index: indexName,
-      forceIndexRefresh: false
-    })
-    const Dummy2 = mongoose.model('Dummy', DummySchema)
-    const d = new Dummy2({ text: 'Text1' })
+    const d = new Dummy({text: 'Text1'})
+    const refresh = false
 
-    doInsertOperation(Dummy2, d, indexName, done)
+    doInsertOperation(Dummy, d, indexName, refresh, done)
   })
 
   it('should always suceed: refresh the index immediately on update', function (done) {
-    DummySchema.plugin(mongoosastic, {
-      esClient: esClient,
-      index: indexName,
-      forceIndexRefresh: true
-    })
-    const Dummy3 = mongoose.model('Dummy', DummySchema)
-    const d = new Dummy3({ text: 'Text1' })
+    const d = new DummyRefresh({text: 'Text1'})
+    const refresh = true
 
-    doUpdateOperation(Dummy3, d, 'this is the new text', indexName, done)
+    doUpdateOperation(DummyRefresh, d, 'this is the new text', indexName, refresh, done)
   })
 
   it('should fail randomly: refresh the index every 1s on update', function (done) {
-    DummySchema.plugin(mongoosastic, {
-      esClient: esClient,
-      index: indexName,
-      forceIndexRefresh: false
-    })
-    const Dummy2 = mongoose.model('Dummy', DummySchema)
-    const d = new Dummy2({ text: 'Text1' })
+    const d = new Dummy({text: 'Text1'})
+    const refresh = false
 
-    doUpdateOperation(Dummy2, d, 'this is the new text', indexName, done)
+    doUpdateOperation(Dummy, d, 'this is the new text', indexName, refresh, done)
   })
 })
 
-function doInsertOperation (Model, object, indexName, callback) {
+function doInsertOperation (Model, object, indexName, refresh, callback) {
   // save object
   object.save(function (err, savedObject) {
     if (err) {
@@ -111,28 +104,21 @@ function doInsertOperation (Model, object, indexName, callback) {
       }
       // look for the object just saved
       Model.search({
-        term: { _id: savedObject._id }
+        term: {_id: savedObject._id}
       },
       function (err, results) {
-        results.hits.total.should.eql(1)
-        // clean the db
-        savedObject.remove(function (err) {
-          if (err) {
-            return callback(err)
-          }
-          savedObject.on('es-removed', function (err) {
-            if (err) {
-              return callback(err)
-            }
-            callback()
-          })
-        })
+        if (refresh) {
+          results.hits.total.should.eql(1)
+        } else {
+          results.hits.total.should.eql(0)
+        }
+        callback()
       })
     })
   })
 }
 
-function doUpdateOperation (Model, object, newText, indexName, callback) {
+function doUpdateOperation (Model, object, newText, indexName, refresh, callback) {
   // save object
   object.save(function (err, savedObject) {
     if (err) {
@@ -155,21 +141,13 @@ function doUpdateOperation (Model, object, newText, indexName, callback) {
             term: {_id: savedObject._id.toString()}
           },
           function (err, results) {
-            results.hits.total.should.eql(1)
-            results.hits.hits[0]._source.text.should.eql(newText)
-
-            // clean the db
-            updatedObject.remove(function (err) {
-              if (err) {
-                return callback(err)
-              }
-              updatedObject.on('es-removed', function (err) {
-                if (err) {
-                  return callback(err)
-                }
-                callback()
-              })
-            })
+            if (refresh) {
+              results.hits.total.should.eql(1)
+              results.hits.hits[0]._source.text.should.eql(newText)
+            } else {
+              results.hits.total.should.eql(0)
+            }
+            callback()
           })
         })
       })
