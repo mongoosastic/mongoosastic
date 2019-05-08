@@ -70,9 +70,14 @@ function bookTitlesArray () {
 
 module.exports = {
   mongoUrl: 'mongodb://localhost/es-test',
+  mongoOpts: {
+    useNewUrlParser: true,
+    useFindAndModify: false
+  },
   INDEXING_TIMEOUT: INDEXING_TIMEOUT,
   BULK_ACTION_TIMEOUT: BULK_ACTION_TIMEOUT,
   deleteIndexIfExists: deleteIndexIfExists,
+  deleteDocs: deleteDocs,
   createModelAndEnsureIndex: createModelAndEnsureIndex,
   createModelAndSave: createModelAndSave,
   saveAndWaitIndex: saveAndWaitIndex,
