@@ -27,6 +27,12 @@ function deleteIndexIfExists (indexes, done) {
   }, done)
 }
 
+function deleteDocs (models, done) {
+  async.forEach(models, function (model, cb) {
+    model.deleteMany(cb)
+  }, done)
+}
+
 function createModelAndEnsureIndex (Model, obj, cb) {
   const dude = new Model(obj)
   dude.save(function (err) {
