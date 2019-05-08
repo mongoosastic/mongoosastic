@@ -20,15 +20,16 @@ describe('Routing', function () {
   let res
 
   before(function * () {
-    yield (done) => mongoose.connect(config.mongoUrl, done)
+    yield (done) => mongoose.connect(config.mongoUrl, config.mongoOpts, done)
     yield (done) => config.deleteIndexIfExists(['tasks'], done)
-    yield (done) => Task.remove({}, done)
+    yield (done) => Task.deleteMany({}, done)
   })
 
   after(function * () {
-    Task.esClient.close()
+    yield (done) => Task.deleteMany({}, done)
     yield (done) => mongoose.disconnect(done)
     yield (done) => config.deleteIndexIfExists(['tasks'], done)
+    Task.esClient.close()
   })
 
   it('should found task if no routing', function * () {

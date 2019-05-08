@@ -21,8 +21,8 @@ const Bond = mongoose.model('Bond', BondSchema)
 
 describe('Query DSL', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
-      Bond.remove(function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
+      Bond.deleteMany(function () {
         config.deleteIndexIfExists(['bonds'], function () {
           const bonds = [
             new Bond({
@@ -55,10 +55,13 @@ describe('Query DSL', function () {
   })
 
   after(function (done) {
-    Bond.remove()
-    Bond.esClient.close()
-    mongoose.disconnect()
-    done()
+    Bond.deleteMany(function () {
+      config.deleteIndexIfExists(['bonds'], function () {
+        Bond.esClient.close()
+        mongoose.disconnect()
+        done()
+      })
+    })
   })
 
   describe('range', function () {

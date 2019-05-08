@@ -30,31 +30,35 @@ describe('Synchronize', () => {
 
   const clearData = (cb) => {
     config.deleteIndexIfExists(['books'], () => {
-      mongoose.connect(config.mongoUrl, () => {
+      mongoose.connect(config.mongoUrl, config.mongoOpts, () => {
         const client = mongoose.connections[0].db
         client.collection('books', (err, _books) => {
           books = _books
-          Book.remove(cb)
+          Book.deleteMany(cb)
         })
       })
     })
   }
 
   after(done => {
-    Book.esClient.close()
-    mongoose.disconnect()
-    done()
+    Book.deleteMany(function () {
+      config.deleteIndexIfExists(['books'], () => {
+        Book.esClient.close()
+        mongoose.disconnect()
+        done()
+      })
+    })
   })
 
   describe('an existing collection with invalid field values', () => {
     before(done => {
       clearData(() => {
         async.forEach(config.bookTitlesArray(), (title, cb) => {
-          books.insert({
+          books.insertOne({
             title: title
           }, cb)
         }, () => {
-          books.insert({
+          books.insertOne({
           }, done)
         })
       })
@@ -94,7 +98,7 @@ describe('Synchronize', () => {
     before(done => {
       clearData(() => {
         async.forEach(config.bookTitlesArray(), (title, cb) => {
-          books.insert({
+          books.insertOne({
             title: title
           }, cb)
         }, done)

@@ -39,11 +39,11 @@ PostComment = mongoose.model('PostComment', PostCommentSchema)
 
 describe('references', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
       async.forEach([Post, User, PostComment], function (model, cb) {
-        model.remove(cb)
+        model.deleteMany(cb)
       }, function () {
-        config.deleteIndexIfExists(['posts', 'users'], done)
+        config.deleteIndexIfExists(['posts', 'users', 'postcomments'], done)
       })
     })
   })
@@ -52,7 +52,7 @@ describe('references', function () {
     mongoose.disconnect()
     Post.esClient.close()
     esClient.close()
-    config.deleteIndexIfExists(['posts', 'users'], done)
+    config.deleteIndexIfExists(['posts', 'users', 'postcomments'], done)
   })
 
   describe('indexing', function () {

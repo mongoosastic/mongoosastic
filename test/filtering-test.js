@@ -35,19 +35,23 @@ describe('Filter mode', function () {
 
   before(function (done) {
     config.deleteIndexIfExists(['movies'], function () {
-      mongoose.connect(config.mongoUrl, function () {
+      mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
         const client = mongoose.connections[0].db
         client.collection('movies', function () {
-          Movie.remove(done)
+          Movie.deleteMany(done)
         })
       })
     })
   })
 
   after(function (done) {
-    mongoose.disconnect()
-    Movie.esClient.close()
-    done()
+    config.deleteIndexIfExists(['movies'], function () {
+      Movie.deleteMany(function () {
+        mongoose.disconnect()
+        Movie.esClient.close()
+        done()
+      })
+    })
   })
 
   it('should index horror genre', function (done) {

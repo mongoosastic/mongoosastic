@@ -12,7 +12,7 @@ let GeoModel
 
 describe('GeoTest', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
       config.deleteIndexIfExists(['geodocs'], function () {
         GeoSchema = new Schema({
           myId: Number,
@@ -34,7 +34,7 @@ describe('GeoTest', function () {
         GeoModel = mongoose.model('geodoc', GeoSchema)
 
         GeoModel.createMapping(function () {
-          GeoModel.remove(function () {
+          GeoModel.deleteMany(function () {
             esClient.indices.getMapping({
               index: 'geodocs',
               type: 'geodoc'
@@ -52,10 +52,14 @@ describe('GeoTest', function () {
   })
 
   after(function (done) {
-    GeoModel.esClient.close()
-    mongoose.disconnect()
-    esClient.close()
-    done()
+    config.deleteIndexIfExists(['geodocs'], function () {
+      GeoModel.deleteMany(function () {
+        GeoModel.esClient.close()
+        mongoose.disconnect()
+        esClient.close()
+        done()
+      })
+    })
   })
 
   it('should be able to create and store geo coordinates', function (done) {
