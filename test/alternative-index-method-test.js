@@ -6,9 +6,9 @@ const Tweet = require('./models/tweet')
 
 describe('Index Method', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
       config.deleteIndexIfExists(['tweets', 'public_tweets'], function () {
-        Tweet.remove(function () {
+        Tweet.deleteMany(function () {
           config.createModelAndEnsureIndex(Tweet, {
             user: 'jamescarr',
             message: 'I know kung-fu!',
@@ -20,9 +20,11 @@ describe('Index Method', function () {
   })
 
   after(function (done) {
-    Tweet.remove(function () {
-      mongoose.disconnect()
-      done()
+    Tweet.deleteMany(function () {
+      config.deleteIndexIfExists(['tweets', 'public_tweets'], function () {
+        mongoose.disconnect()
+        done()
+      })
     })
   })
 
@@ -70,6 +72,8 @@ describe('Index Method', function () {
     })
   })
 
+  // This does not work in elastic > 6.x
+  // Indices created in 6.x only allow a single-type per index
   it('should be able to index to alternative index and type', function (done) {
     Tweet.findOne({
       message: 'I know kung-fu!'

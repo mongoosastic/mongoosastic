@@ -12,7 +12,7 @@ let GeoModel
 
 describe('GeoTest', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
       config.deleteIndexIfExists(['geodocs'], function () {
         GeoSchema = new Schema({
           myId: Number,
@@ -34,7 +34,7 @@ describe('GeoTest', function () {
         GeoModel = mongoose.model('geodoc', GeoSchema)
 
         GeoModel.createMapping(function () {
-          GeoModel.remove(function () {
+          GeoModel.deleteMany(function () {
             esClient.indices.getMapping({
               index: 'geodocs',
               type: 'geodoc'
@@ -52,10 +52,14 @@ describe('GeoTest', function () {
   })
 
   after(function (done) {
-    GeoModel.esClient.close()
-    mongoose.disconnect()
-    esClient.close()
-    done()
+    config.deleteIndexIfExists(['geodocs'], function () {
+      GeoModel.deleteMany(function () {
+        GeoModel.esClient.close()
+        mongoose.disconnect()
+        esClient.close()
+        done()
+      })
+    })
   })
 
   it('should be able to create and store geo coordinates', function (done) {
@@ -148,8 +152,8 @@ describe('GeoTest', function () {
 
   it('should be able to search points inside frames', function (done) {
     const geoQuery = {
-      filtered: {
-        query: {
+      bool: {
+        must: {
           match_all: {}
         },
         filter: {
@@ -170,18 +174,18 @@ describe('GeoTest', function () {
         if (err1) throw err1
         res1.hits.total.should.eql(1)
         res1.hits.hits[0]._source.myId.should.eql(2)
-        geoQuery.filtered.filter.geo_shape.frame.shape.coordinates = [1.5, 2.5]
+        geoQuery.bool.filter.geo_shape.frame.shape.coordinates = [1.5, 2.5]
         GeoModel.search(geoQuery, function (err2, res2) {
           if (err2) throw err2
           res2.hits.total.should.eql(1)
           res2.hits.hits[0]._source.myId.should.eql(1)
 
-          geoQuery.filtered.filter.geo_shape.frame.shape.coordinates = [3, 2]
+          geoQuery.bool.filter.geo_shape.frame.shape.coordinates = [3, 2]
           GeoModel.search(geoQuery, function (err3, res3) {
             if (err3) throw err3
             res3.hits.total.should.eql(2)
 
-            geoQuery.filtered.filter.geo_shape.frame.shape.coordinates = [0, 3]
+            geoQuery.bool.filter.geo_shape.frame.shape.coordinates = [0, 3]
             GeoModel.search(geoQuery, function (err4, res4) {
               if (err4) throw err4
               res4.hits.total.should.eql(0)

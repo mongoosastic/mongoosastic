@@ -16,7 +16,7 @@ let Kitten
 
 describe('Suggesters', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
       config.deleteIndexIfExists(['kittens'], function () {
         KittenSchema = new Schema({
           name: {
@@ -32,7 +32,7 @@ describe('Suggesters', function () {
         KittenSchema.plugin(mongoosastic)
         Kitten = mongoose.model('Kitten', KittenSchema)
         Kitten.createMapping({}, function () {
-          Kitten.remove(function () {
+          Kitten.deleteMany(function () {
             const kittens = [
               new Kitten({
                 name: 'Cookie',
@@ -61,10 +61,14 @@ describe('Suggesters', function () {
   })
 
   after(function (done) {
-    Kitten.esClient.close()
-    mongoose.disconnect()
-    esClient.close()
-    done()
+    Kitten.deleteMany(function () {
+      config.deleteIndexIfExists(['kittens'], function () {
+        Kitten.esClient.close()
+        mongoose.disconnect()
+        esClient.close()
+        done()
+      })
+    })
   })
 
   describe('Testing Suggest', function () {
