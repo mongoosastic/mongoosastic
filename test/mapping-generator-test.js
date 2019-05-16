@@ -378,7 +378,7 @@ describe('MappingGenerator', function () {
       done()
     })
 
-    it('should not map mixed field', function (done) {
+    it('should not map type mixed on mixed fields', function (done) {
       const schema = new Schema({
         mixed_field: {
           type: [mongoose.Schema.Types.Mixed]
@@ -386,7 +386,7 @@ describe('MappingGenerator', function () {
       })
 
       const mapping = generator.generateMapping(schema)
-      should.not.exist(mapping.properties.mixed_field)
+      should.not.exist(mapping.properties.mixed_field.type)
       done()
     })
   })
