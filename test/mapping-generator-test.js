@@ -377,6 +377,18 @@ describe('MappingGenerator', function () {
       should.not.exist(mapping.properties.name.properties.birthYear)
       done()
     })
+
+    it('should not map mixed field', function (done) {
+      const schema = new Schema({
+        mixed_field: {
+          type: [mongoose.Schema.Types.Mixed]
+        }
+      })
+
+      const mapping = generator.generateMapping(schema)
+      should.not.exist(mapping.properties.mixed_field)
+      done()
+    })
   })
 
   describe('elastic search fields', function () {
