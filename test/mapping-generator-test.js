@@ -412,12 +412,12 @@ describe('MappingGenerator', function () {
           doc.save(() => {
             setTimeout(() => {
               MyModel.search({ query_string: { query: 'mixed' } }, (err, res) => {
-                console.log(res.hits.hits)
                 res.hits.hits[0]._source.mixed_field.should.eql('mixed')
                 res.hits.hits[0]._source.mixed_arr_field.should.eql([1, 2])
                 res.hits.hits[0]._source.obj_mixed.mixed.should.eql('nested mixed')
-                doc.remove()
-                done()
+                doc.remove(() => {
+                  config.deleteIndexIfExists('mymodels', done)
+                })
               })
             }, config.INDEXING_TIMEOUT)
           })
