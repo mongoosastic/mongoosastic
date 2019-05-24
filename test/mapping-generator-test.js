@@ -423,14 +423,6 @@ describe('MappingGenerator', function () {
           })
         })
       })
-
-      const mapping = generator.generateMapping(schema)
-
-      mapping.properties.name.properties.first_name.type.should.eql('text')
-      mapping.properties.name.properties.last_name.type.should.eql('text')
-      mapping.properties.name.properties.age.type.should.eql('long')
-      should.not.exist(mapping.properties.name.properties.birthYear)
-      done()
     })
   })
 
