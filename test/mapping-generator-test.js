@@ -380,6 +380,7 @@ describe('MappingGenerator', function () {
 
     // make this cleaner
     it('should not map type mixed on mixed fields', function (done) {
+      // instead, Elastic should "guess" and set default mapping
       const schema = new Schema({
         string: String,
         mixed_field: {
