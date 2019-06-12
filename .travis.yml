@@ -13,6 +13,7 @@ before_install:
   - docker pull docker.elastic.co/elasticsearch/elasticsearch:6.4.2
   - docker ps -a
   - docker run -p 9200:9200 -p 9300:9300 -d -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:6.4.2
+  - until curl --silent -XGET --fail http://localhost:9200; do printf '.'; sleep 1; done
 
 services:
   - mongodb
