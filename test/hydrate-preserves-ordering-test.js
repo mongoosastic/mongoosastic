@@ -17,8 +17,8 @@ const RankModel = mongoose.model('rank', rankSchema)
 
 describe('Hydrate with ES data', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
-      RankModel.remove(function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
+      RankModel.deleteMany(function () {
         config.deleteIndexIfExists(['ranks'], function () {
           // Quotes are from Terry Pratchett's Discworld books
           const esResultTexts = [
@@ -39,7 +39,7 @@ describe('Hydrate with ES data', function () {
               rank: -10.4
             })
           ]
-          async.forEach(esResultTexts, config.saveAndWaitIndex, function () {
+          async.mapSeries(esResultTexts, config.saveAndWaitIndex, () => {
             setTimeout(done, config.INDEXING_TIMEOUT)
           })
         })
@@ -48,17 +48,20 @@ describe('Hydrate with ES data', function () {
   })
 
   after(function (done) {
-    RankModel.remove()
-    RankModel.esClient.close()
-    mongoose.disconnect()
-    done()
+    RankModel.deleteMany(function () {
+      config.deleteIndexIfExists(['ranks'], function () {
+        RankModel.esClient.close()
+        mongoose.disconnect()
+        done()
+      })
+    })
   })
 
   describe('Preserve ordering from MongoDB on hydration', function () {
     it('should return an array of objects ordered \'desc\' by MongoDB', function (done) {
       RankModel.esSearch({}, {
         hydrate: true,
-        hydrateOptions: {sort: '-rank'}
+        hydrateOptions: { sort: '-rank' }
       }, function (err, res) {
         if (err) done(err)
 
@@ -77,7 +80,7 @@ describe('Hydrate with ES data', function () {
     it('should return an array of objects ordered \'asc\' by MongoDB', function (done) {
       RankModel.esSearch({}, {
         hydrate: true,
-        hydrateOptions: {sort: 'rank'}
+        hydrateOptions: { sort: 'rank' }
       }, function (err, res) {
         if (err) done(err)
 
@@ -102,7 +105,7 @@ describe('Hydrate with ES data', function () {
         }]
       }, {
         hydrate: true,
-        hydrateOptions: {sort: undefined}
+        hydrateOptions: { sort: undefined }
       }, function (err, res) {
         if (err) done(err)
         res.hits.total.should.eql(4)
@@ -126,7 +129,7 @@ describe('Hydrate with ES data', function () {
         }]
       }, {
         hydrate: true,
-        hydrateOptions: {sort: undefined}
+        hydrateOptions: { sort: undefined }
       }, function (err, res) {
         if (err) done(err)
         res.hits.total.should.eql(4)

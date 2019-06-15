@@ -1,17 +1,23 @@
-sudo: false
+sudo: required
 
 language: node_js
 
 node_js:
-  - 4
+  - 8
   - stable
-
 before_install:
-  - npm i -g npm@"^3.0.0"
+  - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+  - sudo apt-get update
+  - sudo apt-get -y install docker-ce
+  - docker pull docker.elastic.co/elasticsearch/elasticsearch:6.4.2
+  - docker ps -a
+  - docker run -p 9200:9200 -p 9300:9300 -d -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:6.4.2
+  - until curl --silent -XGET --fail http://localhost:9200; do printf '.'; sleep 1; done
 
 services:
   - mongodb
-  - elasticsearch
+  - docker
 
 env:
   - BULK_ACTION_TIMEOUT=30000 INDEXING_TIMEOUT=3000 CXX=g++-4.8
@@ -22,6 +28,5 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - g++-4.8
-
 after_success:
   npm run coverage

@@ -31,18 +31,22 @@ const BlogPost = mongoose.model('BlogPost', TweetSchema)
 
 describe('Add Boost Option Per Field', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
-      BlogPost.remove(function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
+      BlogPost.deleteMany(function () {
         config.deleteIndexIfExists(['blogposts'], done)
       })
     })
   })
 
   after(function (done) {
-    mongoose.disconnect()
-    BlogPost.esClient.close()
-    esClient.close()
-    done()
+    BlogPost.deleteMany(function () {
+      config.deleteIndexIfExists(['blogposts'], function () {
+        mongoose.disconnect()
+        BlogPost.esClient.close()
+        esClient.close()
+        done()
+      })
+    })
   })
 
   it('should create a mapping with boost field added', function (done) {
@@ -57,7 +61,7 @@ describe('Add Boost Option Per Field', function () {
           : mapping.blogposts.mappings.blogpost.properties
         /* ES 1.0.0 */
 
-        props.title.type.should.eql('string')
+        props.title.type.should.eql('text')
         props.title.boost.should.eql(2.0)
         done()
       })

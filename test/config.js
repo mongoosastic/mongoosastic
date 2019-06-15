@@ -27,6 +27,12 @@ function deleteIndexIfExists (indexes, done) {
   }, done)
 }
 
+function deleteDocs (models, done) {
+  async.forEach(models, function (model, cb) {
+    model.deleteMany(cb)
+  }, done)
+}
+
 function createModelAndEnsureIndex (Model, obj, cb) {
   const dude = new Model(obj)
   dude.save(function (err) {
@@ -70,9 +76,14 @@ function bookTitlesArray () {
 
 module.exports = {
   mongoUrl: 'mongodb://localhost/es-test',
+  mongoOpts: {
+    useNewUrlParser: true,
+    useFindAndModify: false
+  },
   INDEXING_TIMEOUT: INDEXING_TIMEOUT,
   BULK_ACTION_TIMEOUT: BULK_ACTION_TIMEOUT,
   deleteIndexIfExists: deleteIndexIfExists,
+  deleteDocs: deleteDocs,
   createModelAndEnsureIndex: createModelAndEnsureIndex,
   createModelAndSave: createModelAndSave,
   saveAndWaitIndex: saveAndWaitIndex,

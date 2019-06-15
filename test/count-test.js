@@ -32,8 +32,8 @@ const Comment = mongoose.model('Comment', CommentSchema)
 
 describe('Count', function () {
   before(function (done) {
-    mongoose.connect(config.mongoUrl, function () {
-      Comment.remove(function () {
+    mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
+      Comment.deleteMany(function () {
         config.deleteIndexIfExists(['comments'], function () {
           const comments = [
             new Comment({
@@ -55,9 +55,14 @@ describe('Count', function () {
     })
   })
 
-  after(function () {
-    mongoose.disconnect()
-    Comment.esClient.close()
+  after(function (done) {
+    Comment.deleteMany(function () {
+      config.deleteIndexIfExists(['comments'], function () {
+        mongoose.disconnect()
+        Comment.esClient.close()
+        done()
+      })
+    })
   })
 
   it('should count a type', function (done) {

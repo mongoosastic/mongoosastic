@@ -22,10 +22,10 @@ const Book = mongoose.model('Book2', BookSchema)
 describe('Bulk mode', function () {
   before(function (done) {
     config.deleteIndexIfExists(['book2s'], function () {
-      mongoose.connect(config.mongoUrl, function () {
+      mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
         const client = mongoose.connections[0].db
         client.collection('book2s', function () {
-          Book.remove(done)
+          Book.deleteMany(done)
         })
       })
     })
@@ -48,9 +48,13 @@ describe('Bulk mode', function () {
   })
 
   after(function (done) {
-    mongoose.disconnect()
-    Book.esClient.close()
-    done()
+    config.deleteIndexIfExists(['book2s'], function () {
+      Book.deleteMany(function () {
+        mongoose.disconnect()
+        Book.esClient.close()
+        done()
+      })
+    })
   })
 
   it('should index all objects and support deletions too', function (done) {
