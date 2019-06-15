@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "mongoose": "3.8.40",
+    "mongoose": "3.9.7",
     "express": "4.17.1",
     "errorhandler": "1.5.1",
     "body-parser": "1.19.0",
