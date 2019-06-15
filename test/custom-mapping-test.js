@@ -28,8 +28,6 @@ PhoneSchema.plugin(mongoosastic, {
 const Phone = mongoose.model('Phone', PhoneSchema)
 
 describe('Custom Properties for Mapping', function () {
-  this.timeout(5000)
-
   before(function (done) {
     config.deleteIndexIfExists(['phones'], function () {
       mongoose.connect(config.mongoUrl, config.mongoOpts, function () {

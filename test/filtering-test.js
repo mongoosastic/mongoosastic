@@ -31,8 +31,6 @@ MovieSchema.plugin(mongoosastic, {
 const Movie = mongoose.model('Movie', MovieSchema)
 
 describe('Filter mode', function () {
-  this.timeout(7000)
-
   before(function (done) {
     config.deleteIndexIfExists(['movies'], function () {
       mongoose.connect(config.mongoUrl, config.mongoOpts, function () {

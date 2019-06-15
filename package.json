@@ -16,23 +16,23 @@
   },
   "main": "lib/mongoosastic.js",
   "dependencies": {
-    "elasticsearch": "15.5.0",
+    "elasticsearch": "16.1.1",
     "lodash.clonedeep": "4.5.0"
   },
   "devDependencies": {
-    "async": "2.6.2",
+    "async": "3.0.1",
     "changelog": "1.4.2",
     "co-mocha": "1.2.2",
-    "coveralls": "2.13.3",
-    "eslint": "4.19.1",
-    "eslint-config-standard": "6.2.1",
-    "eslint-plugin-promise": "3.8.0",
-    "eslint-plugin-standard": "3.1.0",
+    "coveralls": "3.0.4",
+    "eslint": "5.16.0",
+    "eslint-config-standard": "12.0.0",
+    "eslint-plugin-promise": "4.1.1",
+    "eslint-plugin-standard": "4.0.0",
     "istanbul": "0.4.5",
-    "mocha": "3.5.3",
+    "mocha": "6.1.4",
     "mongoose": "5.6.0",
-    "should": "12.0.0",
-    "standard": "10.0.3"
+    "should": "13.2.3",
+    "standard": "12.0.1"
   },
   "engines": {
     "node": ">= 8.0"
@@ -41,8 +41,8 @@
     "authors": "./scripts/update_authors.sh",
     "lint-fix": "npm run lint -- --fix",
     "lint": "eslint lib test",
-    "mocha": "mocha test/*-test.js",
-    "test": "npm run lint && istanbul cover _mocha --report lcovonly -- test/*-test.js",
+    "mocha": "istanbul cover _mocha --report lcovonly -- test/*-test.js",
+    "test": "npm run lint && npm run mocha",
     "coverage": "cat ./coverage/lcov.info | coveralls",
     "changelog": "changelog mongoosastic/mongoosastic latest -m"
   },
