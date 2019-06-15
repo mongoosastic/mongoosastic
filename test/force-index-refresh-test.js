@@ -63,28 +63,28 @@ describe('forceIndexRefresh connection option', function () {
   })
 
   it('should always suceed: refresh the index immediately on insert', function (done) {
-    const d = new DummyRefresh({text: 'Text1'})
+    const d = new DummyRefresh({ text: 'Text1' })
     const refresh = true
 
     doInsertOperation(DummyRefresh, d, indexName, refresh, done)
   })
 
   it('should fail randomly: refresh the index every 1s on insert', function (done) {
-    const d = new Dummy({text: 'Text1'})
+    const d = new Dummy({ text: 'Text1' })
     const refresh = false
 
     doInsertOperation(Dummy, d, indexName, refresh, done)
   })
 
   it('should always suceed: refresh the index immediately on update', function (done) {
-    const d = new DummyRefresh({text: 'Text1'})
+    const d = new DummyRefresh({ text: 'Text1' })
     const refresh = true
 
     doUpdateOperation(DummyRefresh, d, 'this is the new text', indexName, refresh, done)
   })
 
   it('should fail randomly: refresh the index every 1s on update', function (done) {
-    const d = new Dummy({text: 'Text1'})
+    const d = new Dummy({ text: 'Text1' })
     const refresh = false
 
     doUpdateOperation(Dummy, d, 'this is the new text', indexName, refresh, done)
@@ -104,7 +104,7 @@ function doInsertOperation (Model, object, indexName, refresh, callback) {
       }
       // look for the object just saved
       Model.search({
-        term: {_id: savedObject._id}
+        term: { _id: savedObject._id }
       },
       function (err, results) {
         if (refresh) {
@@ -126,7 +126,7 @@ function doUpdateOperation (Model, object, newText, indexName, refresh, callback
     }
     // update object
     Model
-      .findOneAndUpdate({_id: savedObject._id}, {text: newText}, {'new': true})
+      .findOneAndUpdate({ _id: savedObject._id }, { text: newText }, { 'new': true })
       .exec(function (err, updatedObject) {
         if (err) {
           return callback(err)
@@ -138,7 +138,7 @@ function doUpdateOperation (Model, object, newText, indexName, refresh, callback
           }
           // look for the object just saved
           Model.search({
-            term: {_id: savedObject._id.toString()}
+            term: { _id: savedObject._id.toString() }
           },
           function (err, results) {
             if (refresh) {
