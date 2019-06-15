@@ -41,8 +41,8 @@
     "authors": "./scripts/update_authors.sh",
     "lint-fix": "npm run lint -- --fix",
     "lint": "eslint lib test",
-    "mocha": "mocha test/*-test.js",
-    "test": "npm run lint && istanbul cover _mocha --report lcovonly -- test/*-test.js",
+    "mocha": "istanbul cover _mocha --report lcovonly -- test/*-test.js",
+    "test": "npm run lint && npm run mocha",
     "coverage": "cat ./coverage/lcov.info | coveralls",
     "changelog": "changelog mongoosastic/mongoosastic latest -m"
   },

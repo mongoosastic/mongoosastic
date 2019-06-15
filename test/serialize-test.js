@@ -89,8 +89,4 @@ describe('serialize', function () {
       serialized.somethingToCast.should.eql('Something has been cast')
     })
   })
-
-  describe('indexed fields', function () {
-
-  })
 })

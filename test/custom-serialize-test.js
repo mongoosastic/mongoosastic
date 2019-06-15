@@ -25,8 +25,6 @@ FoodSchema.plugin(mongoosastic, {
 const Food = mongoose.model('Food', FoodSchema)
 
 describe('Custom Serialize', function () {
-  this.timeout(5000)
-
   before(function (done) {
     config.deleteIndexIfExists(['foods'], function () {
       mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
