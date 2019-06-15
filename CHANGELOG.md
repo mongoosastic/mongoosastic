@@ -1,3 +1,52 @@
+4.5.0 2019-06-15
+==========
+
+  * Update all (major) ([#477](https://github.com/mongoosastic/mongoosastic/issues/477))
+    * Update all
+    * add --exit to mocha.opts. remove manual timeouts
+  * Update force-index-refresh-test.js
+  * Update all ([#476](https://github.com/mongoosastic/mongoosastic/issues/476))
+  * Pin dependencies ([#475](https://github.com/mongoosastic/mongoosastic/issues/475))
+  * Configure Renovate ([#474](https://github.com/mongoosastic/mongoosastic/issues/474))
+    * Add renovate.json
+  * Merge Develop into master. ([#473](https://github.com/mongoosastic/mongoosastic/issues/473))
+    * deps updated. linted
+    * pin dependencies and remove old npm install from travis ci
+    * Add docker-Elasticsearch to Travis
+    * Test fixes (develop) ([#469](https://github.com/mongoosastic/mongoosastic/issues/469))
+    * make tests work with mongoose@5.5.1
+    .remove() -> .deleteMany()
+    .insert() -> insertOne()
+    connect with options
+    * Minor updates and fixes (develop) ([#472](https://github.com/mongoosastic/mongoosastic/issues/472))
+    * default mongoose number to long, not double
+    * default string to text
+    * make generateMapping sync
+    * expose generateMapping and getCleanTree
+    * don’t forceIndexRefresh by default
+    * highlight and suggest are not search options
+    * expose an error event emitter when bulk indexing
+    * set fixed dependencies versions
+    * set mongoose options
+    * function for deleting docs before & after test
+    * different types in one index does not work in elastic > 6.x
+    * rename/include force-index-refresh test
+    * filtered query not supported anymore, use bool instead
+    * sorting has to be made on the keyword field
+    * minor (generateMapping sync)
+    * use elasticsearch.js@15.2.0 (6.4 API is default, same as Travis)
+    * remove unnescessary cleanTree object
+    * if field is mixed, keep field name, but remove type so that serialize.js will index the field
+    * don’t map mixed fields but keep them in mongoosastics internal mapping so that they are indexed when passed to serialized
+    * test mixed all the way
+    * consistent return of schema object
+    * check if elastic is up and running before tests
+    * disable alternative index and type it’s not supported in elastic > 6
+    * use .toObject() before serialize otherwise arrays are “CoreMongooseArray”, not native js array
+    * Update README.md
+  * Add ci-reporter bot config.
+  * Add probot-stale config.
+
 4.3.0 2017-02-21
 ==========
   * chore(package): update eslint to version 3.16.0
