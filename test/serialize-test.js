@@ -57,7 +57,7 @@ describe('serialize', function () {
       first: 'Jeffrey',
       last: 'Lebowski'
     }
-  })
+  }).toObject()
 
   it('should serialize a document with missing bits', function () {
     const serialized = serialize(millionnaire, mapping)

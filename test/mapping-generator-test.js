@@ -377,6 +377,54 @@ describe('MappingGenerator', function () {
       should.not.exist(mapping.properties.name.properties.birthYear)
       done()
     })
+
+    // make this cleaner
+    it('should not map type mixed on mixed fields', function (done) {
+      // instead, Elastic should "guess" and set default mapping
+      const schema = new Schema({
+        string: String,
+        mixed_field: {
+          type: mongoose.Schema.Types.Mixed
+        },
+        mixed_arr_field: {
+          type: [mongoose.Schema.Types.Mixed]
+        },
+        obj_mixed: {
+          mixed: {
+            type: mongoose.Schema.Types.Mixed
+          }
+        }
+      })
+      const mongoosastic = require('../lib/mongoosastic')
+      schema.plugin(mongoosastic)
+
+      const MyModel = mongoose.model('MyModel', schema)
+
+      MyModel.createMapping((err, mapping) => {
+        if (err) console.log(err)
+        const doc = new MyModel({
+          string: 'test_string',
+          mixed_field: 'mixed',
+          mixed_arr_field: [1, 2],
+          obj_mixed: { mixed: 'nested mixed' }
+        })
+        const config = require('./config')
+        mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
+          doc.save(() => {
+            setTimeout(() => {
+              MyModel.search({ query_string: { query: 'mixed' } }, (err, res) => {
+                res.hits.hits[0]._source.mixed_field.should.eql('mixed')
+                res.hits.hits[0]._source.mixed_arr_field.should.eql([1, 2])
+                res.hits.hits[0]._source.obj_mixed.mixed.should.eql('nested mixed')
+                doc.remove(() => {
+                  config.deleteIndexIfExists('mymodels', done)
+                })
+              })
+            }, config.INDEXING_TIMEOUT)
+          })
+        })
+      })
+    })
   })
 
   describe('elastic search fields', function () {
