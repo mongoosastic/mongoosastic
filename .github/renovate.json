@@ -4,5 +4,8 @@
   "extends": [
     "config:base"
   ],
-  "groupName": "all"
+  "groupName": "all",
+  "ignorePaths": [
+    "examples"
+  ]
 }
