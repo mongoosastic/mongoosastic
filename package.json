@@ -20,7 +20,7 @@
     "lodash.clonedeep": "4.5.0"
   },
   "devDependencies": {
-    "async": "3.0.1",
+    "async": "3.1.0",
     "changelog": "1.4.2",
     "co-mocha": "1.2.2",
     "coveralls": "3.0.4",
