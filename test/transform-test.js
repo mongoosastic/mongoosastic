@@ -29,8 +29,6 @@ RepoSchema.plugin(mongoosastic, {
 const Repo = mongoose.model('Repo', RepoSchema)
 
 describe('Transform mode', function () {
-  this.timeout(5000)
-
   before(function (done) {
     config.deleteIndexIfExists(['repos'], function () {
       mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
