@@ -68,16 +68,15 @@ describe('Routing', function () {
   })
 
   it('should not found task if routing with invalid routing', function * () {
-    let now = Date.now()
-    let task = yield Task.create({ content: now })
+    let content = 'content'
+    let task = yield Task.create({ content })
     yield (done) => setTimeout(done, config.INDEXING_TIMEOUT)
-
     res = yield (done) => Task.search({
       query_string: {
         query: task.content
       }
     }, {
-      routing: `${now + 1}`
+      routing: 'invalidrouting'
     }, done)
 
     res.hits.total.should.eql(0)
