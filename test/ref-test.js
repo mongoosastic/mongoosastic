@@ -9,7 +9,7 @@ const config = require('./config')
 const Schema = mongoose.Schema
 const mongoosastic = require('../lib/mongoosastic')
 
-let User, PostComment, Post
+let PostComment = null
 
 const UserSchema = new Schema({
   name: { type: String }
@@ -32,9 +32,8 @@ PostSchema.plugin(mongoosastic, {
     { path: 'comments', select: 'text' }
   ]
 })
-
-User = mongoose.model('User', UserSchema)
-Post = mongoose.model('Post', PostSchema)
+const User = mongoose.model('User', UserSchema)
+const Post = mongoose.model('Post', PostSchema)
 PostComment = mongoose.model('PostComment', PostCommentSchema)
 
 describe('references', function () {
@@ -71,11 +70,13 @@ describe('references', function () {
 
     it('should index selected fields from referenced schema', function (done) {
       Post.findOne({}, function (err, post) {
+        if (err) return done(err)
         esClient.get({
           index: 'posts',
           type: 'post',
           id: post._id.toString()
         }, function (_err, res) {
+          if (_err) return done(_err)
           res._source.author.name.should.eql('jake')
           done()
         })
@@ -88,6 +89,7 @@ describe('references', function () {
           query: 'jake'
         }
       }, function (err, results) {
+        if (err) return done(err)
         results.hits.total.should.eql(1)
         results.hits.hits[0]._source.body.should.eql('A very short post')
         done()
@@ -118,11 +120,13 @@ describe('references', function () {
 
       it('should correctly index arrays', function (done) {
         Post.findOne({}, function (err, post) {
+          if (err) return done(err)
           esClient.get({
             index: 'posts',
             type: 'post',
             id: post._id.toString()
           }, function (_err, res) {
+            if (_err) return done(_err)
             res._source.comments[0].text.should.eql('good post')
             res._source.comments[1].text.should.eql('really')
             done()
@@ -132,11 +136,13 @@ describe('references', function () {
 
       it('should respect populate options', function (done) {
         Post.findOne({}, function (err, post) {
+          if (err) return done(err)
           esClient.get({
             index: 'posts',
             type: 'post',
             id: post._id.toString()
           }, function (_err, res) {
+            if (_err) return done(_err)
             res._source.comments[0].text.should.eql('good post')
             should.not.exist(res._source.comments[0].author)
             done()

@@ -166,9 +166,9 @@ describe('Query DSL', function () {
           match_all: {}
         }, {
           aggs: {
-            'names': {
-              'terms': {
-                'field': 'name.keyword'
+            names: {
+              terms: {
+                field: 'name.keyword'
               }
             }
           }

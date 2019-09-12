@@ -233,7 +233,7 @@ describe('indexing', function () {
     })
 
     it('should be able to index with insertMany', function * () {
-      let tweets = [{
+      const tweets = [{
         message: 'insertMany 1'
       }, {
         message: 'insertMany 2'
@@ -241,14 +241,14 @@ describe('indexing', function () {
       yield Tweet.insertMany(tweets)
       yield (done) => setTimeout(done, config.INDEXING_TIMEOUT)
 
-      let results = yield (done) => Tweet.search({
+      const results = yield (done) => Tweet.search({
         query_string: {
           query: 'insertMany'
         }
       }, done)
       results.hits.total.should.eql(2)
-      let expected = tweets.map((doc) => doc.message)
-      let searched = results.hits.hits.map((doc) => doc._source.message)
+      const expected = tweets.map((doc) => doc.message)
+      const searched = results.hits.hits.map((doc) => doc._source.message)
       should(expected.sort()).be.eql(searched.sort())
     })
 
