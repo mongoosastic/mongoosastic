@@ -31,11 +31,11 @@ describe('forceIndexRefresh connection option', function () {
       config.deleteIndexIfExists([indexName], function (err) {
         // recreate the index
         Dummy.createMapping({
-          'analysis': {
-            'analyzer': {
-              'content': {
-                'type': 'custom',
-                'tokenizer': 'whitespace'
+          analysis: {
+            analyzer: {
+              content: {
+                type: 'custom',
+                tokenizer: 'whitespace'
               }
             }
           }
@@ -126,7 +126,7 @@ function doUpdateOperation (Model, object, newText, indexName, refresh, callback
     }
     // update object
     Model
-      .findOneAndUpdate({ _id: savedObject._id }, { text: newText }, { 'new': true })
+      .findOneAndUpdate({ _id: savedObject._id }, { text: newText }, { new: true })
       .exec(function (err, updatedObject) {
         if (err) {
           return callback(err)

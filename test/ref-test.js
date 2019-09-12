@@ -9,22 +9,23 @@ const config = require('./config')
 const Schema = mongoose.Schema
 const mongoosastic = require('../lib/mongoosastic')
 
-let User, PostComment, Post
-
 const UserSchema = new Schema({
   name: { type: String }
 })
+const User = mongoose.model('User', UserSchema)
 
 const PostCommentSchema = new Schema({
   author: { type: Schema.Types.ObjectId, ref: 'User' },
   text: { type: String }
 })
+const PostComment = mongoose.model('PostComment', PostCommentSchema)
 
 const PostSchema = new Schema({
   body: { type: String, es_indexed: true },
   author: { type: Schema.Types.ObjectId, ref: 'User', es_schema: UserSchema, es_indexed: true },
   comments: [{ type: Schema.Types.ObjectId, ref: 'PostComment', es_schema: PostComment, es_indexed: true }]
 })
+const Post = mongoose.model('Post', PostSchema)
 
 PostSchema.plugin(mongoosastic, {
   populate: [
@@ -32,10 +33,6 @@ PostSchema.plugin(mongoosastic, {
     { path: 'comments', select: 'text' }
   ]
 })
-
-User = mongoose.model('User', UserSchema)
-Post = mongoose.model('Post', PostSchema)
-PostComment = mongoose.model('PostComment', PostCommentSchema)
 
 describe('references', function () {
   before(function (done) {
