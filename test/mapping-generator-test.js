@@ -401,7 +401,8 @@ describe('MappingGenerator', function () {
       const MyModel = mongoose.model('MyModel', schema)
 
       MyModel.createMapping((err, mapping) => {
-        if (err) console.log(err)
+        if (err) return done(err)
+
         const doc = new MyModel({
           string: 'test_string',
           mixed_field: 'mixed',

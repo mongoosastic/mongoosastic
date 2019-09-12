@@ -3,5 +3,8 @@
     "node": true,
     "mocha": true
   },
-  "extends": "standard"
+  "extends": "standard",
+  "rules": {
+    "no-prototype-builtins": 0
+  }
 }

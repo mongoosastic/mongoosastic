@@ -28,11 +28,11 @@ describe('Refresh', function () {
 
   it('should flushed after refresh', function * () {
     yield (done) => Refresh.createMapping(done)
-    let refresh = new Refresh({ title: `${Date.now()}` })
+    const refresh = new Refresh({ title: `${Date.now()}` })
     yield (done) => config.saveAndWaitIndex(refresh, done)
     yield (done) => Refresh.refresh(done)
 
-    let results = yield (done) => Refresh.search({
+    const results = yield (done) => Refresh.search({
       match_all: {}
     }, done)
     results.hits.total.should.eql(1)
