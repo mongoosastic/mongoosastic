@@ -38,7 +38,7 @@ var User = new Schema({
 User.plugin(mongoosastic)
 ```
 
-3. Query your Elasticserch with the `search()` method (added by the plugin)
+3. Query your Elasticsearch with the `search()` method (added by the plugin)
 
 ```javascript
 User.search({
@@ -51,7 +51,7 @@ User.search({
 
 ```
 
-*NOTE*: You can also query Elasticserch with any other method. Example: 
+*NOTE*: You can also query Elasticsearch with any other method. Example: 
 
 ```bash
 curl http://localhost:9200/users/user/_search
