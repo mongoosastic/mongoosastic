@@ -80,8 +80,8 @@ User.plugin(mongoosastic)
 This will by default simply use the pluralization of the model name as the index
 while using the model name itself as the type. So if you create a new
 User object and save it, you can see it by navigating to
-http://localhost:9200/users/user/_search (this assumes Elasticsearch is
-running locally on port 9200).
+http://localhost:9200/users/user/_search *(this assumes Elasticsearch is
+running locally on port 9200)*.
 
 The default behavior is all fields get indexed into Elasticsearch. This can be a little wasteful especially considering that
 the document is now just being duplicated between mongodb and
