@@ -1,0 +1,5 @@
+#include<stdio.h>
+#include<conio.h>
+int main() {
+printf("U are a good coder and I want to be like u") ;
+return 0;}
