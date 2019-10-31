@@ -77,11 +77,8 @@ describe('Suggesters', function () {
       Kitten.createMapping(function () {
         esClient.indices.getMapping({
           index: 'kittens',
-          type: 'kitten'
         }, function (err, mapping) {
-          const props = mapping.kitten !== undefined /* elasticsearch 1.0 & 0.9 support */
-            ? mapping.kitten.properties /* ES 0.9.11 */
-            : mapping.kittens.mappings.kitten.properties /* ES 1.0.0 */
+          const props = mapping.kittens.mappings.properties
           props.name.type.should.eql('completion')
           done()
         })
