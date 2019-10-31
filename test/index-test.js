@@ -162,7 +162,7 @@ describe('indexing', function () {
         message: 'I like Riak better'
       }, function (err, doc) {
         esClient.get({
-          index: 'tweets',          
+          index: 'tweets',
           id: doc._id.toString()
         }, function (_err, res) {
           res._source.message.should.eql(doc.message)

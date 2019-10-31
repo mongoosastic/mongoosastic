@@ -61,7 +61,7 @@ describe('GeoTest', function () {
     })
   })
 
-  it('should be able to create and store geo coordinates', function (done) {   
+  it('should be able to create and store geo coordinates', function (done) {
     const geo = new GeoModel({
       myId: 1,
       frame: {
@@ -73,7 +73,7 @@ describe('GeoTest', function () {
     const geo2 = new GeoModel({
       myId: 2,
       frame: {
-        type: 'envelope',  
+        type: 'envelope',
         coordinates: [[2, 3], [4, 0]]
       }
     })
