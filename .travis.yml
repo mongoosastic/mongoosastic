@@ -10,9 +10,9 @@ before_install:
   - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
   - sudo apt-get update
   - sudo apt-get -y install docker-ce
-  - docker pull docker.elastic.co/elasticsearch/elasticsearch:6.4.2
+  - docker pull docker.elastic.co/elasticsearch/elasticsearch:7.4.1
   - docker ps -a
-  - docker run -p 9200:9200 -p 9300:9300 -d -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:6.4.2
+  - docker run -p 9200:9200 -p 9300:9300 -d -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.4.1
   - until curl --silent -XGET --fail http://localhost:9200; do printf '.'; sleep 1; done
 
 services:
