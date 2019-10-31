@@ -36,12 +36,11 @@ describe('GeoTest', function () {
         GeoModel.createMapping(function () {
           GeoModel.deleteMany(function () {
             esClient.indices.getMapping({
-              index: 'geodocs',
-              type: 'geodoc'
+              index: 'geodocs'
             }, function (err, mapping) {
               (mapping.geodoc !== undefined
                 ? mapping.geodoc /* ES 0.9.11 */
-                : mapping.geodocs.mappings.geodoc /* ES 1.0.0 */
+                : mapping.geodocs.mappings /* ES 1.0.0 */
               ).properties.frame.type.should.eql('geo_shape')
               done()
             })
@@ -62,7 +61,7 @@ describe('GeoTest', function () {
     })
   })
 
-  it('should be able to create and store geo coordinates', function (done) {
+  it('should be able to create and store geo coordinates', function (done) {   
     const geo = new GeoModel({
       myId: 1,
       frame: {
@@ -74,7 +73,7 @@ describe('GeoTest', function () {
     const geo2 = new GeoModel({
       myId: 2,
       frame: {
-        type: 'envelope',
+        type: 'envelope',  
         coordinates: [[2, 3], [4, 0]]
       }
     })
