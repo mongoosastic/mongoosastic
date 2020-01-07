@@ -26,7 +26,7 @@ function tryDummySearch (model, cb) {
         return cb(err)
       }
 
-      results.hits.total.should.eql(0)
+      results.hits.total.value.should.eql(0)
       model.esClient.close()
       cb(err)
     })
