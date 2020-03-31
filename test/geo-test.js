@@ -36,12 +36,11 @@ describe('GeoTest', function () {
         GeoModel.createMapping(function () {
           GeoModel.deleteMany(function () {
             esClient.indices.getMapping({
-              index: 'geodocs',
-              type: 'geodoc'
+              index: 'geodocs'
             }, function (err, mapping) {
               (mapping.geodoc !== undefined
                 ? mapping.geodoc /* ES 0.9.11 */
-                : mapping.geodocs.mappings.geodoc /* ES 1.0.0 */
+                : mapping.geodocs.mappings
               ).properties.frame.type.should.eql('geo_shape')
               done()
             })

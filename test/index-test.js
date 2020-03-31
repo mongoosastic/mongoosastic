@@ -163,7 +163,6 @@ describe('indexing', function () {
       }, function (err, doc) {
         esClient.get({
           index: 'tweets',
-          type: 'tweet',
           id: doc._id.toString()
         }, function (_err, res) {
           res._source.message.should.eql(doc.message)
@@ -541,11 +540,9 @@ describe('indexing', function () {
           index: 'ms_sample',
           body: {
             mappings: {
-              bum: {
-                properties: {
-                  name: {
-                    type: 'text'
-                  }
+              properties: {
+                name: {
+                  type: 'text'
                 }
               }
             }
