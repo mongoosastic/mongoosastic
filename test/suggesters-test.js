@@ -76,12 +76,9 @@ describe('Suggesters', function () {
       Kitten = mongoose.model('Kitten', KittenSchema)
       Kitten.createMapping(function () {
         esClient.indices.getMapping({
-          index: 'kittens',
-          type: 'kitten'
+          index: 'kittens'
         }, function (err, mapping) {
-          const props = mapping.kitten !== undefined /* elasticsearch 1.0 & 0.9 support */
-            ? mapping.kitten.properties /* ES 0.9.11 */
-            : mapping.kittens.mappings.kitten.properties /* ES 1.0.0 */
+          const props = mapping.kittens.mappings.properties
           props.name.type.should.eql('completion')
           done()
         })

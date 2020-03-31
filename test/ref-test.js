@@ -73,7 +73,6 @@ describe('references', function () {
         if (err) return done(err)
         esClient.get({
           index: 'posts',
-          type: 'post',
           id: post._id.toString()
         }, function (_err, res) {
           if (_err) return done(_err)
@@ -123,7 +122,6 @@ describe('references', function () {
           if (err) return done(err)
           esClient.get({
             index: 'posts',
-            type: 'post',
             id: post._id.toString()
           }, function (_err, res) {
             if (_err) return done(_err)
@@ -139,7 +137,6 @@ describe('references', function () {
           if (err) return done(err)
           esClient.get({
             index: 'posts',
-            type: 'post',
             id: post._id.toString()
           }, function (_err, res) {
             if (_err) return done(_err)

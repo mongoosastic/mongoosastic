@@ -52,14 +52,9 @@ describe('Add Boost Option Per Field', function () {
   it('should create a mapping with boost field added', function (done) {
     BlogPost.createMapping(function () {
       esClient.indices.getMapping({
-        index: 'blogposts',
-        type: 'blogpost'
+        index: 'blogposts'
       }, function (err, mapping) {
-        /* elasticsearch 1.0 & 0.9 support */
-        const props = mapping.blogpost !== undefined
-          ? mapping.blogpost.properties /* ES 0.9.11 */
-          : mapping.blogposts.mappings.blogpost.properties
-        /* ES 1.0.0 */
+        const props = mapping.blogposts.mappings.properties
 
         props.title.type.should.eql('text')
         props.title.boost.should.eql(2.0)
