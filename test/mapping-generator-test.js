@@ -331,16 +331,16 @@ describe('MappingGenerator', function () {
     it('recognizes a nested array with a complex object and maps it', function (done) {
       const schema = new Schema({
         name: String,
-        contacts: {
+        contacts: [{
           es_indexed: true,
-          type: [{
+          type: new Schema({
             email: {
               type: String,
               es_index: 'not_analyzed'
             },
             telephone: String
-          }]
-        }
+          })
+        }]
       })
 
       const mapping = generator.generateMapping(schema)
@@ -391,7 +391,8 @@ describe('MappingGenerator', function () {
           type: mongoose.Schema.Types.Mixed
         },
         mixed_arr_field: {
-          type: [mongoose.Schema.Types.Mixed]
+          type: [mongoose.Schema.Types.Mixed],
+          es_indexed: true
         },
         obj_mixed: {
           mixed: {
