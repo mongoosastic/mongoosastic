@@ -388,7 +388,8 @@ describe('MappingGenerator', function () {
       const schema = new Schema({
         string: String,
         mixed_field: {
-          type: mongoose.Schema.Types.Mixed
+          type: mongoose.Schema.Types.Mixed,
+          es_indexed: true
         },
         mixed_arr_field: {
           type: [mongoose.Schema.Types.Mixed],
