@@ -331,14 +331,16 @@ describe('MappingGenerator', function () {
     it('recognizes a nested array with a complex object and maps it', function (done) {
       const schema = new Schema({
         name: String,
-        contacts: [{
+        contacts: {
           es_indexed: true,
-          email: {
-            type: String,
-            es_index: 'not_analyzed'
-          },
-          telephone: String
-        }]
+          type: [{
+            email: {
+              type: String,
+              es_index: 'not_analyzed'
+            },
+            telephone: String
+          }]
+        }
       })
 
       const mapping = generator.generateMapping(schema)
@@ -579,8 +581,9 @@ describe('MappingGenerator', function () {
 
       const schema = new Schema({
         name: {
-          type: [{ type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name, es_indexed: true }],
-          es_type: 'object'
+          type: [{ type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name }],
+          es_type: 'object',
+          es_indexed: true
         }
       })
 
@@ -599,8 +602,9 @@ describe('MappingGenerator', function () {
 
       const schema = new Schema({
         name: {
-          type: [{ type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name, es_select: 'firstName', es_indexed: true }],
-          es_type: 'object'
+          type: [{ type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name, es_select: 'firstName' }],
+          es_type: 'object',
+          es_indexed: true
         }
       })
 
@@ -631,8 +635,9 @@ describe('MappingGenerator', function () {
 
       const schema = new Schema({
         locations: {
-          type: [{ type: Schema.Types.ObjectId, ref: 'Location', es_schema: Location, es_indexed: true }],
-          es_type: 'object'
+          type: [{ type: Schema.Types.ObjectId, ref: 'Location', es_schema: Location }],
+          es_type: 'object',
+          es_indexed: true
         }
       })
 
