@@ -395,9 +395,12 @@ describe('MappingGenerator', function () {
           es_indexed: true
         },
         obj_mixed: {
-          mixed: {
-            type: mongoose.Schema.Types.Mixed
-          }
+          type: new Schema({
+            mixed: {
+              type: mongoose.Schema.Types.Mixed
+            }
+          }),
+          es_indexed: true
         }
       })
       const mongoosastic = require('../lib/mongoosastic')
