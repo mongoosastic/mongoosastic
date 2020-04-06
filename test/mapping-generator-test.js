@@ -258,7 +258,7 @@ describe('MappingGenerator', function () {
         }
       })
 
-      const schema = new Schema({ name: [NameSchema] })
+      const schema = new Schema({ name: { type: [NameSchema], es_indexed: true } })
       const mapping = generator.generateMapping(schema)
 
       mapping.properties.name.type.should.eql('object')
@@ -303,7 +303,7 @@ describe('MappingGenerator', function () {
 
     it('recognizes a nested array with a simple type and maps it as a simple attribute', function (done) {
       const schema = new Schema({
-        contacts: [String]
+        contacts: { type: [String], es_indexed: true }
       })
 
       const mapping = generator.generateMapping(schema)
@@ -316,7 +316,8 @@ describe('MappingGenerator', function () {
       const schema = new Schema({
         contacts: [{
           type: String,
-          es_index: 'not_analyzed'
+          es_index: 'not_analyzed',
+          es_indexed: true
         }]
       })
 
@@ -331,6 +332,7 @@ describe('MappingGenerator', function () {
       const schema = new Schema({
         name: String,
         contacts: [{
+          es_indexed: true,
           email: {
             type: String,
             es_index: 'not_analyzed'
@@ -366,7 +368,7 @@ describe('MappingGenerator', function () {
       })
 
       const schema = new Schema({
-        name: [PersonSchema]
+        name: { type: [PersonSchema], es_indexed: true }
       })
 
       const mapping = generator.generateMapping(schema)
@@ -577,7 +579,7 @@ describe('MappingGenerator', function () {
 
       const schema = new Schema({
         name: {
-          type: [{ type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name }],
+          type: [{ type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name, es_indexed: true }],
           es_type: 'object'
         }
       })
@@ -597,7 +599,7 @@ describe('MappingGenerator', function () {
 
       const schema = new Schema({
         name: {
-          type: [{ type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name, es_select: 'firstName' }],
+          type: [{ type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name, es_select: 'firstName', es_indexed: true }],
           es_type: 'object'
         }
       })
@@ -629,7 +631,7 @@ describe('MappingGenerator', function () {
 
       const schema = new Schema({
         locations: {
-          type: [{ type: Schema.Types.ObjectId, ref: 'Location', es_schema: Location }],
+          type: [{ type: Schema.Types.ObjectId, ref: 'Location', es_schema: Location, es_indexed: true }],
           es_type: 'object'
         }
       })
