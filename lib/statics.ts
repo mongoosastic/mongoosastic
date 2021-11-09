@@ -1,5 +1,4 @@
-import { Context, QueryContainer, SearchResponse } from '@elastic/elasticsearch/api/types'
-import { callbackFn } from '@elastic/elasticsearch/lib/Helpers'
+import { Property, PropertyName, QueryContainer, SearchResponse } from '@elastic/elasticsearch/api/types'
 import events from 'events'
 import { FilterQuery, Model } from 'mongoose'
 import { PluginDocument, SynchronizeOptions } from 'types'
@@ -10,12 +9,7 @@ import Generator from './mapping'
 import { ApiResponse, RequestBody } from '@elastic/elasticsearch/lib/Transport'
 import { Search } from '@elastic/elasticsearch/api/requestParams'
 
-export function createMapping(this: Model<PluginDocument>, body: RequestBody, cb: CallableFunction): void {
-
-	if (arguments.length < 2) {
-		cb = body as CallableFunction
-		body = {}
-	}
+export async function createMapping(this: Model<PluginDocument>, body: RequestBody): Promise<Record<PropertyName, Property>> {
 
 	const options = this.esOptions()
 	const client = this.esClient()
@@ -35,38 +29,30 @@ export function createMapping(this: Model<PluginDocument>, body: RequestBody, cb
 		})
 	}
 
-	client.indices.exists({
+	const exists = await client.indices.exists({
 		index: indexName
-	}, (err, exists) => {
-		if (err) {
-			return cb(err)
-		}
-
-		if (exists.body) {
-			return client.indices.putMapping({
-				index: indexName,
-				body: completeMapping
-			}, (err) => {
-				cb(err, completeMapping)
-			})
-		}
-
-		return client.indices.create({
-			index: indexName,
-			body: body
-		}, indexErr => {
-			if (indexErr) {
-				return cb(indexErr)
-			}
-
-			client.indices.putMapping({
-				index: indexName,
-				body: completeMapping
-			}, (err) => {
-				cb(err, completeMapping)
-			})
-		})
 	})
+
+	if (exists.body) {
+		await client.indices.putMapping({
+			index: indexName,
+			body: completeMapping
+		})
+		return completeMapping
+	}
+
+	await client.indices.create({
+		index: indexName,
+		body: body
+	})
+
+	await client.indices.putMapping({
+		index: indexName,
+		body: completeMapping
+	})
+
+	return completeMapping
+
 }
 
 export function synchronize(this: Model<PluginDocument>, query: FilterQuery<PluginDocument> = {}, inOpts: SynchronizeOptions = {}): events {
@@ -136,7 +122,7 @@ export function synchronize(this: Model<PluginDocument>, query: FilterQuery<Plug
 	return em
 }
 
-export function esTruncate(this: Model<PluginDocument>, cb?: CallableFunction): void {
+export async function esTruncate(this: Model<PluginDocument>): Promise<void> {
 
 	const options = this.esOptions()
 	const client = this.esClient()
@@ -161,45 +147,40 @@ export function esTruncate(this: Model<PluginDocument>, cb?: CallableFunction): 
 		batch: (options.bulk && options.bulk.batch) || 50
 	}
 
-	client.search(esQuery, (err, res: ApiResponse<SearchResponse<PluginDocument>>) => {
-		if (err) {
-			if(cb) return cb(err)
-		}
-		res = reformatESTotalNumber(res)
-		if (res.body.hits.total) {
-			res.body.hits.hits.forEach((doc) => {
-				
-				const opts = {
-					index: indexName,
-					id: doc._id,
-					bulk: options.bulk,
-					routing: undefined,
-					client: client
-				}
-				
-				if (options.routing && doc._source != null) {
-					doc._source._id = doc._id
-					opts.routing = options.routing(doc._source)
-				}
+	let res: ApiResponse<SearchResponse<PluginDocument>> = await client.search(esQuery)
 
-				bulkDelete(opts)
-			})
-		}
-		options.bulk = bulkOptions
-		if(cb) return cb()
+	res = reformatESTotalNumber(res)
+	if (res.body.hits.total) {
+		res.body.hits.hits.forEach(async (doc) => {
+				
+			const opts = {
+				index: indexName,
+				id: doc._id,
+				bulk: options.bulk,
+				routing: undefined,
+				client: client
+			}
+				
+			if (options.routing && doc._source != null) {
+				doc._source._id = doc._id
+				opts.routing = options.routing(doc._source)
+			}
+
+			await bulkDelete(opts)
+		})
+	}
+	options.bulk = bulkOptions
+}
+
+export async function refresh(this: Model<PluginDocument>): Promise<ApiResponse> {
+	return await this.esClient().indices.refresh({
+		index: getIndexName(this)
 	})
 }
 
-export function refresh(this: Model<PluginDocument>, cb: callbackFn<Response, Context>): void {
-	this.esClient().indices.refresh({
-		index: getIndexName(this)
-	}, cb)
-}
+export async function esCount(this: Model<PluginDocument>, query: QueryContainer): Promise<ApiResponse> {
 
-export function esCount(this: Model<PluginDocument>, query: QueryContainer, cb: callbackFn<Response, Context>): void {
-
-	if (cb === undefined) {
-		cb = query as callbackFn<Response, Context>
+	if (query === undefined) {
 		query = {
 			match_all: {}
 		}
@@ -212,5 +193,5 @@ export function esCount(this: Model<PluginDocument>, query: QueryContainer, cb: 
 		index: getIndexName(this)
 	}
 
-	this.esClient().count(esQuery, cb)
+	return await this.esClient().count(esQuery)
 }

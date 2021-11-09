@@ -9,7 +9,7 @@ function clearBulkTimeout() {
 	bulkTimeout = undefined
 }
 
-export async function bulkAdd(opts: BulkIndexOptions, cb?: CallableFunction): Promise<void> {
+export async function bulkAdd(opts: BulkIndexOptions): Promise<void> {
 	const instruction = [{
 		index: {
 			_index: opts.index,
@@ -17,10 +17,10 @@ export async function bulkAdd(opts: BulkIndexOptions, cb?: CallableFunction): Pr
 		}
 	}, opts.body]
 	
-	await bulkIndex(instruction, opts.bulk as BulkOptions, opts.client, cb)
+	await bulkIndex(instruction, opts.bulk as BulkOptions, opts.client)
 }
 
-export async function bulkDelete(opts: BulkUnIndexOptions, cb?: CallableFunction): Promise<void> {
+export async function bulkDelete(opts: BulkUnIndexOptions): Promise<void> {
 	const instruction = [{
 		delete: {
 			_index: opts.index,
@@ -28,25 +28,25 @@ export async function bulkDelete(opts: BulkUnIndexOptions, cb?: CallableFunction
 		}
 	}]
 	
-	await bulkIndex(instruction, opts.bulk as BulkOptions, opts.client, cb)
+	await bulkIndex(instruction, opts.bulk as BulkOptions, opts.client)
 }
 
-export async function bulkIndex(instruction: BulkInstruction[], bulk: BulkOptions, client: Client, cb?: CallableFunction): Promise<void> {
+export async function bulkIndex(instruction: BulkInstruction[], bulk: BulkOptions, client: Client): Promise<void> {
 
 	bulkBuffer = bulkBuffer.concat(instruction)
 
 	if (bulkBuffer.length >= bulk.size) {
-		await flush(client, cb)
+		await flush(client)
 		clearBulkTimeout()
 	} else if (bulkTimeout === undefined) {
 		bulkTimeout = setTimeout(async () => {
-			await flush(client, cb)
+			await flush(client)
 			clearBulkTimeout()
 		}, bulk.delay)
 	}
 }
 
-export async function flush(client: Client, cb?: CallableFunction): Promise<void> {
+export async function flush(client: Client): Promise<void> {
 
 	try {
 		const res = await client.bulk({
@@ -58,7 +58,7 @@ export async function flush(client: Client, cb?: CallableFunction): Promise<void
 				const info = res.body.items[i]
 				if (info && info.index && info.index.error) {
 					// bulkErrEm.emit('error', null, info.index)
-					if(cb) cb(info.index, null)
+					throw Error(info.index)
 				}
 			}
 		}

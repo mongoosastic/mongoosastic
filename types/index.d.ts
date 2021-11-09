@@ -16,28 +16,6 @@ declare interface TransformFn {
 declare interface RoutingFn {
     (doc: Document): any;
 }
-declare interface CreateMappingCallbackFn {
-    (err: any | null | undefined, inputMapping: Record<PropertyName, Property> | null | undefined): void;
-}
-declare interface TruncateCallbackFn {
-    (err: any | null | undefined): void;
-}
-declare interface SearchCallbackFn<T> {
-    (err: null | undefined, resp: ApiResponse<HydratedSearchResults<T>>): void;
-    (err: any, resp: null | undefined): void;
-}
-declare interface CountCallbackFn {
-    (err: null | undefined, resp: ApiResponse<CountResponse>): void;
-    (err: any, resp: null | undefined): void;
-}
-declare interface FlushCallbackFn {
-    (err: null | undefined, resp: ApiResponse<BulkResponse>): void;
-    (err: any, resp: null | undefined): void;
-}
-declare interface RefreshCallbackFn {
-    (err: null | undefined, resp: ApiResponse<RefreshResponse>): void;
-    (err: any, resp: null | undefined): void;
-}
 
 declare interface GeneratedMapping extends TypeMapping {
     cast?(doc: any): any
@@ -98,10 +76,10 @@ declare class PluginDocument<TDocument = any> extends Document<TDocument> {
     _highlight?: Record<string, string[]> | undefined
     _esResult?: Hit<TDocument>
     
-    index(cb?: CallableFunction): void
-    index(opts: IndexMethodOptions, cb?: CallableFunction): void
+    index(): Promise<PluginDocument | ApiResponse | void>
+    index(opts: IndexMethodOptions): Promise<PluginDocument | ApiResponse | void>
     
-    unIndex(cb?: CallableFunction): void
+    unIndex(): Promise<void>
     emit(event: string, ...args: any): void
     esOptions(): Options
     esClient(): Client
@@ -163,24 +141,24 @@ declare module 'mongoosastic' {
 declare module 'mongoose' {
 
     export interface Model<T extends Document> {
-        search(query: QueryContainer, cb?: SearchCallbackFn<T>): void;
-        search(query: QueryContainer, options?: EsSearchOptions, cb?: SearchCallbackFn<T>): void;
+        // search(query: QueryContainer): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>>;
+        search(query: QueryContainer, options?: EsSearchOptions): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>>;
 
-        esSearch(query: SearchRequest['body'], cb?: SearchCallbackFn<T>): void;
-        esSearch(query: SearchRequest['body'], options?: EsSearchOptions, cb?: SearchCallbackFn<T>): void;
+        // esSearch(query: SearchRequest['body']): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>>;
+        esSearch(query: SearchRequest['body'], options?: EsSearchOptions): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>>;
 
         synchronize(query?: any, options?: any): EventEmitter;
         
         esOptions(): Options
         esClient(): Client
 
-        createMapping(body?: RequestBody, cb?: CreateMappingCallbackFn): void
-        esTruncate(cb?: TruncateCallbackFn): void
+        createMapping(body?: RequestBody): Promise<Record<PropertyName, Property>>
+        esTruncate(): Promise<void>
 
-        esCount(cb?: CountCallbackFn): void
-        esCount(query?: QueryContainer, cb?: CountCallbackFn): void
+        // esCount(): void
+        esCount(query?: QueryContainer): Promise<ApiResponse<SearchResponse, unknown>>
 
-        refresh(cb?: RefreshCallbackFn): void
+        refresh(): Promise<ApiResponse<SearchResponse, unknown>>
     }
 }
 

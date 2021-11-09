@@ -2,16 +2,11 @@ import { ApiResponse } from '@elastic/elasticsearch'
 import { Search } from '@elastic/elasticsearch/api/requestParams'
 import { QueryContainer, SearchRequest, SearchResponse } from '@elastic/elasticsearch/api/types'
 import { Model } from 'mongoose'
-import { EsSearchOptions, PluginDocument } from 'types'
+import { EsSearchOptions, HydratedSearchResults, PluginDocument } from 'types'
 import { getIndexName, hydrate, isString, isStringArray, reformatESTotalNumber } from './utils'
 
 
-export async function search(this: Model<PluginDocument>, query: QueryContainer, opts: EsSearchOptions, cb: CallableFunction): Promise<void | unknown> {
-
-	if (cb === undefined) {
-		cb = opts as CallableFunction
-		opts = {}
-	}
+export async function search(this: Model<PluginDocument>, query: QueryContainer, opts: EsSearchOptions = {}): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>> {
 
 	const fullQuery = {
 		query: query
@@ -19,15 +14,10 @@ export async function search(this: Model<PluginDocument>, query: QueryContainer,
 
 	const bindedEsSearch = esSearch.bind(this)
 
-	return bindedEsSearch(fullQuery, opts, cb)
+	return bindedEsSearch(fullQuery, opts)
 }
 
-export async function esSearch(this: Model<PluginDocument>, query: SearchRequest['body'], opts: EsSearchOptions, cb: CallableFunction): Promise<void | unknown> {
-
-	if (cb === undefined) {
-		cb = opts as CallableFunction
-		opts = {}
-	}
+export async function esSearch(this: Model<PluginDocument>, query: SearchRequest['body'], opts: EsSearchOptions = {}): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>> {
 
 	const options = this.esOptions()
 	const client = this.esClient()
@@ -57,16 +47,12 @@ export async function esSearch(this: Model<PluginDocument>, query: SearchRequest
 		}
 	})
 
-	try {
-		const res = await client.search(esQuery) as ApiResponse<SearchResponse>
+	const res = await client.search(esQuery) as ApiResponse<SearchResponse>
 
-		const resp = reformatESTotalNumber(res)
-		if (options.alwaysHydrate || opts.hydrate) {
-			return hydrate(resp, this, opts, cb)
-		} else {
-			cb(null, resp)
-		}
-	} catch (error) {
-		return error
+	const resp = reformatESTotalNumber(res)
+	if (options.alwaysHydrate || opts.hydrate) {
+		return hydrate(resp, this, opts)
+	} else {
+		return resp
 	}
 }

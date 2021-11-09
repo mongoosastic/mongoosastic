@@ -78,28 +78,21 @@ export function serialize(model: PluginDocument, mapping: GeneratedMapping): Rec
 	return outModel
 }
 
-export function deleteById(opt: DeleteByIdOptions, cb?: CallableFunction): void {
+export async function deleteById(opt: DeleteByIdOptions): Promise<void> {
 
 	const doc = opt.document
 
-	opt.client.delete({
-		index: opt.index,
-		id: opt.id,
-	}, {}, (err, res) => {
-		if (err) {
-			if (opt.tries <= 0) {
-				doc.emit('es-removed', err, res)
-				if (cb) return cb(err)
-			}
-			opt.tries = --opt.tries
-			setTimeout(() => {
-				deleteById(opt, cb)
-			}, 500)
-		} else {
-			doc.emit('es-removed', err, res)
-			if (cb) cb(err)
-		}
-	})
+	try {
+		const res = await opt.client.delete({
+			index: opt.index,
+			id: opt.id,
+		}, {})
+
+		if (res) doc.emit('es-removed', null, res)
+
+	} catch (error) {
+		doc.emit('es-removed', error, null)
+	}
 }
 
 export function reformatESTotalNumber<T = unknown>(res: ApiResponse<SearchResponse<T>>): ApiResponse<SearchResponse<T>> {
@@ -110,7 +103,7 @@ export function reformatESTotalNumber<T = unknown>(res: ApiResponse<SearchRespon
 	return res
 }
 
-export async function hydrate(res: ApiResponse<SearchResponse>, model: Model<PluginDocument>, opts: EsSearchOptions, cb: CallableFunction): Promise<ApiResponse<SearchResponse<unknown>, unknown> | unknown> {
+export async function hydrate(res: ApiResponse<SearchResponse>, model: Model<PluginDocument>, opts: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults>> {
 
 	const options = model.esOptions()
 	
@@ -135,55 +128,49 @@ export async function hydrate(res: ApiResponse<SearchResponse>, model: Model<Plu
 	// Example: {lean: true, sort: '-name', select: 'address name'}
 	query.setOptions(hydrateOptions)
 
-	try {
-		const docs = await query.exec()
+	const docs = await query.exec()
 
-		let hits
-		const docsMap: Record<string, PluginDocument> = {}
+	let hits
+	const docsMap: Record<string, PluginDocument> = {}
 
-		if (!docs || docs.length === 0) {
-			results.hits = []
-			results.hydrated = []
-			res.body.hits = results
-			return cb(null, res)
-		}
-
-		if (hydrateOptions && hydrateOptions.sort) {
-			// Hydrate sort has precedence over ES result order
-			hits = docs
-		} else {
-			// Preserve ES result ordering
-			docs.forEach(doc => {
-				docsMap[doc._id] = doc
-			})
-			hits = results.hits.map((result) => docsMap[result._id])
-		}
-
-		if (opts.highlight || opts.hydrateWithESResults) {
-			hits.forEach((doc) => {
-				const idx = resultsMap[doc._id]
-				if (opts.highlight) {
-					doc._highlight = results.hits[idx].highlight
-				}
-				if (opts.hydrateWithESResults) {
-					// Add to doc ES raw result (with, e.g., _score value)
-					doc._esResult = results.hits[idx]
-					if (!opts.hydrateWithESResults.source) {
-						// Remove heavy load
-						delete doc._esResult._source
-					}
-				}
-			})
-		}
-
+	if (!docs || docs.length === 0) {
 		results.hits = []
-		results.hydrated = hits
-		res.body.hits = results
-		cb(null, res)
-
-		return res
-
-	} catch (error) {
-		return error
+		results.hydrated = []
+		clonedRes.body.hits = results
+		return clonedRes
 	}
+
+	if (hydrateOptions && hydrateOptions.sort) {
+		// Hydrate sort has precedence over ES result order
+		hits = docs
+	} else {
+		// Preserve ES result ordering
+		docs.forEach(doc => {
+			docsMap[doc._id] = doc
+		})
+		hits = results.hits.map((result) => docsMap[result._id])
+	}
+
+	if (opts.highlight || opts.hydrateWithESResults) {
+		hits.forEach((doc) => {
+			const idx = resultsMap[doc._id]
+			if (opts.highlight) {
+				doc._highlight = results.hits[idx].highlight
+			}
+			if (opts.hydrateWithESResults) {
+				// Add to doc ES raw result (with, e.g., _score value)
+				doc._esResult = results.hits[idx]
+				if (!opts.hydrateWithESResults.source) {
+					// Remove heavy load
+					delete doc._esResult._source
+				}
+			}
+		})
+	}
+
+	results.hits = []
+	results.hydrated = hits
+	clonedRes.body.hits = results
+
+	return clonedRes
 }
