@@ -110,7 +110,7 @@ export function reformatESTotalNumber<T = unknown>(res: ApiResponse<SearchRespon
 	return res
 }
 
-export function hydrate(res: ApiResponse<SearchResponse>, model: Model<PluginDocument>, opts: EsSearchOptions, cb: CallableFunction): void {
+export async function hydrate(res: ApiResponse<SearchResponse>, model: Model<PluginDocument>, opts: EsSearchOptions, cb: CallableFunction): Promise<ApiResponse<SearchResponse<unknown>, unknown> | unknown> {
 
 	const options = model.esOptions()
 	
@@ -135,13 +135,11 @@ export function hydrate(res: ApiResponse<SearchResponse>, model: Model<PluginDoc
 	// Example: {lean: true, sort: '-name', select: 'address name'}
 	query.setOptions(hydrateOptions)
 
-	query.exec((err, docs) => {
+	try {
+		const docs = await query.exec()
+
 		let hits
 		const docsMap: Record<string, PluginDocument> = {}
-
-		if (err) {
-			return cb(err)
-		}
 
 		if (!docs || docs.length === 0) {
 			results.hits = []
@@ -182,5 +180,10 @@ export function hydrate(res: ApiResponse<SearchResponse>, model: Model<PluginDoc
 		results.hydrated = hits
 		res.body.hits = results
 		cb(null, res)
-	})
+
+		return res
+
+	} catch (error) {
+		return error
+	}
 }

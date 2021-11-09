@@ -6,7 +6,7 @@ import { EsSearchOptions, PluginDocument } from 'types'
 import { getIndexName, hydrate, isString, isStringArray, reformatESTotalNumber } from './utils'
 
 
-export function search(this: Model<PluginDocument>, query: QueryContainer, opts: EsSearchOptions, cb: CallableFunction): void {
+export async function search(this: Model<PluginDocument>, query: QueryContainer, opts: EsSearchOptions, cb: CallableFunction): Promise<void | unknown> {
 
 	if (cb === undefined) {
 		cb = opts as CallableFunction
@@ -22,7 +22,7 @@ export function search(this: Model<PluginDocument>, query: QueryContainer, opts:
 	return bindedEsSearch(fullQuery, opts, cb)
 }
 
-export function esSearch(this: Model<PluginDocument>, query: SearchRequest['body'], opts: EsSearchOptions, cb: CallableFunction): void {
+export async function esSearch(this: Model<PluginDocument>, query: SearchRequest['body'], opts: EsSearchOptions, cb: CallableFunction): Promise<void | unknown> {
 
 	if (cb === undefined) {
 		cb = opts as CallableFunction
@@ -57,16 +57,16 @@ export function esSearch(this: Model<PluginDocument>, query: SearchRequest['body
 		}
 	})
 
-	client.search(esQuery, (err, res: ApiResponse<SearchResponse>) => {
-		if (err) {
-			return cb(err)
-		}
+	try {
+		const res = await client.search(esQuery) as ApiResponse<SearchResponse>
 
 		const resp = reformatESTotalNumber(res)
 		if (options.alwaysHydrate || opts.hydrate) {
-			hydrate(resp, this, opts, cb)
+			return hydrate(resp, this, opts, cb)
 		} else {
 			cb(null, resp)
 		}
-	})
+	} catch (error) {
+		return error
+	}
 }
