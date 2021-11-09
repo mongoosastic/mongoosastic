@@ -2,8 +2,9 @@ import { IndexMethodOptions, PluginDocument } from 'types'
 import { deleteById, getIndexName, serialize } from './utils'
 import { bulkAdd, bulkDelete } from './bulking'
 import Generator from './mapping'
+import { ApiResponse } from '@elastic/elasticsearch'
 
-export function index(this: PluginDocument, inOpts: IndexMethodOptions = {}, cb: CallableFunction): void {
+export async function index(this: PluginDocument, inOpts: IndexMethodOptions = {}, cb: CallableFunction): Promise<PluginDocument | ApiResponse | void> {
 
 	if (cb === undefined) {
 		cb = inOpts as CallableFunction
@@ -44,15 +45,15 @@ export function index(this: PluginDocument, inOpts: IndexMethodOptions = {}, cb:
 	}
 
 	if (opt.bulk) {
-		bulkAdd({ client, ...opt }, cb)
-		setImmediate(() => { cb(null, this) })
-
+		await bulkAdd({ client, ...opt }, cb)
+		return this
+		// setImmediate(() => { cb(null, this) })
 	} else {
-		client.index(opt).then((value) => { cb(null, value) })
+		return client.index(opt)
 	}
 }
 
-export function unIndex(this: PluginDocument, cb?: CallableFunction): void {
+export async function unIndex(this: PluginDocument, cb?: CallableFunction): Promise<void> {
 
 	const options = this.esOptions()
 	const client = this.esClient()
@@ -70,8 +71,8 @@ export function unIndex(this: PluginDocument, cb?: CallableFunction): void {
 	}
 
 	if (opt.bulk) {
-		bulkDelete(opt, cb)
+		await bulkDelete(opt, cb)
 	} else {
-		deleteById(opt, cb)
+		await deleteById(opt, cb)
 	}
 }
