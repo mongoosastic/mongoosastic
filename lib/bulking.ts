@@ -9,7 +9,7 @@ function clearBulkTimeout() {
 	bulkTimeout = undefined
 }
 
-export function bulkAdd(opts: BulkIndexOptions, cb?: CallableFunction): void {
+export async function bulkAdd(opts: BulkIndexOptions, cb?: CallableFunction): Promise<void> {
 	const instruction = [{
 		index: {
 			_index: opts.index,
@@ -17,10 +17,10 @@ export function bulkAdd(opts: BulkIndexOptions, cb?: CallableFunction): void {
 		}
 	}, opts.body]
 	
-	bulkIndex(instruction, opts.bulk as BulkOptions, opts.client, cb)
+	await bulkIndex(instruction, opts.bulk as BulkOptions, opts.client, cb)
 }
 
-export function bulkDelete(opts: BulkUnIndexOptions, cb?: CallableFunction): void {
+export async function bulkDelete(opts: BulkUnIndexOptions, cb?: CallableFunction): Promise<void> {
 	const instruction = [{
 		delete: {
 			_index: opts.index,
@@ -28,32 +28,31 @@ export function bulkDelete(opts: BulkUnIndexOptions, cb?: CallableFunction): voi
 		}
 	}]
 	
-	bulkIndex(instruction, opts.bulk as BulkOptions, opts.client, cb)
+	await bulkIndex(instruction, opts.bulk as BulkOptions, opts.client, cb)
 }
 
-export function bulkIndex(instruction: BulkInstruction[], bulk: BulkOptions, client: Client, cb?: CallableFunction): void {
+export async function bulkIndex(instruction: BulkInstruction[], bulk: BulkOptions, client: Client, cb?: CallableFunction): Promise<void> {
 
 	bulkBuffer = bulkBuffer.concat(instruction)
 
 	if (bulkBuffer.length >= bulk.size) {
-		flush(client, cb)
+		await flush(client, cb)
 		clearBulkTimeout()
 	} else if (bulkTimeout === undefined) {
-		bulkTimeout = setTimeout(() => {
-			flush(client, cb)
+		bulkTimeout = setTimeout(async () => {
+			await flush(client, cb)
 			clearBulkTimeout()
 		}, bulk.delay)
 	}
 }
 
-function flush(client: Client, cb?: CallableFunction): void {
-	client.bulk({
-		body: bulkBuffer
-	}, (err, res) => {
-		if (err) {
-			// bulkErrEm.emit('error', err, res)
-			if(cb) cb(err, null)
-		}
+export async function flush(client: Client, cb?: CallableFunction): Promise<void> {
+
+	try {
+		const res = await client.bulk({
+			body: bulkBuffer
+		})
+
 		if (res.body.items && res.body.items.length) {
 			for (let i = 0; i < res.body.items.length; i++) {
 				const info = res.body.items[i]
@@ -63,6 +62,10 @@ function flush(client: Client, cb?: CallableFunction): void {
 				}
 			}
 		}
-	})
+	} catch (error) {
+		// bulkErrEm.emit('error', error, null)
+		console.log(error)
+	}
+
 	bulkBuffer = []
 }
