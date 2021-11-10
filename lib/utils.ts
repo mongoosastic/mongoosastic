@@ -82,17 +82,12 @@ export async function deleteById(opt: DeleteByIdOptions): Promise<void> {
 
 	const doc = opt.document
 
-	try {
-		const res = await opt.client.delete({
-			index: opt.index,
-			id: opt.id,
-		}, {})
-
-		if (res) doc.emit('es-removed', null, res)
-
-	} catch (error) {
-		doc.emit('es-removed', error, null)
-	}
+	await opt.client.delete({
+		index: opt.index,
+		id: opt.id,
+	}, {})
+		.then(res => doc.emit('es-removed', null, res))
+		.catch(error => doc.emit('es-removed', error, null))
 }
 
 export function reformatESTotalNumber<T = unknown>(res: ApiResponse<SearchResponse<T>>): ApiResponse<SearchResponse<T>> {
