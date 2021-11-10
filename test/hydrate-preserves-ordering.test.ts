@@ -55,48 +55,43 @@ describe('Hydrate with ES data', function () {
 	})
 
 	describe('Preserve ordering from MongoDB on hydration', function () {
-		it('should return an array of objects ordered \'desc\' by MongoDB', function (done) {
-			RankModel.esSearch({}, {
+		it('should return an array of objects ordered \'desc\' by MongoDB', async function () {
+
+			const res = await RankModel.esSearch({}, {
 				hydrate: true,
 				hydrateOptions: { sort: '-rank' }
-			}, function (err, res) {
-				if (err) done(err)
-
-				const hits = res?.body.hits.hydrated as IRank[]
-
-				expect(res?.body.hits.total).toEqual(3)
-
-				expect(hits[0].rank).toEqual(4)
-				expect(hits[1].rank).toEqual(2)
-				expect(hits[2].rank).toEqual(0)
-
-				done()
 			})
+			
+			const hits = res?.body.hits.hydrated
+
+			expect(res?.body.hits.total).toEqual(3)
+
+			expect(hits[0].rank).toEqual(4)
+			expect(hits[1].rank).toEqual(2)
+			expect(hits[2].rank).toEqual(0)
 		})
 
-		it('should return an array of objects ordered \'asc\' by MongoDB', function (done) {
-			RankModel.esSearch({}, {
+		it('should return an array of objects ordered \'asc\' by MongoDB', async function () {
+
+			const res = await RankModel.esSearch({}, {
 				hydrate: true,
 				hydrateOptions: { sort: 'rank' }
-			}, function (err, res) {
-				if (err) done(err)
-
-				const hits = res?.body.hits.hydrated as IRank[]
-
-				expect(res?.body.hits.total).toEqual(3)
-
-				expect(hits[0].rank).toEqual(0)
-				expect(hits[1].rank).toEqual(2)
-				expect(hits[2].rank).toEqual(4)
-
-				done()
 			})
+
+			const hits = res?.body.hits.hydrated
+
+			expect(res?.body.hits.total).toEqual(3)
+
+			expect(hits[0].rank).toEqual(0)
+			expect(hits[1].rank).toEqual(2)
+			expect(hits[2].rank).toEqual(4)
 		})
 	})
 
 	describe('Preserve ordering from ElasticSearch on hydration', function () {
-		it('should return an array of objects ordered \'desc\' by ES', function (done) {
-			RankModel.esSearch({
+		it('should return an array of objects ordered \'desc\' by ES', async function () {
+
+			const res = await RankModel.esSearch({
 				sort: [{
 					rank: {
 						order: 'desc'
@@ -105,23 +100,20 @@ describe('Hydrate with ES data', function () {
 			}, {
 				hydrate: true,
 				hydrateOptions: { sort: undefined }
-			}, function (err, res) {
-				if (err) done(err)
-
-				const hits = res?.body.hits.hydrated as IRank[]
-
-				expect(res?.body.hits.total).toEqual(3)
-
-				expect(hits[0].rank).toEqual(4)
-				expect(hits[1].rank).toEqual(2)
-				expect(hits[2].rank).toEqual(0)
-
-				done()
 			})
+
+			const hits = res?.body.hits.hydrated as IRank[]
+
+			expect(res?.body.hits.total).toEqual(3)
+
+			expect(hits[0].rank).toEqual(4)
+			expect(hits[1].rank).toEqual(2)
+			expect(hits[2].rank).toEqual(0)
 		})
 
-		it('should return an array of objects ordered \'asc\' by ES', function (done) {
-			RankModel.esSearch({
+		it('should return an array of objects ordered \'asc\' by ES', async function () {
+
+			const res = await RankModel.esSearch({
 				sort: [{
 					rank: {
 						order: 'asc'
@@ -130,19 +122,16 @@ describe('Hydrate with ES data', function () {
 			}, {
 				hydrate: true,
 				hydrateOptions: { sort: undefined }
-			}, function (err, res) {
-				if (err) done(err)
-				
-				const hits = res?.body.hits.hydrated as IRank[]
-
-				expect(res?.body.hits.total).toEqual(3)
-
-				expect(hits[0].rank).toEqual(0)
-				expect(hits[1].rank).toEqual(2)
-				expect(hits[2].rank).toEqual(4)
-
-				done()
 			})
+
+			const hits = res?.body.hits.hydrated
+
+			expect(res?.body.hits.total).toEqual(3)
+
+			expect(hits[0].rank).toEqual(0)
+			expect(hits[1].rank).toEqual(2)
+			expect(hits[2].rank).toEqual(4)
+
 		})
 	})
 
