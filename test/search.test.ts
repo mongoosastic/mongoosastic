@@ -70,22 +70,20 @@ describe('Query DSL', function () {
 	})
 
 	describe('range', function () {
-		it('should be able to find within range', function (done) {
-			Bond.search({
+		it('should be able to find within range', async function () {
+			const res = await Bond.search({
 				range: {
 					price: {
 						from: 20000,
 						to: 30000
 					}
 				}
-			}, function (err, res) {
-				expect(res?.body.hits.total).toEqual(2)
+			})
 
-				res?.body.hits.hits.forEach(function (bond) {
-					expect(['Legal', 'Construction']).toContainEqual(bond._source?.name)
-				})
+			expect(res?.body.hits.total).toEqual(2)
 
-				done()
+			res?.body.hits.hits.forEach(function (bond) {
+				expect(['Legal', 'Construction']).toContainEqual(bond._source?.name)
 			})
 		})
 	})
@@ -98,34 +96,32 @@ describe('Query DSL', function () {
 		const expectedAsc = expectedDesc.concat([]).reverse() // clone and reverse
 
 		describe('Simple sort', function () {
-			it('should be able to return all data, sorted by name ascending', function (done) {
-				Bond.search({
+			it('should be able to return all data, sorted by name ascending', async function () {
+				const res = await Bond.search({
 					match_all: {}
 				}, {
 					sort: 'name.keyword:asc'
-				}, function (err, res) {
-					expect(res?.body.hits.total).toEqual(4)
-					expect(expectedAsc).toEqual(res?.body.hits.hits.map(getNames))
-					done()
 				})
+
+				expect(res?.body.hits.total).toEqual(4)
+				expect(expectedAsc).toEqual(res?.body.hits.hits.map(getNames))
 			})
 
-			it('should be able to return all data, sorted by name descending', function (done) {
-				Bond.search({
+			it('should be able to return all data, sorted by name descending', async function () {
+				const res = await Bond.search({
 					match_all: {}
 				}, {
 					sort: ['name.keyword:desc']
-				}, function (err, res) {
-					expect(res?.body.hits.total).toEqual(4)
-					expect(expectedDesc).toEqual(res?.body.hits.hits.map(getNames))
-					done()
 				})
+
+				expect(res?.body.hits.total).toEqual(4)
+				expect(expectedDesc).toEqual(res?.body.hits.hits.map(getNames))
 			})
 		})
 
 		describe('Complex sort', function () {
-			it('should be able to return all data, sorted by name ascending', function (done) {
-				Bond.search({
+			it('should be able to return all data, sorted by name ascending', async function () {
+				const res = await Bond.search({
 					match_all: {}
 				}, {
 					sort: {
@@ -133,15 +129,14 @@ describe('Query DSL', function () {
 							order: 'asc'
 						}
 					}
-				}, function (err, res) {
-					expect(res?.body.hits.total).toEqual(4)
-					expect(expectedAsc).toEqual(res?.body.hits.hits.map(getNames))
-					done()
 				})
+
+				expect(res?.body.hits.total).toEqual(4)
+				expect(expectedAsc).toEqual(res?.body.hits.hits.map(getNames))
 			})
 
-			it('should be able to return all data, sorted by name descending', function (done) {
-				Bond.search({
+			it('should be able to return all data, sorted by name descending', async function () {
+				const res = await Bond.search({
 					match_all: {}
 				}, {
 					sort: {
@@ -152,19 +147,18 @@ describe('Query DSL', function () {
 							order: 'asc'
 						}
 					}
-				}, function (err, res) {
-					expect(res?.body.hits.total).toEqual(4)
-					expect(expectedDesc).toEqual(res?.body.hits.hits.map(getNames))
-					done()
 				})
+
+				expect(res?.body.hits.total).toEqual(4)
+				expect(expectedDesc).toEqual(res?.body.hits.hits.map(getNames))
 			})
 		})
 	})
 
 	describe('Aggregations', function () {
 		describe('Simple aggregation', function () {
-			it('should be able to group by term', function (done) {
-				Bond.search({
+			it('should be able to group by term', async function () {
+				const res = await Bond.search({
 					match_all: {}
 				}, {
 					aggs: {
@@ -174,39 +168,37 @@ describe('Query DSL', function () {
 							}
 						}
 					}
-				}, function (err, res) {
-					expect(res?.body.aggregations?.names['buckets' as keyof Aggregate]).toEqual([
-						{
-							doc_count: 1,
-							key: 'Bail'
-						},
-						{
-							doc_count: 1,
-							key: 'Commercial'
-						},
-						{
-							doc_count: 1,
-							key: 'Construction'
-						},
-						{
-							doc_count: 1,
-							key: 'Legal'
-						}
-					])
-
-					done()
 				})
+
+				expect(res?.body.aggregations?.names['buckets' as keyof Aggregate]).toEqual([
+					{
+						doc_count: 1,
+						key: 'Bail'
+					},
+					{
+						doc_count: 1,
+						key: 'Commercial'
+					},
+					{
+						doc_count: 1,
+						key: 'Construction'
+					},
+					{
+						doc_count: 1,
+						key: 'Legal'
+					}
+				])
 			})
 		})
 	})
 
 	describe('Fuzzy search', function () {
-		it('should do a fuzzy query', function (done) {
+		it('should do a fuzzy query', async function () {
 			const getNames = function (res: Hit<IBond>) {
 				return res._source?.name
 			}
 
-			Bond.esSearch({
+			const res = await Bond.esSearch({
 				query: {
 					match: {
 						name: {
@@ -215,11 +207,10 @@ describe('Query DSL', function () {
 						}
 					}
 				}
-			}, function (err, res) {
-				expect(res?.body.hits.total).toEqual(1)
-				expect(['Commercial']).toEqual(res?.body.hits.hits.map(getNames))
-				done()
 			})
+
+			expect(res?.body.hits.total).toEqual(1)
+			expect(['Commercial']).toEqual(res?.body.hits.hits.map(getNames))
 		})
 	})
 })
