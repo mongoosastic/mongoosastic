@@ -26,24 +26,23 @@ describe('Refresh', function () {
 		mongoose.disconnect()
 	})
 
-	it('should be able to search for the element after refresh', function(done) {
+	it('should be able to search for the element after refresh', async function(done) {
 
-		Refresh.createMapping(function(){
-			const refresh = new Refresh({ title: `${Date.now()}` })
+		await Refresh.createMapping()
 
-			config.saveAndWaitIndex(refresh, function(){
+		const refresh = new Refresh({ title: `${Date.now()}` })
+
+		config.saveAndWaitIndex(refresh, async function(){
 				
-				Refresh.refresh(function(){
-					setTimeout(function () {
-						Refresh.search({
-							match_all: {}
-						}, {}, function (err, res) {
-							expect(res?.body.hits.total).toEqual(1)
-							done()
-						})
-					}, config.INDEXING_TIMEOUT)
-				})
+			await Refresh.refresh()
+			await config.sleep(config.INDEXING_TIMEOUT)
+
+			const res = await Refresh.search({
+				match_all: {}
 			})
+
+			expect(res?.body.hits.total).toEqual(1)
+			done()
 		})
 
 	})
