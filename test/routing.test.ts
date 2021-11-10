@@ -36,95 +36,94 @@ describe('Routing', function () {
 
 	it('should found task if no routing',async function(done) {
 
-		config.createModelAndEnsureIndex(Task, { content: Date.now() }, function(err: unknown, task: ITask){
-			Task.search({
+		config.createModelAndEnsureIndex(Task, { content: Date.now() }, async function(err: unknown, task: ITask){
+			
+			const results = await Task.search({
 				query_string: {
 					query: task.content
 				}
-			}, {}, function (err, results) {
-				expect(results?.body.hits.total).toEqual(1)
-				done(err)
 			})
+
+			expect(results?.body.hits.total).toEqual(1)
+			done()
 		})
 	})
 
 	it('should found task if routing with task.content', async function(done) {
 
-		config.createModelAndEnsureIndex(Task, { content: Date.now() }, function(err: unknown, task: ITask){
-			Task.search({
+		config.createModelAndEnsureIndex(Task, { content: Date.now() }, async function(err: unknown, task: ITask){
+			
+			const results = await Task.search({
 				query_string: {
 					query: task.content
 				}
 			}, {
 				routing: task.content
-			}, function (err, results) {
-				expect(results?.body.hits.total).toEqual(1)
-				expect(results?.body._shards.total).toEqual(1)
-				done(err)
 			})
+
+			expect(results?.body.hits.total).toEqual(1)
+			expect(results?.body._shards.total).toEqual(1)
+			done()
 		})
 	})
 
 	it('should not found task if routing with invalid routing',async function(done) {
 		
-		config.createModelAndEnsureIndex(Task, { content: Date.now() }, function(err: unknown, task: ITask){
-			Task.search({
+		config.createModelAndEnsureIndex(Task, { content: Date.now() }, async function(err: unknown, task: ITask){
+			
+			const results = await Task.search({
 				query_string: {
 					query: task.content
 				}
 			}, {
 				routing: task.content + 1
-			}, function (err, results) {
-				expect(results?.body._shards.total).toEqual(1)
-				done(err)
 			})
+
+			expect(results?.body._shards.total).toEqual(1)
+			done()
 		})
 	})
 
-	it('should not found task after remove',async function(done) {
+	it('should not found task after remove', async function() {
 		const task = await Task.create({ content: Date.now() })
 		
 		await task.remove()
+		await config.sleep(config.INDEXING_TIMEOUT)
 
-		setTimeout(() => {
-			Task.search({
-				query_string: {
-					query: task.content
-				}
-			}, {}, (err, results) => {
-				expect(results?.body.hits.total).toEqual(0)
-				done()
-			})
-		}, config.INDEXING_TIMEOUT)
+		const results = await Task.search({
+			query_string: {
+				query: task.content
+			}
+		})
+
+		expect(results?.body.hits.total).toEqual(0)
 	})
 
-	it('should not found task after unIndex',async function(done) {
+	it('should not found task after unIndex',async function() {
 		const task = await Task.create({ content: Date.now() })
 		
-		task.unIndex(function(){
-			Task.search({
-				query_string: {
-					query: task.content
-				}
-			}, {}, (err, results) => {
-				expect(results?.body.hits.total).toEqual(0)
-				done()
-			})
+		await task.unIndex()
+
+		const results = await Task.search({
+			query_string: {
+				query: task.content
+			}
 		})
+
+		expect(results?.body.hits.total).toEqual(0)
 	})
 
-	it('should not found task after esTruncate',async function(done) {
+	it('should not found task after esTruncate',async function() {
 		const task = await Task.create({ content: Date.now() })
 		
-		Task.esTruncate(function(){
-			Task.search({
-				query_string: {
-					query: task.content
-				}
-			}, {}, (err, results) => {
-				expect(results?.body.hits.total).toEqual(0)
-				done()
-			})
+		await Task.esTruncate()
+
+		const results = await Task.search({
+			query_string: {
+				query: task.content
+			}
 		})
+
+		expect(results?.body.hits.total).toEqual(0)
 	})
 })
