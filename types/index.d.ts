@@ -155,7 +155,7 @@ declare module 'mongoose' {
         esTruncate(): Promise<void>
 
         // esCount(): void
-        esCount(query?: QueryContainer): Promise<ApiResponse<SearchResponse, unknown>>
+        esCount(query?: QueryContainer): Promise<ApiResponse<CountResponse>>
 
         refresh(): Promise<ApiResponse<SearchResponse, unknown>>
     }

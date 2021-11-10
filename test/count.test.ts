@@ -40,7 +40,7 @@ const comments = [
 ]
 
 describe('Count', function () {
-	beforeAll(async function(done) {
+	beforeAll(async function() {
 		await mongoose.connect(config.mongoUrl, config.mongoOpts)
 		await Comment.deleteMany()
 		await config.deleteIndexIfExists(['comments'])
@@ -49,7 +49,7 @@ describe('Count', function () {
 			await comment.save()
 		}
 
-		setTimeout(done, config.INDEXING_TIMEOUT)
+		await config.sleep(config.INDEXING_TIMEOUT)
 	})
 
 	afterAll(async function() {
@@ -58,27 +58,27 @@ describe('Count', function () {
 		mongoose.disconnect()
 	})
 
-	it('should count a type', function (done) {
-		setTimeout(() => {
-			Comment.esCount({
-				term: {
-					user: 'terry'
-				}
-			}, function (err, results) {
-				const body = results?.body
-				expect(body?.count).toEqual(1)
-				done(err)
-			})
-		}, config.INDEXING_TIMEOUT)
+	it('should count a type', async function() {
+
+		await config.sleep(config.INDEXING_TIMEOUT)
+		
+		const results = await Comment.esCount({
+			term: {
+				user: 'terry'
+			}
+		})
+
+		const body = results?.body
+		expect(body?.count).toEqual(1)
 	})
 
-	it('should count a type without query', function (done) {
-		setTimeout(() => {
-			Comment.esCount(function (err, results) {
-				const body = results?.body
-				expect(body?.count).toEqual(2)
-				done(err)
-			})
-		}, config.INDEXING_TIMEOUT)
+	it('should count a type without query', async function() {
+
+		await config.sleep(config.INDEXING_TIMEOUT)
+
+		const results = await Comment.esCount()
+
+		const body = results?.body
+		expect(body?.count).toEqual(2)
 	})
 })
