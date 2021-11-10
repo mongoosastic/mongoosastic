@@ -113,16 +113,15 @@ describe('indexing', function () {
 	})
 
 	describe('Creating Index', function () {
-		it('should create index if none exists', function (done) {
-			Tweet.createMapping(undefined, function (err, response) {
-				expect(response).toBeTruthy()
-				expect(response).not.toHaveProperty('error')
-				done()
-			})
+		it('should create index if none exists', async function () {
+			const response = await Tweet.createMapping()
+
+			expect(response).toBeTruthy()
+			expect(response).not.toHaveProperty('error')
 		})
 
-		it('should create index with settings if none exists', function (done) {
-			Tweet.createMapping({
+		it('should create index with settings if none exists', async function () {
+			const response = await Tweet.createMapping({
 				analysis: {
 					analyzer: {
 						stem: {
@@ -131,18 +130,15 @@ describe('indexing', function () {
 						}
 					}
 				}
-			}, function (err, response) {
-				expect(response).toBeTruthy()
-				expect(response).not.toHaveProperty('error')
-				done()
 			})
+
+			expect(response).toBeTruthy()
+			expect(response).not.toHaveProperty('error')
 		})
 
-		it('should update index if one already exists', function (done) {
-			Tweet.createMapping(undefined, function (err, response) {
-				expect(response).not.toHaveProperty('error')
-				done()
-			})
+		it('should update index if one already exists', async function () {
+			const response = await Tweet.createMapping()
+			expect(response).not.toHaveProperty('error')
 		})
 
 		afterAll(async function () {
@@ -170,31 +166,29 @@ describe('indexing', function () {
 			expect(esDoc.body._source.message).toEqual(doc?.get('message'))
 		})
 
-		it('should be able to execute a simple query', function (done) {
-			Tweet.search({
+		it('should be able to execute a simple query', async function () {
+			const results = await Tweet.search({
 				query_string: {
 					query: 'Riak'
 				}
-			}, function (err, results) {
-				expect(results?.body.hits.total).toEqual(1)
-				expect(results?.body.hits.hits[0]._source?.message).toEqual('I like Riak better')
-				done()
 			})
+
+			expect(results?.body.hits.total).toEqual(1)
+			expect(results?.body.hits.hits[0]._source?.message).toEqual('I like Riak better')
 		})
 
-		it('should be able to execute a simple query', function (done) {
-			Tweet.search({
+		it('should be able to execute a simple query', async function () {
+			const results = await Tweet.search({
 				query_string: {
 					query: 'jamescarr'
 				}
-			}, function (err, results) {
-				expect(results?.body.hits.total).toEqual(1)
-				expect(results?.body.hits.hits[0]._source?.message).toEqual('I like Riak better')
-				done()
 			})
+
+			expect(results?.body.hits.total).toEqual(1)
+			expect(results?.body.hits.hits[0]._source?.message).toEqual('I like Riak better')
 		})
 
-		it('should reindex when findOneAndUpdate', async function(done) {
+		it('should reindex when findOneAndUpdate', async function() {
 			await Tweet.findOneAndUpdate({
 				message: 'I like Riak better'
 			}, {
@@ -203,17 +197,16 @@ describe('indexing', function () {
 				new: true
 			})
 
-			setTimeout(function() {
-				Tweet.search({
-					query_string: {
-						query: 'Jack'
-					}
-				}, function (err, results) {
-					expect(results?.body.hits.total).toEqual(1)
-					expect(results?.body.hits.hits[0]._source?.message).toEqual('I like Jack better')
-					done()
-				})
-			}, config.INDEXING_TIMEOUT)
+			await config.sleep(config.INDEXING_TIMEOUT)
+
+			const results = await Tweet.search({
+				query_string: {
+					query: 'Jack'
+				}
+			})
+
+			expect(results?.body.hits.total).toEqual(1)
+			expect(results?.body.hits.hits[0]._source?.message).toEqual('I like Jack better')
 
 		})
 
@@ -231,7 +224,7 @@ describe('indexing', function () {
 			})
 		})
 
-		it('should be able to index with insertMany', async function (done) {
+		it('should be able to index with insertMany', async function () {
 			const tweets = [{
 				message: 'insertMany 1'
 			}, {
@@ -239,33 +232,28 @@ describe('indexing', function () {
 			}]
 
 			await Tweet.insertMany(tweets)
+			await config.sleep(config.INDEXING_TIMEOUT)
 
-			setTimeout(function() {
-				Tweet.search({
-					query_string: {
-						query: 'insertMany'
-					}
-				}, (error, results) => {
-					
-					expect(results?.body.hits.total).toEqual(2)
+			const results = await Tweet.search({
+				query_string: {
+					query: 'insertMany'
+				}
+			})
 
-					const expected = tweets.map((doc) => doc.message)
-					const searched = results?.body.hits.hits.map((doc) => doc._source?.message)
+			expect(results?.body.hits.total).toEqual(2)
 
-					expect(expected.sort()).toEqual(searched?.sort())
-					done()
-				})
-			}, config.INDEXING_TIMEOUT)
+			const expected = tweets.map((doc) => doc.message)
+			const searched = results?.body.hits.hits.map((doc) => doc._source?.message)
+
+			expect(expected.sort()).toEqual(searched?.sort())
 		})
 
-		it('should report errors', function (done) {
-			Tweet.search({
+		it('should report errors', async function () {
+			await Tweet.search({
 				queriez: 'jamescarr'
-			} as QueryContainer, {}, function (err, results) {
-				expect(err.message).toMatch(/(SearchPhaseExecutionException|parsing_exception)/)
-				expect(results).toBeFalsy()
-				done()
-			})
+			} as QueryContainer)
+				.then(results => expect(results).toBeFalsy())
+				.catch(error => expect(error.message).toMatch(/(SearchPhaseExecutionException|parsing_exception)/))
 		})
 	})
 
@@ -281,72 +269,69 @@ describe('indexing', function () {
 			config.createModelAndEnsureIndex(Tweet, tweet, done)
 		})
 
-		it('should remove from index when model is removed', async function (done) {
+		it('should remove from index when model is removed', async function () {
 			await tweet.remove()
+			await config.sleep(config.INDEXING_TIMEOUT)
 
-			setTimeout(function () {
-				Tweet.search({
+			const res = await Tweet.search({
+				query_string: {
+					query: 'shouldnt'
+				}
+			})
+
+			expect(res?.body.hits.total).toEqual(0)
+		})
+
+		it('should remove only index', async function (done) {
+			tweet.on('es-removed', async function () {
+				await config.sleep(config.INDEXING_TIMEOUT)
+				
+				const res = await Tweet.search({
 					query_string: {
 						query: 'shouldnt'
 					}
-				}, function (err, res) {
-					expect(res?.body.hits.total).toEqual(0)
-					done()
 				})
-			}, config.INDEXING_TIMEOUT)
-		})
 
-		it('should remove only index', function (done) {
-			tweet.on('es-removed', function () {
-				setTimeout(function () {
-					Tweet.search({
-						query_string: {
-							query: 'shouldnt'
-						}
-					}, function (err, res) {
-						expect(res?.body.hits.total).toEqual(0)
-						done()
-					})
-				}, config.INDEXING_TIMEOUT)
+				expect(res?.body.hits.total).toEqual(0)
+				done()
 			})
 
-			tweet.unIndex()
+			await tweet.unIndex()
 		})
 
-		it('should queue for later removal if not in index', function (done) {
+		it('should queue for later removal if not in index', async function() {
 			// behavior here is to try 3 times and then give up.
 			const tweet = new Tweet()
 			let triggerRemoved = false
 
-			tweet.on('es-removed', function() {
+			tweet.on('es-removed', function(err: unknown) {
+				expect(err).toBeTruthy()
 				triggerRemoved = true
 			})
-			tweet.unIndex(function (err: unknown) {
-				expect(err).toBeTruthy()
-				expect(triggerRemoved).toEqual(true)
-				done()
-			})
+			
+			await tweet.unIndex()
+			expect(triggerRemoved).toEqual(true)
 		})
 
-		it('should remove from index when findOneAndRemove', function (done) {
+		it('should remove from index when findOneAndRemove', async function (done) {
 			tweet = new Tweet({
 				user: 'jamescarr',
 				message: 'findOneAndRemove'
 			})
 
-			config.createModelAndEnsureIndex(Tweet, tweet, function () {
-				Tweet.findByIdAndRemove(tweet._id, {}, () => {
-					setTimeout(function () {
-						Tweet.search({
-							query_string: {
-								query: 'findOneAndRemove'
-							}
-						}, {}, function (err, res) {
-							expect(res?.body.hits.total).toEqual(0)
-							done()
-						})
-					}, config.INDEXING_TIMEOUT)
+			config.createModelAndEnsureIndex(Tweet, tweet, async function () {
+				await Tweet.findByIdAndRemove(tweet._id)
+
+				await config.sleep(config.INDEXING_TIMEOUT)
+
+				const res = await Tweet.search({
+					query_string: {
+						query: 'findOneAndRemove'
+					}
 				})
+
+				expect(res?.body.hits.total).toEqual(0)
+				done()
 			})
 		})
 
@@ -385,28 +370,28 @@ describe('indexing', function () {
 			})
 		})
 
-		it('should only find models of type Tweet', function (done) {
-			Tweet.search({
+		it('should only find models of type Tweet', async function () {
+			
+			const res = await Tweet.search({
 				query_string: {
 					query: 'Dude'
 				}
-			}, function (err, res) {
-				expect(res?.body.hits.total).toEqual(1)
-				expect(res?.body.hits.hits[0]._source?.user).toEqual('Dude')
-				done()
 			})
+
+			expect(res?.body.hits.total).toEqual(1)
+			expect(res?.body.hits.hits[0]._source?.user).toEqual('Dude')
 		})
 
-		it('should only find models of type Talk', function (done) {
-			Talk.search({
+		it('should only find models of type Talk', async function () {
+			
+			const res = await Talk.search({
 				query_string: {
 					query: 'Dude'
 				}
-			}, function (err, res) {
-				expect(res?.body.hits.total).toEqual(1)
-				expect(res?.body.hits.hits[0]._source.title).toEqual('Dude')
-				done()
 			})
+
+			expect(res?.body.hits.total).toEqual(1)
+			expect(res?.body.hits.hits[0]._source.title).toEqual('Dude')
 		})
 	})
 
@@ -419,21 +404,20 @@ describe('indexing', function () {
 			}, done)
 		})
 
-		it('when gathering search results while respecting default hydrate options', function (done) {
-			Person.search({
+		it('when gathering search results while respecting default hydrate options', async function () {
+			
+			const res = await Person.search({
 				query_string: {
 					query: 'James'
 				}
-			}, function (err, res) {
-
-				const hit = res?.body.hits.hydrated[0] as IPerson
-
-				expect(hit.address).toEqual('Exampleville, MO')
-				expect(hit.name).toEqual('James Carr')
-				expect(hit).not.toHaveProperty('phone')
-				expect(hit).not.toBeInstanceOf(Person)
-				done()
 			})
+
+			const hit = res?.body.hits.hydrated[0] as IPerson
+
+			expect(hit.address).toEqual('Exampleville, MO')
+			expect(hit.name).toEqual('James Carr')
+			expect(hit).not.toHaveProperty('phone')
+			expect(hit).not.toBeInstanceOf(Person)
 		})
 	})
 	
@@ -448,43 +432,43 @@ describe('indexing', function () {
 			}, done)
 		})
 
-		it('should only return indexed fields', function (done) {
-			Talk.search({
+		it('should only return indexed fields', async function () {
+			
+			const res = await Talk.search({
 				query_string: {
 					query: 'cool'
 				}
-			}, {}, function (err, res) {
-				const talk = res?.body.hits.hits[0]._source
-
-				expect(res?.body.hits.total).toEqual(1)
-				expect(talk).toHaveProperty('title')
-				expect(talk).toHaveProperty('year')
-				expect(talk).toHaveProperty('abstract')
-				expect(talk).not.toHaveProperty('speaker')
-				expect(talk).not.toHaveProperty('bio')
-				done()
 			})
+
+			const talk = res?.body.hits.hits[0]._source
+
+			expect(res?.body.hits.total).toEqual(1)
+			expect(talk).toHaveProperty('title')
+			expect(talk).toHaveProperty('year')
+			expect(talk).toHaveProperty('abstract')
+			expect(talk).not.toHaveProperty('speaker')
+			expect(talk).not.toHaveProperty('bio')
 		})
 
-		it('should hydrate returned documents if desired', function (done) {
-			Talk.search({
+		it('should hydrate returned documents if desired', async function () {
+			
+			const res = await Talk.search({
 				query_string: {
 					query: 'cool'
 				}
 			}, {
 				hydrate: true
-			}, function (err, res) {
-				const talk = res?.body.hits.hydrated[0]
-
-				expect(res?.body.hits.total).toEqual(1)
-				expect(talk).toHaveProperty('title')
-				expect(talk).toHaveProperty('year')
-				expect(talk).toHaveProperty('abstract')
-				expect(talk).toHaveProperty('speaker')
-				expect(talk).toHaveProperty('bio')
-				expect(talk).toBeInstanceOf(Talk)
-				done()
 			})
+
+			const talk = res?.body.hits.hydrated[0]
+
+			expect(res?.body.hits.total).toEqual(1)
+			expect(talk).toHaveProperty('title')
+			expect(talk).toHaveProperty('year')
+			expect(talk).toHaveProperty('abstract')
+			expect(talk).toHaveProperty('speaker')
+			expect(talk).toHaveProperty('bio')
+			expect(talk).toBeInstanceOf(Talk)
 		})
 
 		describe('Sub-object Fields', function () {
@@ -500,29 +484,30 @@ describe('indexing', function () {
 				}, done)
 			})
 
-			it('should only return indexed fields and have indexed sub-objects', function (done) {
-				Person.search({
+			it('should only return indexed fields and have indexed sub-objects', async function () {
+				
+				const res = await Person.search({
 					query_string: {
 						query: 'Bob'
 					}
-				}, function (err, res) {
-					const hit = res?.body.hits.hydrated[0] as IPerson
-
-					expect(hit.address).toEqual('Exampleville, MO')
-					expect(hit.name).toEqual('Bob Carr')					
-					expect(hit).toHaveProperty('life')
-					expect(hit.life.born).toEqual(1950)
-					expect(hit.life).not.toHaveProperty('died')
-					expect(hit.life).not.toHaveProperty('other')
-					expect(hit).not.toHaveProperty('phone')
-					expect(hit).not.toBeInstanceOf(Person)
-					done()
 				})
+
+				const hit = res?.body.hits.hydrated[0]
+
+				expect(hit.address).toEqual('Exampleville, MO')
+				expect(hit.name).toEqual('Bob Carr')					
+				expect(hit).toHaveProperty('life')
+				expect(hit.life.born).toEqual(1950)
+				expect(hit.life).not.toHaveProperty('died')
+				expect(hit.life).not.toHaveProperty('other')
+				expect(hit).not.toHaveProperty('phone')
+				expect(hit).not.toBeInstanceOf(Person)
 			})
 		})
 
-		it('should allow extra query options when hydrating', function (done) {
-			Talk.search({
+		it('should allow extra query options when hydrating', async function () {
+			
+			const res = await Talk.search({
 				query_string: {
 					query: 'cool'
 				}
@@ -531,18 +516,17 @@ describe('indexing', function () {
 				hydrateOptions: {
 					lean: true
 				}
-			}, function (err, res) {
-				const talk = res?.body.hits.hydrated[0]
-
-				expect(res?.body.hits.total).toEqual(1)
-				expect(talk).toHaveProperty('title')
-				expect(talk).toHaveProperty('year')
-				expect(talk).toHaveProperty('abstract')
-				expect(talk).toHaveProperty('speaker')
-				expect(talk).toHaveProperty('bio')
-				expect(talk).not.toBeInstanceOf(Talk)
-				done()
 			})
+
+			const talk = res?.body.hits.hydrated[0]
+
+			expect(res?.body.hits.total).toEqual(1)
+			expect(talk).toHaveProperty('title')
+			expect(talk).toHaveProperty('year')
+			expect(talk).toHaveProperty('abstract')
+			expect(talk).toHaveProperty('speaker')
+			expect(talk).toHaveProperty('bio')
+			expect(talk).not.toBeInstanceOf(Talk)
 		})
 	})
 
@@ -566,15 +550,16 @@ describe('indexing', function () {
 		it('should just work', function (done) {
 			config.createModelAndEnsureIndex(Bum, {
 				name: 'Roger Wilson'
-			}, function () {
-				Bum.search({
+			}, async function () {
+				
+				const results = await Bum.search({
 					query_string: {
 						query: 'Wilson'
 					}
-				}, {}, function (err, results) {
-					expect(results?.body.hits.total).toEqual(1)
-					done()
 				})
+
+				expect(results?.body.hits.total).toEqual(1)
+				done()
 			})
 		})
 	})
