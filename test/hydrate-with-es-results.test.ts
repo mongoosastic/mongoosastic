@@ -60,30 +60,28 @@ describe('Hydrate with ES data', function () {
 	})
 
 	describe('Hydrate without adding ES data', function () {
-		it('should return simple objects', function (done) {
-			Text.search({
+		it('should return simple objects', async function () {
+
+			const res = await Text.search({
 				match_phrase: {
 					quote: 'Death'
 				}
 			}, {
 				hydrate: true
-			}, function (err, res) {
-				if (err) done(err)
+			})
 
-				expect(res?.body.hits.total).toEqual(3)
+			expect(res?.body.hits.total).toEqual(3)
 
-				res?.body.hits.hits.forEach(function (text) {
-					expect(text).not.toHaveProperty('_esResult')
-				})
-
-				done()
+			res?.body.hits.hits.forEach(function (text) {
+				expect(text).not.toHaveProperty('_esResult')
 			})
 		})
 	})
 
 	describe('Hydrate and add ES data', function () {
-		it('should return object enhanced with _esResult', function (done) {
-			Text.search({
+		it('should return object enhanced with _esResult', async function () {
+			
+			const res = await Text.search({
 				match_phrase: {
 					quote: 'Death'
 				}
@@ -95,31 +93,28 @@ describe('Hydrate with ES data', function () {
 						quote: {}
 					}
 				}
-			}, function (err, res) {
-				if (err) done(err)
+			})
 
-				expect(res?.body.hits.total).toEqual(3)
+			expect(res?.body.hits.total).toEqual(3)
 
-				res?.body.hits.hydrated.forEach(function (text) {
-					expect(text).toHaveProperty('_esResult')
+			res?.body.hits.hydrated.forEach(function (text) {
+				expect(text).toHaveProperty('_esResult')
 
-					expect(text._esResult).toHaveProperty('_index')
-					expect(text._esResult?._index).toEqual('texts')
+				expect(text._esResult).toHaveProperty('_index')
+				expect(text._esResult?._index).toEqual('texts')
 
-					expect(text._esResult).toHaveProperty('_id')
-					expect(text._esResult).toHaveProperty('_type')
-					expect(text._esResult).toHaveProperty('_score')
-					expect(text._esResult).toHaveProperty('highlight')
+				expect(text._esResult).toHaveProperty('_id')
+				expect(text._esResult).toHaveProperty('_type')
+				expect(text._esResult).toHaveProperty('_score')
+				expect(text._esResult).toHaveProperty('highlight')
 
-					expect(text._esResult).not.toHaveProperty('_source')
-				})
-
-				done()
+				expect(text._esResult).not.toHaveProperty('_source')
 			})
 		})
 
-		it('should remove _source object', function (done) {
-			Text.search({
+		it('should remove _source object', async function () {
+			
+			const res = await Text.search({
 				match_phrase: {
 					quote: 'Death'
 				}
@@ -131,27 +126,23 @@ describe('Hydrate with ES data', function () {
 						quote: {}
 					}
 				}
-			}, function (err, res) {
-				if (err) done(err)
-				
-				expect(res?.body.hits.total).toEqual(3)
+			})
 
-				res?.body.hits.hydrated.forEach(function (text) {
-					expect(text).toHaveProperty('_esResult')
+			expect(res?.body.hits.total).toEqual(3)
 
-					expect(text._esResult).toHaveProperty('_index')
-					expect(text._esResult?._index).toEqual('texts')
+			res?.body.hits.hydrated.forEach(function (text) {
+				expect(text).toHaveProperty('_esResult')
 
-					expect(text._esResult).toHaveProperty('_id')
-					expect(text._esResult).toHaveProperty('_type')
-					expect(text._esResult).toHaveProperty('_score')
-					expect(text._esResult).toHaveProperty('highlight')
+				expect(text._esResult).toHaveProperty('_index')
+				expect(text._esResult?._index).toEqual('texts')
 
-					expect(text._esResult).toHaveProperty('_source')
-					expect(text._esResult?._source).toHaveProperty('title')
-				})
+				expect(text._esResult).toHaveProperty('_id')
+				expect(text._esResult).toHaveProperty('_type')
+				expect(text._esResult).toHaveProperty('_score')
+				expect(text._esResult).toHaveProperty('highlight')
 
-				done()
+				expect(text._esResult).toHaveProperty('_source')
+				expect(text._esResult?._source).toHaveProperty('title')
 			})
 		})
 	})
