@@ -53,19 +53,15 @@ describe('Transform mode', function () {
 			name: 'LOTR',
 			settingLicense: '',
 			detectedLicense: 'Apache'
-		}, function () {
-			Repo.search({
+		}, async function () {
+			const results = await Repo.search({
 				query_string: {
 					query: 'Apache'
 				}
-			}, {}, function (err, results) {
-				if (err) {
-					return done(err)
-				}
-
-				expect(results?.body.hits.total).toEqual(1)
-				done()
 			})
+
+			expect(results?.body.hits.total).toEqual(1)
+			done()
 		})
 	})
 })
