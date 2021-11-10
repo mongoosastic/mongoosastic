@@ -48,24 +48,21 @@ export async function bulkIndex(instruction: BulkInstruction[], bulk: BulkOption
 
 export async function flush(client: Client): Promise<void> {
 
-	try {
-		const res = await client.bulk({
-			body: bulkBuffer
-		})
-
-		if (res.body.items && res.body.items.length) {
-			for (let i = 0; i < res.body.items.length; i++) {
-				const info = res.body.items[i]
-				if (info && info.index && info.index.error) {
+	client.bulk({
+		body: bulkBuffer
+	})
+		.then(res => {
+			if (res.body.items && res.body.items.length) {
+				for (let i = 0; i < res.body.items.length; i++) {
+					const info = res.body.items[i]
+					if (info && info.index && info.index.error) {
 					// bulkErrEm.emit('error', null, info.index)
-					throw Error(info.index)
+						throw Error(info.index)
+					}
 				}
 			}
-		}
-	} catch (error) {
-		// bulkErrEm.emit('error', error, null)
-		console.log(error)
-	}
+		})
+		.catch(error => console.log(error))
 
 	bulkBuffer = []
 }

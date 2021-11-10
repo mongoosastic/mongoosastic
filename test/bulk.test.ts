@@ -19,14 +19,10 @@ const Book = mongoose.model('Book', BookSchema)
 
 describe('Bulk mode', function () {
 
-	beforeAll(async function (done) {
+	beforeAll(async function () {
 		await config.deleteIndexIfExists(['books'])
-		mongoose.connect(config.mongoUrl, config.mongoOpts, function () {
-			const client = mongoose.connections[0].db
-			client.collection('books', function () {
-				Book.deleteMany(done)
-			})
-		})
+		await mongoose.connect(config.mongoUrl, config.mongoOpts)
+		await Book.deleteMany()
 	})
 
 	beforeAll(async function () {
@@ -46,18 +42,17 @@ describe('Bulk mode', function () {
 		mongoose.disconnect()
 	})
 
-	it('should index all objects and support deletions too', function (done) {
+	it('should index all objects and support deletions too', async function () {
 		// This timeout is important, as Elasticsearch is "near-realtime" and the index/deletion takes time that
 		// needs to be taken into account in these tests
-		setTimeout(function () {
-			Book.search({
-				match_all: {}
-			}, function (err, results) {
-				expect(results).toHaveProperty('body')
-				expect(results?.body).toHaveProperty('hits')
-				expect(results?.body.hits).toHaveProperty('total', 52)
-				done()
-			})
-		}, config.BULK_ACTION_TIMEOUT)
+		await config.sleep(config.BULK_ACTION_TIMEOUT)
+
+		const results = await Book.search({
+			match_all: {}
+		})
+
+		expect(results).toHaveProperty('body')
+		expect(results?.body).toHaveProperty('hits')
+		expect(results?.body.hits).toHaveProperty('total', 52)
 	})
 })
