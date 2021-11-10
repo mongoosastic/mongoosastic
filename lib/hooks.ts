@@ -25,10 +25,14 @@ export function postSave(doc: PluginDocument): void {
 				doc.populate(populateOpts)
 			})
 			doc.execPopulate().then(popDoc => {
-				popDoc.index(onIndex)
+				popDoc.index()
+					.then(res => onIndex(null, res))
+					.catch(err => onIndex(err, null))
 			})
 		} else {
-			doc.index(onIndex)
+			doc.index()
+				.then(res => onIndex(null, res))
+				.catch(err => onIndex(err, null))
 		}
 	}
 }

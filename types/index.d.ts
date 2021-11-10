@@ -76,10 +76,9 @@ declare class PluginDocument<TDocument = any> extends Document<TDocument> {
     _highlight?: Record<string, string[]> | undefined
     _esResult?: Hit<TDocument>
     
-    index(): Promise<PluginDocument | ApiResponse | void>
-    index(opts: IndexMethodOptions): Promise<PluginDocument | ApiResponse | void>
+    index(opts?: IndexMethodOptions): Promise<PluginDocument | ApiResponse>
+    unIndex(): Promise<PluginDocument>
     
-    unIndex(): Promise<void>
     emit(event: string, ...args: any): void
     esOptions(): Options
     esClient(): Client
@@ -142,10 +141,10 @@ declare module 'mongoose' {
 
     export interface Model<T extends Document> {
         // search(query: QueryContainer): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>>;
-        search(query: QueryContainer, options?: EsSearchOptions): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>>;
+        search(query: QueryContainer, options?: EsSearchOptions): Promise<ApiResponse<SearchResponse<T>> | ApiResponse<HydratedSearchResults<T>>>;
 
         // esSearch(query: SearchRequest['body']): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>>;
-        esSearch(query: SearchRequest['body'], options?: EsSearchOptions): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>>;
+        esSearch(query: SearchRequest['body'], options?: EsSearchOptions): Promise<ApiResponse<SearchResponse<T>> | ApiResponse<HydratedSearchResults<T>>>;
 
         synchronize(query?: any, options?: any): EventEmitter;
         

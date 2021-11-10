@@ -4,7 +4,7 @@ import { bulkAdd, bulkDelete } from './bulking'
 import Generator from './mapping'
 import { ApiResponse } from '@elastic/elasticsearch'
 
-export async function index(this: PluginDocument, inOpts: IndexMethodOptions = {}): Promise<PluginDocument | ApiResponse | void> {
+export async function index(this: PluginDocument, inOpts: IndexMethodOptions = {}): Promise<PluginDocument | ApiResponse> {
 
 	const options = this.esOptions()
 	const client = this.esClient()
@@ -47,7 +47,7 @@ export async function index(this: PluginDocument, inOpts: IndexMethodOptions = {
 	}
 }
 
-export async function unIndex(this: PluginDocument): Promise<void> {
+export async function unIndex(this: PluginDocument): Promise<PluginDocument> {
 
 	const options = this.esOptions()
 	const client = this.esClient()
@@ -69,4 +69,6 @@ export async function unIndex(this: PluginDocument): Promise<void> {
 	} else {
 		await deleteById(opt)
 	}
+
+	return this
 }
