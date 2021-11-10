@@ -26,51 +26,48 @@ describe('Index Method', function () {
 		mongoose.disconnect()
 	})
 
-	it('should be able to index it directly without saving', async function (done) {
+	it('should be able to index it directly without saving', async function() {
 		const doc = await Tweet.findOne({ message: 'I know kung-fu!' })
 
 		if(doc) {
 			doc.message = 'I know nodejitsu!'
 		
-			doc.index(function () {
-				setTimeout(function () {
-					Tweet.search({
-						query_string: {
-							query: 'know'
-						}
-					}, function (err, res) {
-						const source = res?.body.hits.hits[0]._source
-						expect(source?.message).toEqual('I know nodejitsu!')
-						done()
-					})
-				}, config.INDEXING_TIMEOUT)
+			await doc.index()
+			await config.sleep(config.INDEXING_TIMEOUT)
+
+			const res = await Tweet.search({
+				query_string: {
+					query: 'know'
+				}
 			})
+
+			const source = res?.body.hits.hits[0]._source
+			expect(source?.message).toEqual('I know nodejitsu!')
 		}
 	})
 
-	it('should be able to index to alternative index', async function (done) {
+	it('should be able to index to alternative index', async function () {
 		const doc = await Tweet.findOne({ message: 'I know kung-fu!' })
 
 		if(doc) {
 			doc.message = 'I know taebo!'
 		
-			doc.index({
+			await doc.index({
 				index: 'public_tweets'
-			}, function () {
-				setTimeout(function () {
-					Tweet.search({
-						query_string: {
-							query: 'know'
-						}
-					}, {
-						index: 'public_tweets'
-					}, function (err, res) {
-						const source = res?.body.hits.hits[0]._source
-						expect(source?.message).toEqual('I know taebo!')
-						done()
-					})
-				}, config.INDEXING_TIMEOUT)
 			})
+
+			await config.sleep(config.INDEXING_TIMEOUT)
+
+			const res = await Tweet.search({
+				query_string: {
+					query: 'know'
+				}
+			}, {
+				index: 'public_tweets'
+			})
+
+			const source = res?.body.hits.hits[0]._source
+			expect(source?.message).toEqual('I know taebo!')
 		}
 	})
 

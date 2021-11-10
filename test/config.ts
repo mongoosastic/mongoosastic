@@ -10,6 +10,10 @@ const esClient = new Client({ node: 'http://localhost:9200' })
 const INDEXING_TIMEOUT: number = toInteger(process.env.INDEXING_TIMEOUT) || 2000
 const BULK_ACTION_TIMEOUT: number = toInteger(process.env.BULK_ACTION_TIMEOUT) || 4000
 
+function sleep(time: number): Promise<any> {
+	return new Promise((resolve) => setTimeout(resolve, time))
+}
+
 async function deleteIndexIfExists(indexes: Array<string>): Promise<void> {
 	for (const index of indexes) {
 		const { body } = await esClient.indices.exists({ index: index })
@@ -68,6 +72,7 @@ export const config = {
 	},
 	INDEXING_TIMEOUT,
 	BULK_ACTION_TIMEOUT,
+	sleep,
 	deleteIndexIfExists,
 	deleteDocs,
 	createModelAndEnsureIndex,
