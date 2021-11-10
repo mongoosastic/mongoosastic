@@ -50,13 +50,12 @@ const points = [
 
 describe('Geo Bounding Box Test', function () {
 
-	beforeAll(async function(done) {
-		jest.setTimeout(10000)
+	beforeAll(async function() {
 		await mongoose.connect(config.mongoUrl, config.mongoOpts)
 		await GeoBoundingBoxModel.deleteMany()
 		await config.deleteIndexIfExists(['geoboundingdocs'])
 
-		GeoBoundingBoxModel.createMapping(done)
+		await GeoBoundingBoxModel.createMapping()
 	})
 
 	afterAll(async function() {
@@ -72,53 +71,51 @@ describe('Geo Bounding Box Test', function () {
 		}
 
 		const res = await GeoBoundingBoxModel.find({})
-
 		expect(res.length).toEqual(3)
 
 	})
 
-	it('should be able to find geo coordinates in the indexes', function (done) {
-		setTimeout(function () {
-			// ES request
-			GeoBoundingBoxModel.search({
-				match_all: {}
-			}, {}, function (err, res) {
-				expect(res?.body.hits.total).toEqual(3)
-				done()
-			})
-		}, config.INDEXING_TIMEOUT)
+	it('should be able to find geo coordinates in the indexes', async function () {
+
+		await config.sleep(config.INDEXING_TIMEOUT)
+		// ES request
+		const res = await GeoBoundingBoxModel.search({
+			match_all: {}
+		})
+
+		expect(res?.body.hits.total).toEqual(3)
 	})
 
 	it('should be able to resync geo coordinates from the database',async function (done) {
 		
 		await config.deleteIndexIfExists(['geoboundingdocs'])
 
-		GeoBoundingBoxModel.createMapping(function () {
-			const stream = GeoBoundingBoxModel.synchronize()
-			let count = 0
+		await GeoBoundingBoxModel.createMapping()
 
-			stream.on('data', function () {
-				count++
+		const stream = GeoBoundingBoxModel.synchronize()
+		let count = 0
+
+		stream.on('data', function () {
+			count++
+		})
+
+		stream.on('close', async function () {
+
+			expect(count).toEqual(3)
+
+			await config.sleep(config.INDEXING_TIMEOUT)
+
+			const res = await GeoBoundingBoxModel.search({
+				match_all: {}
 			})
 
-			stream.on('close', function () {
-
-				expect(count).toEqual(3)
-
-				setTimeout(function () {
-					GeoBoundingBoxModel.search({
-						match_all: {}
-					}, function (err, res) {
-						expect(res?.body.hits.total).toEqual(3)
-						done()
-					})
-				}, config.INDEXING_TIMEOUT)
-			})
+			expect(res?.body.hits.total).toEqual(3)
+			done()
 		})
 
 	})
 
-	it('should be able to search bounding box', function (done) {
+	it('should be able to search bounding box', async function () {
 		const geoQuery = {
 			bool: {
 				must: {
@@ -141,11 +138,9 @@ describe('Geo Bounding Box Test', function () {
 			}
 		}
 
-		setTimeout(function () {
-			GeoBoundingBoxModel.search(geoQuery as QueryContainer, function (err, res) {
-				expect(res?.body.hits.total).toEqual(2)
-				done()
-			})
-		}, config.INDEXING_TIMEOUT)
+		await config.sleep(config.INDEXING_TIMEOUT)
+		const res = await GeoBoundingBoxModel.search(geoQuery as QueryContainer)
+
+		expect(res?.body.hits.total).toEqual(2)
 	})
 })
