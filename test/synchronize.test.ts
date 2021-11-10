@@ -66,22 +66,22 @@ describe('Synchronize', () => {
 			stream.on('error', () => {
 				errorCount += 1
 			})
-			stream.on('close', () => {
+			stream.on('close', async () => {
 
 				expect(count).toEqual(53)
 				expect(saveCounter).toEqual(count)
 				expect(errorCount).toEqual(1)
 
-				setTimeout(() => {
-					Book.search({
-						query_string: {
-							query: 'American'
-						}
-					}, (err, results) => {
-						expect(results?.body.hits.total).toEqual(2)
-						done()
-					})
-				}, config.BULK_ACTION_TIMEOUT)
+				await config.sleep(config.INDEXING_TIMEOUT)
+
+				const results = await Book.search({
+					query_string: {
+						query: 'American'
+					}
+				})
+
+				expect(results?.body.hits.total).toEqual(2)
+				done()
 			})
 		})
 	})
@@ -112,20 +112,20 @@ describe('Synchronize', () => {
 				count++
 			})
 
-			stream.on('close', () => {
+			stream.on('close', async () => {
 				expect(count).toEqual(53)
 				expect(saveCounter).toEqual(count)
 
-				setTimeout(() => {
-					Book.search({
-						query_string: {
-							query: 'American'
-						}
-					}, {}, (err, results) => {
-						expect(results?.body.hits.total).toEqual(2)
-						done()
-					})
-				}, config.BULK_ACTION_TIMEOUT)
+				await config.sleep(config.INDEXING_TIMEOUT)
+
+				const results = await Book.search({
+					query_string: {
+						query: 'American'
+					}
+				})
+
+				expect(results?.body.hits.total).toEqual(2)
+				done()
 			})
 		})
 
@@ -138,20 +138,20 @@ describe('Synchronize', () => {
 				if (doc._id) count++
 			})
 
-			stream.on('close', () => {
+			stream.on('close', async () => {
 				expect(count).toEqual(53)
 				expect(saveCounter).toEqual(0)
 
-				setTimeout(() => {
-					Book.search({
-						query_string: {
-							query: 'American'
-						}
-					}, {}, (err, results) => {
-						expect(results?.body.hits.total).toEqual(2)
-						done()
-					})
-				}, config.BULK_ACTION_TIMEOUT)
+				await config.sleep(config.INDEXING_TIMEOUT)
+
+				const results = await Book.search({
+					query_string: {
+						query: 'American'
+					}
+				})
+
+				expect(results?.body.hits.total).toEqual(2)
+				done()
 			})
 		})
 	})
