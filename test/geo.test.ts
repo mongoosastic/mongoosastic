@@ -45,13 +45,12 @@ const points = [
 
 describe('GeoTest', function () {
 
-	beforeAll(async function(done) {
-		jest.setTimeout(10000)
+	beforeAll(async function() {
 		await mongoose.connect(config.mongoUrl, config.mongoOpts)
 		await GeoModel.deleteMany()
 		await config.deleteIndexIfExists(['geodocs'])
 
-		GeoModel.createMapping(done)
+		await GeoModel.createMapping()
 	})
 
 	afterAll(async function() {
@@ -85,65 +84,61 @@ describe('GeoTest', function () {
 		expect(res[0].frame.coordinates[1]).toEqual([3, 2])
 	})
 
-	it('should be able to find geo coordinates in the indexes', function (done) {
-		setTimeout(function () {
-			// ES request
-			GeoModel.search({
-				match_all: {}
-			}, {
-				sort: 'myId:asc'
-			}, function (err, res) {
-				if (err) throw err
+	it('should be able to find geo coordinates in the indexes', async function () {
+		
+		await config.sleep(config.INDEXING_TIMEOUT)
 
-				const frame = res?.body.hits.hits[0]._source.frame
+		const res = await GeoModel.search({
+			match_all: {}
+		}, {
+			sort: 'myId:asc'
+		})
 
-				expect(res?.body.hits.total).toEqual(2)
+		const frame = res?.body.hits.hits[0]._source.frame
 
-				expect(frame.type).toEqual('envelope')	
-				expect(frame.coordinates).toEqual([[1, 4], [3, 2]])
+		expect(res?.body.hits.total).toEqual(2)
 
-				done()
-			})
-		}, config.INDEXING_TIMEOUT)
+		expect(frame.type).toEqual('envelope')	
+		expect(frame.coordinates).toEqual([[1, 4], [3, 2]])	
 	})
 
 	it('should be able to resync geo coordinates from the database',async function (done) {
+
 		await config.deleteIndexIfExists(['geodocs'])
 
-		GeoModel.createMapping(function () {
-			const stream = GeoModel.synchronize()
-			let count = 0
+		await GeoModel.createMapping()
 
-			stream.on('data', function () {
-				count++
+		const stream = GeoModel.synchronize()
+		let count = 0
+
+		stream.on('data', function () {
+			count++
+		})
+
+		stream.on('close', async function () {
+
+			expect(count).toEqual(2)
+
+			await config.sleep(config.INDEXING_TIMEOUT)
+
+			const res = await GeoModel.search({
+				match_all: {}
+			}, {
+				sort: 'myId:asc'
 			})
 
-			stream.on('close', function () {
+			const frame = res?.body.hits.hits[0]._source.frame
 
-				expect(count).toEqual(2)
+			expect(res?.body.hits.total).toEqual(2)
 
-				setTimeout(function () {
-					GeoModel.search({
-						match_all: {}
-					}, {
-						sort: 'myId:asc'
-					}, function (err, res) {
+			expect(frame.type).toEqual('envelope')	
+			expect(frame.coordinates).toEqual([[1, 4], [3, 2]])
 
-						const frame = res?.body.hits.hits[0]._source.frame
-
-						expect(res?.body.hits.total).toEqual(2)
-
-						expect(frame.type).toEqual('envelope')	
-						expect(frame.coordinates).toEqual([[1, 4], [3, 2]])
-
-						done()
-					})
-				}, config.INDEXING_TIMEOUT)
-			})
+			done()
 		})
 	})
 
-	it('should be able to search points inside frames', function (done) {
+	it('should be able to search points inside frames', async function () {
 		const geoQuery = {
 			bool: {
 				must: {
@@ -162,36 +157,27 @@ describe('GeoTest', function () {
 			}
 		}
 
-		setTimeout(function () {
-			GeoModel.search(geoQuery, {}, function (err1, res1) {
+		await config.sleep(config.INDEXING_TIMEOUT)
 
-				expect(res1?.body.hits.total).toEqual(1)
-				expect(res1?.body.hits.hits[0]._source.myId).toEqual(2)
+		const res1 = await GeoModel.search(geoQuery)
+		expect(res1?.body.hits.total).toEqual(1)
+		expect(res1?.body.hits.hits[0]._source.myId).toEqual(2)
 
-				geoQuery.bool.filter.geo_shape.frame.shape.coordinates = [1.5, 2.5]
+		geoQuery.bool.filter.geo_shape.frame.shape.coordinates = [1.5, 2.5]
 
-				GeoModel.search(geoQuery, {}, function (err2, res2) {
+		const res2 = await GeoModel.search(geoQuery)
+		expect(res2?.body.hits.total).toEqual(1)
+		expect(res2?.body.hits.hits[0]._source.myId).toEqual(1)
 
-					expect(res2?.body.hits.total).toEqual(1)
-					expect(res2?.body.hits.hits[0]._source.myId).toEqual(1)
+		geoQuery.bool.filter.geo_shape.frame.shape.coordinates = [3, 2]
 
-					geoQuery.bool.filter.geo_shape.frame.shape.coordinates = [3, 2]
+		const res3 = await GeoModel.search(geoQuery)
+		expect(res3?.body.hits.total).toEqual(2)
 
-					GeoModel.search(geoQuery, {}, function (err3, res3) {
-						
-						expect(res3?.body.hits.total).toEqual(2)
+		geoQuery.bool.filter.geo_shape.frame.shape.coordinates = [0, 3]
 
-						geoQuery.bool.filter.geo_shape.frame.shape.coordinates = [0, 3]
-
-						GeoModel.search(geoQuery, {}, function (err4, res4) {
-
-							expect(res4?.body.hits.total).toEqual(0)
-							done()
-						})
-					})
-				})
-			})
-		}, config.INDEXING_TIMEOUT)
+		const res4 = await GeoModel.search(geoQuery)
+		expect(res4?.body.hits.total).toEqual(0)
 	})
 
 })
