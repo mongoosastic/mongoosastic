@@ -39,17 +39,17 @@ describe('Add Boost Option Per Field', function () {
 		mongoose.disconnect()
 	})
 
-	it('should create a mapping with boost field added', function (done) {
-		BlogPost.createMapping(function () {
-			esClient.indices.getMapping({
-				index: 'blogposts'
-			}, function (err, mapping) {
-				const props = mapping.body.blogposts.mappings.properties
+	it('should create a mapping with boost field added', async function (done) {
+		await BlogPost.createMapping()
 
-				expect(props.title.type).toEqual('text')
-				expect(props.title.boost).toEqual(2.0)
-				done()
-			})
+		esClient.indices.getMapping({
+			index: 'blogposts'
+		}, function (err, mapping) {
+			const props = mapping.body.blogposts.mappings.properties
+
+			expect(props.title.type).toEqual('text')
+			expect(props.title.boost).toEqual(2.0)
+			done()
 		})
 	})
 })
