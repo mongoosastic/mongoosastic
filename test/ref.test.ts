@@ -76,32 +76,28 @@ describe('references', function () {
 			}, done)
 		})
 
-		it('should index selected fields from referenced schema',async function(done) {
+		it('should index selected fields from referenced schema',async function() {
 			
 			const post = await Post.findOne({})
 			
-			esClient.get({
+			const res = await esClient.get({
 				index: 'posts',
 				id: post._id.toString()
-			}, {}, function (err, res) {
-				if (err) return done(err)
-				
-				expect(res.body._source.author.name).toEqual('jake')
-				done()
 			})
+
+			expect(res.body._source.author.name).toEqual('jake')
 		})
 
-		it('should be able to execute a simple query', function (done) {
-			Post.search({
+		it('should be able to execute a simple query', async function () {
+			
+			const results = await Post.search({
 				query_string: {
 					query: 'jake'
 				}
-			}, {}, function (err, results) {
-				if (err) return done(err)
-				expect(results?.body.hits.total).toEqual(1)
-				expect(results?.body.hits.hits[0]._source.body).toEqual('A very short post')
-				done()
 			})
+
+			expect(results?.body.hits.total).toEqual(1)
+			expect(results?.body.hits.hits[0]._source.body).toEqual('A very short post')
 		})
 
 		
@@ -122,21 +118,19 @@ describe('references', function () {
 				expect(comments[1].text).toEqual('really')
 			})
 
-			it('should respect populate options',async function (done) {
+			it('should respect populate options',async function () {
 
 				const post = await Post.findOne({})
 
-				esClient.get({
+				const res = await esClient.get({
 					index: 'posts',
 					id: post._id.toString()
-				}, {}, function (err, res) {
-					if (err) return done(err)
-					const comments = res.body._source.comments
-
-					expect(comments[0].text).toEqual('good post')
-					expect(comments[1].author).toBeUndefined()
-					done()
 				})
+
+				const comments = res.body._source.comments
+
+				expect(comments[0].text).toEqual('good post')
+				expect(comments[1].author).toBeUndefined()
 			})
 		})
 	})
