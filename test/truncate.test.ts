@@ -33,21 +33,18 @@ describe('Truncate', function () {
 
 	describe('esTruncate', function () {
 
-		it('should be able to truncate all documents', function (done) {
+		it('should be able to truncate all documents', async function () {
 			
-			Dummy.esTruncate(function () {
-				setTimeout(function() {
-					Dummy.search({
-						query_string: {
-							query: 'Text1'
-						}
-					}, {}, function (err, results) {
-						expect(results?.body.hits.total).toEqual(0)
-						done(err)
-					})
-				}, config.BULK_ACTION_TIMEOUT)
-			
+			await Dummy.esTruncate()
+			await config.sleep(config.INDEXING_TIMEOUT)
+
+			const results = await Dummy.search({
+				query_string: {
+					query: 'Text1'
+				}
 			})
+
+			expect(results?.body.hits.total).toEqual(0)
 		})
 
 	})
