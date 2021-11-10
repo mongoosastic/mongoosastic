@@ -39,19 +39,19 @@ describe('Custom Serialize', function () {
 
 	it('should index all fields returned from the customSerialize function', function (done) {
 
-		config.createModelAndEnsureIndex(Food, { name: 'pizza' }, function() {
-			Food.search({
+		config.createModelAndEnsureIndex(Food, { name: 'pizza' }, async function() {
+			
+			const results = await Food.search({
 				query_string: {
 					query: 'pizza'
 				} 
-			}, {}, (searchError, results) => {
-				if (searchError) return done(searchError)
-				const source = results?.body.hits.hits[0]._source
-				
-				expect(source.name).toEqual('pizza')
-				expect(source.type).toEqual('dinner')
-				done()
 			})
+
+			const source = results?.body.hits.hits[0]._source
+				
+			expect(source.name).toEqual('pizza')
+			expect(source.type).toEqual('dinner')
+			done()
 		})
 	})
 })
