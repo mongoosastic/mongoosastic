@@ -47,7 +47,7 @@ export async function esSearch(this: Model<PluginDocument>, query: SearchRequest
 		}
 	})
 
-	const res = await client.search(esQuery) as ApiResponse<SearchResponse>
+	const res: ApiResponse<SearchResponse> = await client.search(esQuery)
 
 	const resp = reformatESTotalNumber(res)
 	if (options.alwaysHydrate || opts.hydrate) {
