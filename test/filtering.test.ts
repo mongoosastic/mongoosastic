@@ -53,15 +53,16 @@ describe('Filter mode', function () {
 		config.createModelAndEnsureIndex(Movie, {
 			title: 'LOTR',
 			genre: 'horror'
-		}, function () {
-			Movie.search({
+		}, async function () {
+
+			const results = await Movie.search({
 				term: {
 					genre: 'horror'
 				}
-			}, {}, function (err, results) {
-				expect(results?.body.hits.total).toEqual(1)
-				done()
 			})
+
+			expect(results?.body.hits.total).toEqual(1)
+			done()
 		})
 	})
 
@@ -72,42 +73,42 @@ describe('Filter mode', function () {
 			genre: 'action'
 		})
 
-		Movie.search({
+		const results = await Movie.search({
 			term: {
 				genre: 'action'
 			}
-		}, {}, function (err, results) {
-			expect(results?.body.hits.total).toEqual(0)
-			done()
 		})
+
+		expect(results?.body.hits.total).toEqual(0)
+		done()
 	})
 
 	it('should unindex filtered models', function (done) {
 		config.createModelAndEnsureIndex(Movie, {
 			title: 'REC',
 			genre: 'horror'
-		}, function (errSave: unknown, movie: IMovie) {
-			Movie.search({
+		}, async function (errSave: unknown, movie: IMovie) {
+
+			const results = await Movie.search({
 				term: {
 					title: 'rec'
 				}
-			}, function (err, results) {
-				expect(results?.body.hits.total).toEqual(1)
+			})
 
-				movie.genre = 'action'
-				config.saveAndWaitIndex(movie, function () {
-					
-					setTimeout(function () {
-						Movie.search({
-							term: {
-								title: 'rec'
-							}
-						}, {}, function (err, res) {
-							expect(res?.body.hits.total).toEqual(0)
-							done()
-						})
-					}, config.INDEXING_TIMEOUT)
+			expect(results?.body.hits.total).toEqual(1)
+
+			movie.genre = 'action'
+			config.saveAndWaitIndex(movie, async function () {
+				
+				await config.sleep(config.INDEXING_TIMEOUT)
+				const res = await Movie.search({
+					term: {
+						title: 'rec'
+					}
 				})
+
+				expect(res?.body.hits.total).toEqual(0)
+				done()
 			})
 		})
 	})
