@@ -141,10 +141,10 @@ declare module 'mongoose' {
 
     export interface Model<T extends Document> {
         // search(query: QueryContainer): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>>;
-        search(query: QueryContainer, options?: EsSearchOptions): Promise<ApiResponse<SearchResponse<T>> | ApiResponse<HydratedSearchResults<T>>>;
+        search(query: QueryContainer, options?: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults<T>>>;
 
         // esSearch(query: SearchRequest['body']): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>>;
-        esSearch(query: SearchRequest['body'], options?: EsSearchOptions): Promise<ApiResponse<SearchResponse<T>> | ApiResponse<HydratedSearchResults<T>>>;
+        esSearch(query: SearchRequest['body'], options?: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults<T>>>;
 
         synchronize(query?: any, options?: any): EventEmitter;
         

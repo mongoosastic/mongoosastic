@@ -48,7 +48,7 @@ describe('Highlight search', function () {
 		'The only reason for walking into the jaws of <em>Death</em> is so\'s you can steal his gold teeth'
 	]
 
-	beforeAll(async function(done) {
+	beforeAll(async function() {
 		await mongoose.connect(config.mongoUrl, config.mongoOpts)
 		await config.deleteIndexIfExists(['texts'])
 		await Text.deleteMany()
@@ -57,7 +57,7 @@ describe('Highlight search', function () {
 			await text.save()
 		}
 
-		setTimeout(done, config.INDEXING_TIMEOUT)
+		await config.sleep(config.INDEXING_TIMEOUT)
 	})
 
 	afterAll(async function () {
@@ -67,63 +67,61 @@ describe('Highlight search', function () {
 	})
 
 	describe('Highlight without hydrating', function () {
-		it('should return highlighted text on every hit result', function (done) {
-			setTimeout(() => {
-				Text.search({
-					match_phrase: {
-						quote: 'Death'
+		it('should return highlighted text on every hit result', async function () {
+			await config.sleep(config.INDEXING_TIMEOUT)
+
+			const res = await Text.search({
+				match_phrase: {
+					quote: 'Death'
+				}
+			}, {
+				highlight: {
+					fields: {
+						quote: {}
 					}
-				}, {
-					highlight: {
-						fields: {
-							quote: {}
-						}
-					}
-				}, function (err, res) {
-					expect(res?.body.hits.total).toEqual(3)
+				}
+			})
+
+			expect(res?.body.hits.total).toEqual(3)
 	
-					res?.body.hits.hits.forEach(function (text) {
-						expect(text).toHaveProperty('highlight')
-						expect(text.highlight).toHaveProperty('quote')
+			res?.body.hits.hits.forEach(function (text) {
+				expect(text).toHaveProperty('highlight')
+				expect(text.highlight).toHaveProperty('quote')
 	
-						text.highlight?.quote.forEach(function (query) {
-							expect(responses).toContainEqual(query)
-						})
-					})
-					done()
+				text.highlight?.quote.forEach(function (query) {
+					expect(responses).toContainEqual(query)
 				})
-			}, config.INDEXING_TIMEOUT)
+			})
 		})
 	})
 
 	describe('Highlight hydrated results', function () {
-		it('should return highlighted text on every resulting document', function (done) {
-			setTimeout(() => {
-				Text.search({
-					match_phrase: {
-						quote: 'Death'
+		it('should return highlighted text on every resulting document', async function () {
+			await config.sleep(config.INDEXING_TIMEOUT)
+
+			const res = await Text.search({
+				match_phrase: {
+					quote: 'Death'
+				}
+			}, {
+				hydrate: true,
+				highlight: {
+					fields: {
+						quote: {}
 					}
-				}, {
-					hydrate: true,
-					highlight: {
-						fields: {
-							quote: {}
-						}
-					}
-				}, function (err, res) {
-					expect(res?.body.hits.total).toEqual(3)
+				}
+			})
+
+			expect(res?.body.hits.total).toEqual(3)
 	
-					res?.body.hits.hydrated.forEach(function (text) {
-						expect(text).toHaveProperty('_highlight')
-						expect(text._highlight).toHaveProperty('quote')
+			res?.body.hits.hydrated.forEach(function (text) {
+				expect(text).toHaveProperty('_highlight')
+				expect(text._highlight).toHaveProperty('quote')
 	
-						text._highlight?.quote.forEach(function (query) {
-							expect(responses).toContainEqual(query)
-						})
-					})
-					done()
+				text._highlight?.quote.forEach(function (query) {
+					expect(responses).toContainEqual(query)
 				})
-			}, config.INDEXING_TIMEOUT)
+			})
 		})
 	})
 })
