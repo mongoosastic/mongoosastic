@@ -44,22 +44,21 @@ describe('Custom Properties for Mapping', function () {
 	it('should index with field "created"', function (done) {
 		config.createModelAndEnsureIndex(Phone, {
 			name: 'iPhone'
-		}, function () {
+		}, async function () {
       
-			Phone.search({
+			const results = await Phone.search({
 				query_string: {
 					query: 'iPhone'
 				}
 			}, {
 				sort: 'created:asc'
-			}, function (err, results) {
-				const hit = results?.body.hits.hits[0]._source
-        
-				expect(results?.body.hits.total).toEqual(1)
-				expect(hit.created).toBeDefined()
-				done()
 			})
 
+			const hit = results?.body.hits.hits[0]._source
+        
+			expect(results?.body.hits.total).toEqual(1)
+			expect(hit.created).toBeDefined()
+			done()
 		})
 	})
 })
