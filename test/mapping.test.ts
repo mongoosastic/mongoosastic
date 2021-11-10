@@ -478,28 +478,24 @@ describe('MappingGenerator', function () {
 			done()
 		})
 
-		it('should not map type mixed on mixed fields', function (done) {
+		it('should not map type mixed on mixed fields', async function () {
 
-			MyModel.createMapping((err: unknown) => {
-				if (err) return done(err)
+			await MyModel.createMapping()
 
-				setTimeout(() => {
-					MyModel.search({
-						query_string: { query: 'mixed' }
-					}, {}, (err, res) => {
-						const source = res?.body.hits.hits[0]._source
-						
-						// source.mixed_field.should.eql('mixed')
-						expect(source.mixed_field).toEqual('mixed')
-						// source.mixed_arr_field.should.eql([1, 2])
-						expect(source.mixed_arr_field).toEqual([1, 2])
-						// source.obj_mixed.mixed.should.eql('nested mixed')
-						expect(source.obj_mixed.mixed).toEqual('nested mixed')
+			await config.sleep(config.INDEXING_TIMEOUT)
 
-						done()
-					})
-				}, config.INDEXING_TIMEOUT)
+			const res = await MyModel.search({
+				query_string: { query: 'mixed' }
 			})
+
+			const source = res?.body.hits.hits[0]._source
+				
+			// source.mixed_field.should.eql('mixed')
+			expect(source.mixed_field).toEqual('mixed')
+			// source.mixed_arr_field.should.eql([1, 2])
+			expect(source.mixed_arr_field).toEqual([1, 2])
+			// source.obj_mixed.mixed.should.eql('nested mixed')
+			expect(source.obj_mixed.mixed).toEqual('nested mixed')
 		})
 	})
 
