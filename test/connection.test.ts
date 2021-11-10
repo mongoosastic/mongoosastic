@@ -9,23 +9,18 @@ const DummySchema = new Schema({
 	text: String
 })
 
-function tryDummySearch (model: Model<Document>, cb: CallableFunction) {
-	setTimeout(function () {
-		model.search({
-			simple_query_string: {
-				query: 'matata'
-			}
-		}, {
-			index: 'tweets'
-		}, function (err, results) {
-			if (err) {
-				return cb(err)
-			}
+async function tryDummySearch (model: Model<Document>) {
+	await config.sleep(config.INDEXING_TIMEOUT)
 
-			expect(results?.body.hits.total).toEqual(1)
-			cb(err)
-		})
-	}, config.INDEXING_TIMEOUT)
+	const results = await model.search({
+		simple_query_string: {
+			query: 'matata'
+		}
+	}, {
+		index: 'tweets'
+	})
+
+	expect(results?.body.hits.total).toEqual(1)
 }
 
 describe('Elasticsearch Connection', function () {
@@ -50,14 +45,14 @@ describe('Elasticsearch Connection', function () {
 		mongoose.disconnect()
 	})
 
-	it('should be able to connect with default options', function (done) {
+	it('should be able to connect with default options', async function() {
 		DummySchema.plugin(mongoosastic)
 		const Dummy2 = mongoose.model('Dummy2', DummySchema, 'dummys')
 
-		tryDummySearch(Dummy2, done)
+		await tryDummySearch(Dummy2)
 	})
 
-	it('should be able to connect with explicit options', function (done) {
+	it('should be able to connect with explicit options', async function() {
 		DummySchema.plugin(mongoosastic, {
 			clientOptions: { 
 				node: 'http://localhost:9200'
@@ -66,6 +61,6 @@ describe('Elasticsearch Connection', function () {
 
 		const Dummy3 = mongoose.model('Dummy3', DummySchema, 'dummys')
 
-		tryDummySearch(Dummy3, done)
+		await tryDummySearch(Dummy3)
 	})
 })
