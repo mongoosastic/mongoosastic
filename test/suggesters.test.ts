@@ -43,12 +43,12 @@ const kittens = [
 
 describe('Suggesters', function () {
 
-	beforeAll(async function (done) {
+	beforeAll(async function () {
 		await mongoose.connect(config.mongoUrl, config.mongoOpts)
 		await config.deleteIndexIfExists(['kittens'])
 		await Kitten.deleteMany()
 
-		Kitten.createMapping(done)
+		await Kitten.createMapping()
 	})
 
 	afterAll(async function () {
@@ -59,41 +59,37 @@ describe('Suggesters', function () {
 
 	describe('Testing Suggest', function () {
 
-		it('should index property name with type completion', function (done) {
-			esClient.indices.getMapping({
+		it('should index property name with type completion', async function () {
+			const mapping = await esClient.indices.getMapping({
 				index: 'kittens'
-			}, function (err, mapping) {
-				const props = mapping.body.kittens.mappings.properties
-				expect(props.name.type).toEqual('completion')
-				done()
 			})
+
+			const props = mapping.body.kittens.mappings.properties
+			expect(props.name.type).toEqual('completion')
 		})
 
-		it('should return suggestions after hits',async function (done) {
+		it('should return suggestions after hits',async function () {
 
-			for (const kitten of kittens) {
-				await kitten.save()
-			}
+			await Kitten.insertMany(kittens)
 
-			setTimeout(() => {
-				Kitten.search({
-					match_all: {}
-				}, {
-					suggest: {
-						kittensuggest: {
-							text: 'Cook',
-							completion: {
-								field: 'name'
-							}
+			await config.sleep(config.BULK_ACTION_TIMEOUT)
+
+			const res = await Kitten.search({
+				match_all: {}
+			}, {
+				suggest: {
+					kittensuggest: {
+						text: 'Cook',
+						completion: {
+							field: 'name'
 						}
 					}
-				}, function (err, res) {
-					const body = res?.body
-					expect(body).toHaveProperty('suggest')
-					expect(body?.suggest?.kittensuggest[0].options.length).toEqual(2)
-					done()
-				})
-			}, config.BULK_ACTION_TIMEOUT)
+				}
+			})
+
+			const body = res?.body
+			expect(body).toHaveProperty('suggest')
+			expect(body?.suggest?.kittensuggest[0].options.length).toEqual(2)
 		})
 	})
 })
