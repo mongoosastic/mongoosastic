@@ -144,19 +144,18 @@ declare module 'mongoose' {
         esSearch(query: SearchRequest['body'], options?: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults<T>>>;
 
         synchronize(query?: any, options?: any): events;
+        esTruncate(): Promise<void>
         
         esOptions(): Options
         esClient(): Client
-
         bulkError(): events
 
         createMapping(body?: RequestBody): Promise<Record<PropertyName, Property>>
-        esTruncate(): Promise<void>
+        getMapping(): Record<string, any>
+        getCleanTree(): Record<string, any>
 
         esCount(query?: QueryContainer): Promise<ApiResponse<CountResponse>>
-
         refresh(): Promise<ApiResponse<RefreshResponse>>
-
         flush(): Promise<void>
     }
 }

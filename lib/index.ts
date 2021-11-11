@@ -4,6 +4,7 @@ import { Options, PluginDocument } from 'types'
 import { flush } from './bulking'
 import { createEsClient } from './esClient'
 import { postSave, postRemove } from './hooks'
+import Generator from './mapping'
 import { index, unIndex } from './methods'
 import { esSearch, search } from './search'
 import { createMapping, esCount, esTruncate, refresh, synchronize } from './statics'
@@ -17,18 +18,17 @@ function mongoosastic(schema: Schema<PluginDocument>, options: Options = {}): vo
 
 	options = { ...defaultOptions, ...options }
 
+	const client = createEsClient(options)
+	const generator = new Generator()
+
 	schema.method('esOptions', () => { return options })
 	schema.static('esOptions', () => { return options })
-
-	const client = createEsClient(options)
 
 	schema.method('esClient', () => { return client })
 	schema.static('esClient', () => { return client })
 
 	schema.method('index', index)
 	schema.method('unIndex', unIndex)
-
-	schema.static('flush', flush)
 
 	schema.static('synchronize', synchronize)
 	schema.static('esTruncate', esTruncate)
@@ -37,8 +37,12 @@ function mongoosastic(schema: Schema<PluginDocument>, options: Options = {}): vo
 	schema.static('esSearch', esSearch)
 
 	schema.static('createMapping', createMapping)
-	schema.static('refresh', refresh)
+	schema.static('getMapping', () => { return generator.generateMapping(schema) })
+	schema.static('getCleanTree', () => { return generator.getCleanTree(schema) })
+	
 	schema.static('esCount', esCount)
+	schema.static('refresh', refresh)
+	schema.static('flush', flush)
 
 	const bulkErrEm = new events.EventEmitter()
 	schema.static('bulkError', () => { return bulkErrEm })
