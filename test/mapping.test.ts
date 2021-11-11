@@ -29,7 +29,7 @@ describe('MappingGenerator', function () {
   
 	describe('type mapping', function () {
 
-		beforeAll(async function(done){
+		beforeAll(async function(){
 			await config.deleteIndexIfExists(['mymodels'])
 			await mongoose.connect(config.mongoUrl, config.mongoOpts)
 			await MyModel.deleteMany()
@@ -41,9 +41,7 @@ describe('MappingGenerator', function () {
 				obj_mixed: { mixed: 'nested mixed' }
 			})
 
-			config.saveAndWaitIndex(doc, function() {
-				setTimeout(done, config.INDEXING_TIMEOUT)
-			})
+			await config.saveAndWaitIndex(doc)
 		})
 
 		afterAll(async function(){

@@ -59,13 +59,12 @@ describe('GeoTest', function () {
 		mongoose.disconnect()
 	})
 
-	it('should create a mapping where frame has the type geo_shape', function (done) {
-		esClient.indices.getMapping({
+	it('should create a mapping where frame has the type geo_shape', async function() {
+		const mapping = await esClient.indices.getMapping({
 			index: 'geodocs'
-		}, function (err, mapping) {
-			expect(mapping.body.geodocs.mappings.properties.frame.type).toEqual('geo_shape')
-			done()
 		})
+
+		expect(mapping.body.geodocs.mappings.properties.frame.type).toEqual('geo_shape')
 	})
 
 	it('should be able to create and store geo coordinates',async function() {
@@ -73,6 +72,7 @@ describe('GeoTest', function () {
 		for (const point of points) {
 			await point.save()
 		}
+		await config.sleep(config.INDEXING_TIMEOUT)
 
 		const res = await GeoModel.find({})
 
@@ -85,8 +85,6 @@ describe('GeoTest', function () {
 	})
 
 	it('should be able to find geo coordinates in the indexes', async function () {
-		
-		await config.sleep(config.INDEXING_TIMEOUT)
 
 		const res = await GeoModel.search({
 			match_all: {}

@@ -72,7 +72,7 @@ describe('Synchronize', () => {
 				expect(saveCounter).toEqual(count)
 				expect(errorCount).toEqual(1)
 
-				await config.sleep(config.INDEXING_TIMEOUT)
+				await config.sleep(config.BULK_ACTION_TIMEOUT)
 
 				const results = await Book.search({
 					query_string: {
@@ -116,7 +116,7 @@ describe('Synchronize', () => {
 				expect(count).toEqual(53)
 				expect(saveCounter).toEqual(count)
 
-				await config.sleep(config.INDEXING_TIMEOUT)
+				await config.sleep(config.BULK_ACTION_TIMEOUT)
 
 				const results = await Book.search({
 					query_string: {
@@ -142,7 +142,7 @@ describe('Synchronize', () => {
 				expect(count).toEqual(53)
 				expect(saveCounter).toEqual(0)
 
-				await config.sleep(config.INDEXING_TIMEOUT)
+				await config.sleep(config.BULK_ACTION_TIMEOUT)
 
 				const results = await Book.search({
 					query_string: {

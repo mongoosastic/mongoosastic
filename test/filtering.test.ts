@@ -33,7 +33,7 @@ MovieSchema.plugin(mongoosastic, {
 	}
 } as Options)
 
-const Movie = mongoose.model('Movie', MovieSchema)
+const Movie = mongoose.model<IMovie>('Movie', MovieSchema)
 
 describe('Filter mode', function () {
 	
@@ -49,21 +49,19 @@ describe('Filter mode', function () {
 		mongoose.disconnect()
 	})
 
-	it('should index horror genre', function (done) {
-		config.createModelAndEnsureIndex(Movie, {
+	it('should index horror genre', async function () {
+		await config.createModelAndEnsureIndex(Movie, {
 			title: 'LOTR',
 			genre: 'horror'
-		}, async function () {
-
-			const results = await Movie.search({
-				term: {
-					genre: 'horror'
-				}
-			})
-
-			expect(results?.body.hits.total).toEqual(1)
-			done()
 		})
+
+		const results = await Movie.search({
+			term: {
+				genre: 'horror'
+			}
+		})
+
+		expect(results?.body.hits.total).toEqual(1)
 	})
 
 	it('should not index action genre', async function (done) {
@@ -83,33 +81,30 @@ describe('Filter mode', function () {
 		done()
 	})
 
-	it('should unindex filtered models', function (done) {
-		config.createModelAndEnsureIndex(Movie, {
+	it('should unindex filtered models', async function () {
+		const movie = await config.createModelAndEnsureIndex(Movie, {
 			title: 'REC',
 			genre: 'horror'
-		}, async function (errSave: unknown, movie: IMovie) {
-
-			const results = await Movie.search({
-				term: {
-					title: 'rec'
-				}
-			})
-
-			expect(results?.body.hits.total).toEqual(1)
-
-			movie.genre = 'action'
-			config.saveAndWaitIndex(movie, async function () {
-				
-				await config.sleep(config.INDEXING_TIMEOUT)
-				const res = await Movie.search({
-					term: {
-						title: 'rec'
-					}
-				})
-
-				expect(res?.body.hits.total).toEqual(0)
-				done()
-			})
 		})
+
+		const results = await Movie.search({
+			term: {
+				title: 'rec'
+			}
+		})
+
+		expect(results?.body.hits.total).toEqual(1)
+
+		movie.genre = 'action'
+		await config.saveAndWaitIndex(movie)
+
+		await config.sleep(config.INDEXING_TIMEOUT)
+		const res = await Movie.search({
+			term: {
+				title: 'rec'
+			}
+		})
+
+		expect(res?.body.hits.total).toEqual(0)
 	})
 })

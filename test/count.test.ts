@@ -29,14 +29,14 @@ CommentSchema.plugin(mongoosastic, {
 const Comment = mongoose.model('Comment', CommentSchema)
 
 const comments = [
-	new Comment({
+	{
 		user: 'terry',
 		title: 'Ilikecars'
-	}),
-	new Comment({
+	},
+	{
 		user: 'fred',
 		title: 'Ihatefish'
-	})
+	}
 ]
 
 describe('Count', function () {
@@ -45,11 +45,8 @@ describe('Count', function () {
 		await Comment.deleteMany()
 		await config.deleteIndexIfExists(['comments'])
 
-		for (const comment of comments) {
-			await comment.save()
-		}
-
-		await config.sleep(config.INDEXING_TIMEOUT)
+		await Comment.insertMany(comments)
+		await config.sleep(config.BULK_ACTION_TIMEOUT)
 	})
 
 	afterAll(async function() {
@@ -59,9 +56,6 @@ describe('Count', function () {
 	})
 
 	it('should count a type', async function() {
-
-		await config.sleep(config.INDEXING_TIMEOUT)
-		
 		const results = await Comment.esCount({
 			term: {
 				user: 'terry'
@@ -73,9 +67,6 @@ describe('Count', function () {
 	})
 
 	it('should count a type without query', async function() {
-
-		await config.sleep(config.INDEXING_TIMEOUT)
-
 		const results = await Comment.esCount()
 
 		const body = results?.body

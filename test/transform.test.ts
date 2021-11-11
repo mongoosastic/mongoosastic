@@ -48,20 +48,20 @@ describe('Transform mode', function () {
 		mongoose.disconnect()
 	})
 
-	it('should index with field "fullTitle"', function (done) {
-		config.createModelAndEnsureIndex(Repo, {
+	it('should index with field "fullTitle"', async function() {
+		
+		await config.createModelAndEnsureIndex(Repo, {
 			name: 'LOTR',
 			settingLicense: '',
 			detectedLicense: 'Apache'
-		}, async function () {
-			const results = await Repo.search({
-				query_string: {
-					query: 'Apache'
-				}
-			})
-
-			expect(results?.body.hits.total).toEqual(1)
-			done()
 		})
+
+		const results = await Repo.search({
+			query_string: {
+				query: 'Apache'
+			}
+		})
+
+		expect(results?.body.hits.total).toEqual(1)
 	})
 })

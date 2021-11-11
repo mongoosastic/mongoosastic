@@ -41,16 +41,15 @@ const texts = [
 
 describe('Hydrate with ES data', function () {
 
-	beforeAll(async function(done) {
+	beforeAll(async function() {
 		await mongoose.connect(config.mongoUrl, config.mongoOpts)
 		await config.deleteIndexIfExists(['texts'])
 		await Text.deleteMany()
 
 		for (const text of texts) {
-			config.saveAndWaitIndex(text, function() {
-				setTimeout(done, config.INDEXING_TIMEOUT)
-			})
+			await config.saveAndWaitIndex(text)
 		}
+		await config.sleep(config.INDEXING_TIMEOUT)
 	})
 
 	afterAll(async function () {

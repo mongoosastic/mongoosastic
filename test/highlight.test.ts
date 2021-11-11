@@ -57,7 +57,7 @@ describe('Highlight search', function () {
 			await text.save()
 		}
 
-		await config.sleep(config.INDEXING_TIMEOUT)
+		await config.sleep(config.BULK_ACTION_TIMEOUT)
 	})
 
 	afterAll(async function () {
@@ -68,7 +68,6 @@ describe('Highlight search', function () {
 
 	describe('Highlight without hydrating', function () {
 		it('should return highlighted text on every hit result', async function () {
-			await config.sleep(config.INDEXING_TIMEOUT)
 
 			const res = await Text.search({
 				match_phrase: {
@@ -97,7 +96,6 @@ describe('Highlight search', function () {
 
 	describe('Highlight hydrated results', function () {
 		it('should return highlighted text on every resulting document', async function () {
-			await config.sleep(config.INDEXING_TIMEOUT)
 
 			const res = await Text.search({
 				match_phrase: {

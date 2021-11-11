@@ -6,18 +6,17 @@ import { Tweet } from './models/tweet'
 
 describe('Index Method', function () {
 
-	beforeAll(async function (done) {
+	beforeAll(async function() {
 		await mongoose.connect(config.mongoUrl, config.mongoOpts)
 		await config.deleteIndexIfExists(['tweets', 'public_tweets'])
 
 		await Tweet.deleteMany()
 
-		config.createModelAndEnsureIndex(Tweet, {
+		await config.createModelAndEnsureIndex(Tweet, {
 			user: 'jamescarr',
 			message: 'I know kung-fu!',
 			post_date: new Date()
-		}, done)
-
+		})
 	})
 
 	afterAll(async function() {

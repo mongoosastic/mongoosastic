@@ -52,7 +52,7 @@ describe('references', function () {
 	})
 
 	describe('indexing', function () {
-		beforeAll(async function (done) {
+		beforeAll(async function() {
 
 			const user = new User({
 				name: 'jake'
@@ -69,11 +69,11 @@ describe('references', function () {
 				await comment.save()
 			}
 
-			config.createModelAndEnsureIndex(Post, {
+			await config.createModelAndEnsureIndex(Post, {
 				body: 'A very short post',
 				author: savedUser._id,
 				comments: [comments[0]._id, comments[1]._id]
-			}, done)
+			})
 		})
 
 		it('should index selected fields from referenced schema',async function() {

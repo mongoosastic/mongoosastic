@@ -36,16 +36,15 @@ const esResultTexts = [
 
 describe('Hydrate with ES data', function () {
 
-	beforeAll(async function(done) {
+	beforeAll(async function() {
 		await mongoose.connect(config.mongoUrl, config.mongoOpts)
 		await config.deleteIndexIfExists(['ranks'])
 		await RankModel.deleteMany()
 
 		for (const result of esResultTexts) {
-			config.saveAndWaitIndex(result, function() {
-				setTimeout(done, config.INDEXING_TIMEOUT)
-			})
+			await config.saveAndWaitIndex(result)
 		}
+		await config.sleep(config.INDEXING_TIMEOUT)
 	})
 
 	afterAll(async function () {

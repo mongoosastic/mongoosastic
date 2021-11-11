@@ -37,7 +37,7 @@ export function filterMappingFromMixed(props: Record<PropertyName, Property>): R
 	return filteredMapping
 }
 
-export function serialize(model: PluginDocument, mapping: GeneratedMapping): Record<string, unknown> | Record<string, unknown>[] | string {
+export function serialize<T extends PluginDocument>(model: T, mapping: GeneratedMapping): T | T[] | string {
 	let name
 
 	function _serializeObject(object: PluginDocument, mappingData: GeneratedMapping) {
@@ -52,7 +52,7 @@ export function serialize(model: PluginDocument, mapping: GeneratedMapping): Rec
 				}
 			}
 		}
-		return serialized
+		return serialized as T
 	}
 
 	if (mapping.properties && model) {

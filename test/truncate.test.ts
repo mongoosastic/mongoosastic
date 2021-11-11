@@ -13,15 +13,15 @@ DummySchema.plugin(mongoosastic)
 const Dummy = mongoose.model('DummyTruncate', DummySchema)
 
 describe('Truncate', function () {
-	beforeAll(async function(done) {
+	beforeAll(async function() {
 
 		await mongoose.connect(config.mongoUrl, config.mongoOpts)
 		await Dummy.deleteMany()
 		await config.deleteIndexIfExists(['dummytruncates'])
 
-		config.createModelAndEnsureIndex(Dummy, {
+		await config.createModelAndEnsureIndex(Dummy, {
 			text: 'Text1'
-		}, done)
+		})
     
 	})
 

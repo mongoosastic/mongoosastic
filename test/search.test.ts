@@ -50,17 +50,15 @@ const bonds = [
 
 describe('Query DSL', function () {
 
-	beforeAll(async function(done) {
+	beforeAll(async function() {
 		await config.deleteIndexIfExists(['bonds'])
 		await mongoose.connect(config.mongoUrl, config.mongoOpts)
-    
 		await Bond.deleteMany()
 
 		for (const bond of bonds) {
-			config.saveAndWaitIndex(bond, function() {
-				setTimeout(done, config.INDEXING_TIMEOUT)
-			})
+			await config.saveAndWaitIndex(bond)
 		}
+		await config.sleep(config.INDEXING_TIMEOUT)
 	})
 
 	afterAll(async function() {

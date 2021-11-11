@@ -27,26 +27,29 @@ async function deleteDocs<T extends PluginDocument>(models: Array<Model<T>>): Pr
 	}
 }
 
-function createModelAndEnsureIndex<T extends PluginDocument>(Model: Model<T>, obj: unknown, cb: CallableFunction): void {
+async function createModelAndEnsureIndex<T extends PluginDocument>(Model: Model<T>, obj: unknown): Promise<T> {
 	const doc = new Model(obj)
-	doc.save(function () {
-		doc.on('es-indexed', function () {
-			setTimeout(function () {
-				cb(null, doc)
-			}, INDEXING_TIMEOUT)
+	await doc.save()
+
+	return new Promise((resolve) => {
+		doc.on('es-indexed', async function () {
+			await sleep(INDEXING_TIMEOUT)
+			resolve(doc)
 		})
 	})
 }
 
-async function createModelAndSave (Model: Model<PluginDocument>, obj: unknown): Promise<PluginDocument> {
+async function createModelAndSave<T extends PluginDocument>(Model: Model<T>, obj: unknown): Promise<T> {
 	const dude = new Model(obj)
 	return await dude.save()
 }
 
-function saveAndWaitIndex (doc: PluginDocument, cb: CallableFunction): void {
-	doc.save(function () {
-		doc.once('es-indexed', cb)
-		doc.once('es-filtered', cb)
+async function saveAndWaitIndex(doc: PluginDocument): Promise<void> {
+	await doc.save()
+
+	return new Promise((resolve) => {
+		doc.once('es-indexed', resolve)
+		doc.once('es-filtered', resolve)
 	})
 }
 

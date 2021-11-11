@@ -1,9 +1,30 @@
 'use strict'
 
 import mongoose, { Schema } from 'mongoose'
+import { PluginDocument } from 'types'
 import Generator from '../lib/mapping'
 const generator = new Generator()
 import { serialize } from '../lib/utils'
+
+interface IPerson extends PluginDocument {
+	name: {
+		first: string,
+		last: string
+	},
+	dob: Date,
+	bowlingBall: {
+		type: Schema.Types.ObjectId,
+		ref: 'BowlingBall'
+	},
+	games: [{
+		score: number,
+		date: Date
+	}],
+	somethingToCast: {
+		type: string,
+		es_cast: CallableFunction
+	}
+}
 
 const BowlingBall = mongoose.model('BowlingBall', new Schema())
 const PersonSchema = new Schema({
@@ -28,7 +49,7 @@ const PersonSchema = new Schema({
 	}
 })
 
-const Person = mongoose.model('Person', PersonSchema)
+const Person = mongoose.model<IPerson>('Person', PersonSchema)
 
 const mapping = generator.generateMapping(PersonSchema)
 
@@ -59,13 +80,13 @@ describe('serialize', function () {
 	})
 
 	it('should serialize a document with missing bits', function () {
-		const serialized: any = serialize(millionnaire, mapping)
+		const serialized = serialize(millionnaire, mapping) as IPerson
 		expect(serialized).toHaveProperty('games')
 		expect(serialized.games).toHaveLength(0)
 	})
 
 	describe('with no indexed fields', function () {
-		const serialized: any = serialize(dude, mapping)
+		const serialized = serialize(dude, mapping) as IPerson
 		it('should serialize model fields', function () {
 			expect(serialized.name.first).toEqual('Jeffrey')
 			expect(serialized.name.last).toEqual('Lebowski')

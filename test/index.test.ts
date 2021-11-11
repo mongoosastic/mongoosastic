@@ -147,13 +147,13 @@ describe('indexing', function () {
 	})
 
 	describe('Default plugin', function () {
-		beforeAll(function (done) {
-			config.createModelAndEnsureIndex(Tweet, {
+		beforeAll(async function() {
+			await config.createModelAndEnsureIndex(Tweet, {
 				user: 'jamescarr',
 				userId: 1,
 				message: 'I like Riak better',
 				post_date: new Date()
-			}, done)
+			})
 		})
 
 		it('should use the model\'s id as ES id', async function () {
@@ -261,12 +261,12 @@ describe('indexing', function () {
 
 		let tweet: ITweet
 
-		beforeEach(function (done) {
+		beforeEach(async function() {
 			tweet = new Tweet({
 				user: 'jamescarr',
 				message: 'Saying something I shouldnt'
 			})
-			config.createModelAndEnsureIndex(Tweet, tweet, done)
+			await config.createModelAndEnsureIndex(Tweet, tweet)
 		})
 
 		it('should remove from index when model is removed', async function () {
@@ -313,26 +313,25 @@ describe('indexing', function () {
 			expect(triggerRemoved).toEqual(true)
 		})
 
-		it('should remove from index when findOneAndRemove', async function (done) {
+		it('should remove from index when findOneAndRemove', async function() {
 			tweet = new Tweet({
 				user: 'jamescarr',
 				message: 'findOneAndRemove'
 			})
 
-			config.createModelAndEnsureIndex(Tweet, tweet, async function () {
-				await Tweet.findByIdAndRemove(tweet._id)
+			await config.createModelAndEnsureIndex(Tweet, tweet)
 
-				await config.sleep(config.INDEXING_TIMEOUT)
+			await Tweet.findByIdAndRemove(tweet._id)
 
-				const res = await Tweet.search({
-					query_string: {
-						query: 'findOneAndRemove'
-					}
-				})
+			await config.sleep(config.INDEXING_TIMEOUT)
 
-				expect(res?.body.hits.total).toEqual(0)
-				done()
+			const res = await Tweet.search({
+				query_string: {
+					query: 'findOneAndRemove'
+				}
 			})
+
+			expect(res?.body.hits.total).toEqual(0)
 		})
 
 		it('should be able to execute findOneAndRemove if document doesn\'t exist', function (done) {
@@ -396,12 +395,12 @@ describe('indexing', function () {
 	})
 
 	describe('Always hydrate', function () {
-		beforeAll(function (done) {
-			config.createModelAndEnsureIndex(Person, {
+		beforeAll(async function() {
+			await config.createModelAndEnsureIndex(Person, {
 				name: 'James Carr',
 				address: 'Exampleville, MO',
 				phone: '(555)555-5555'
-			}, done)
+			})
 		})
 
 		it('when gathering search results while respecting default hydrate options', async function () {
@@ -422,14 +421,14 @@ describe('indexing', function () {
 	})
 	
 	describe('Subset of Fields', function () {
-		beforeAll(function (done) {
-			config.createModelAndEnsureIndex(Talk, {
+		beforeAll(async function() {
+			await config.createModelAndEnsureIndex(Talk, {
 				speaker: 'James Carr',
 				year: 2013,
 				title: 'Node.js Rocks',
 				abstract: 'I told you node.js was cool. Listen to me!',
 				bio: 'One awesome dude.'
-			}, done)
+			})
 		})
 
 		it('should only return indexed fields', async function () {
@@ -472,8 +471,8 @@ describe('indexing', function () {
 		})
 
 		describe('Sub-object Fields', function () {
-			beforeAll(function (done) {
-				config.createModelAndEnsureIndex(Person, {
+			beforeAll(async function() {
+				await config.createModelAndEnsureIndex(Person, {
 					name: 'Bob Carr',
 					address: 'Exampleville, MO',
 					phone: '(555)555-5555',
@@ -481,7 +480,7 @@ describe('indexing', function () {
 						born: 1950,
 						other: 2000
 					}
-				}, done)
+				})
 			})
 
 			it('should only return indexed fields and have indexed sub-objects', async function () {
@@ -547,20 +546,18 @@ describe('indexing', function () {
 			})
 		})
 
-		it('should just work', function (done) {
-			config.createModelAndEnsureIndex(Bum, {
+		it('should just work', async function() {
+			await config.createModelAndEnsureIndex(Bum, {
 				name: 'Roger Wilson'
-			}, async function () {
-				
-				const results = await Bum.search({
-					query_string: {
-						query: 'Wilson'
-					}
-				})
-
-				expect(results?.body.hits.total).toEqual(1)
-				done()
 			})
+
+			const results = await Bum.search({
+				query_string: {
+					query: 'Wilson'
+				}
+			})
+
+			expect(results?.body.hits.total).toEqual(1)
 		})
 	})
 

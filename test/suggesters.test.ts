@@ -71,7 +71,6 @@ describe('Suggesters', function () {
 		it('should return suggestions after hits',async function () {
 
 			await Kitten.insertMany(kittens)
-
 			await config.sleep(config.BULK_ACTION_TIMEOUT)
 
 			const res = await Kitten.search({

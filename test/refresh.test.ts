@@ -18,6 +18,8 @@ describe('Refresh', function () {
 		await mongoose.connect(config.mongoUrl, config.mongoOpts)
 		await Refresh.deleteMany()
 		await config.deleteIndexIfExists(['refreshes'])
+
+		await Refresh.createMapping()
 	})
 
 	afterAll(async function() {
@@ -26,24 +28,19 @@ describe('Refresh', function () {
 		mongoose.disconnect()
 	})
 
-	it('should be able to search for the element after refresh', async function(done) {
-
-		await Refresh.createMapping()
+	it('should be able to search for the element after refresh', async function() {
 
 		const refresh = new Refresh({ title: `${Date.now()}` })
 
-		config.saveAndWaitIndex(refresh, async function(){
-				
-			await Refresh.refresh()
-			await config.sleep(config.INDEXING_TIMEOUT)
+		await config.saveAndWaitIndex(refresh)
 
-			const res = await Refresh.search({
-				match_all: {}
-			})
+		await Refresh.refresh()
+		await config.sleep(config.INDEXING_TIMEOUT)
 
-			expect(res?.body.hits.total).toEqual(1)
-			done()
+		const res = await Refresh.search({
+			match_all: {}
 		})
 
+		expect(res?.body.hits.total).toEqual(1)
 	})
 })

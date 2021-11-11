@@ -47,75 +47,74 @@ describe('forceIndexRefresh connection option', function () {
 		mongoose.disconnect()
 	})
 
-	it('should always suceed: refresh the index immediately on insert', async function (done) {
+	it('should always suceed: refresh the index immediately on insert', async function() {
 		const d = new DummyRefresh({ text: 'Text1' })
 		const refresh = true
 
-		await doInsertOperation(DummyRefresh, d, indexName, refresh, done)
+		await doInsertOperation(DummyRefresh, d, indexName, refresh)
 	})
 
-	it('should fail randomly: refresh the index every 1s on insert', async function (done) {
+	it('should fail randomly: refresh the index every 1s on insert', async function() {
 		const d = new Dummy({ text: 'Text1' })
 		const refresh = false
 
-		await doInsertOperation(Dummy, d, indexName, refresh, done)
+		await doInsertOperation(Dummy, d, indexName, refresh)
 	})
 
-	it('should always suceed: refresh the index immediately on update', async function (done) {
+	it('should always suceed: refresh the index immediately on update', async function() {
 		const d = new DummyRefresh({ text: 'Text1' })
 		const refresh = true
 
-		await doUpdateOperation(DummyRefresh, d, 'this is the new text', indexName, refresh, done)
+		await doUpdateOperation(DummyRefresh, d, 'this is the new text', indexName, refresh)
 	})
 
-	it('should fail randomly: refresh the index every 1s on update', async function (done) {
+	it('should fail randomly: refresh the index every 1s on update', async function() {
 		const d = new Dummy({ text: 'Text1' })
 		const refresh = false
 
-		await doUpdateOperation(Dummy, d, 'this is the new text', indexName, refresh, done)
+		await doUpdateOperation(Dummy, d, 'this is the new text', indexName, refresh)
 	})
 })
 
-async function doInsertOperation (Model: Model<IDummy>, object: PluginDocument, indexName: string, refresh: boolean, done: CallableFunction) {
+async function doInsertOperation (Model: Model<IDummy>, object: PluginDocument, indexName: string, refresh: boolean) {
 	// save object
 	const savedObject = await object.save()
 
-	savedObject.on('es-indexed', async function () {
-		// look for the object just saved
-		const results = await Model.search({
-			term: { _id: savedObject._id }
-		})
-
-		if (refresh) {
-			expect(results?.body.hits.total).toEqual(1)
-		} else {
-			expect(results?.body.hits.total).toEqual(0)
-		}
-
-		done()
+	await new Promise((resolve) => {
+		savedObject.on('es-indexed', resolve)
 	})
+
+	// look for the object just saved
+	const results = await Model.search({
+		term: { _id: savedObject._id }
+	})
+
+	if (refresh) {
+		expect(results?.body.hits.total).toEqual(1)
+	} else {
+		expect(results?.body.hits.total).toEqual(0)
+	}
 }
 
-async function doUpdateOperation (Model: Model<IDummy>, object: PluginDocument, newText: string, indexName: string, refresh: boolean, done: CallableFunction) {
+async function doUpdateOperation (Model: Model<IDummy>, object: PluginDocument, newText: string, indexName: string, refresh: boolean) {
 	// save object
 	const savedObject = await object.save()
 
 	const updatedObject = await Model.findOneAndUpdate({ _id: savedObject._id }, { text: newText }, { new: true })
 
-	updatedObject?.on('es-indexed', async function () {
-		// look for the object just saved
-		const results = await Model.search({
-			term: { _id: savedObject._id }
-		})
-
-		if (refresh) {
-			const hit = results?.body.hits.hits[0]._source
-			expect(results?.body.hits.total).toEqual(1)
-			expect(hit?.text).toEqual(newText)
-		} else {
-			expect(results?.body.hits.total).toEqual(0)
-		}
-
-		done()
+	await new Promise((resolve) => {
+		updatedObject?.on('es-indexed', resolve)
 	})
+
+	const results = await Model.search({
+		term: { _id: savedObject._id }
+	})
+
+	if (refresh) {
+		const hit = results?.body.hits.hits[0]._source
+		expect(results?.body.hits.total).toEqual(1)
+		expect(hit?.text).toEqual(newText)
+	} else {
+		expect(results?.body.hits.total).toEqual(0)
+	}
 }

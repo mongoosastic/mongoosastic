@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ClientOptions, ApiResponse, Client } from '@elastic/elasticsearch'
-import { Highlight, BulkResponse, CountResponse, RefreshResponse, SearchResponse, QueryContainer, SearchRequest, TypeMapping, Hit, PropertyName, Property, HitsMetadata } from '@elastic/elasticsearch/api/types'
+import { Highlight, CountResponse, RefreshResponse, SearchResponse, QueryContainer, SearchRequest, TypeMapping, Hit, PropertyName, Property, HitsMetadata } from '@elastic/elasticsearch/api/types'
 import { RequestBody } from '@elastic/elasticsearch/lib/Transport'
 import { EventEmitter } from 'events'
 import { Schema } from 'mongoose'
@@ -140,10 +140,9 @@ declare module 'mongoosastic' {
 declare module 'mongoose' {
 
     export interface Model<T extends Document> {
-        // search(query: QueryContainer): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>>;
+
         search(query: QueryContainer, options?: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults<T>>>;
 
-        // esSearch(query: SearchRequest['body']): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>>;
         esSearch(query: SearchRequest['body'], options?: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults<T>>>;
 
         synchronize(query?: any, options?: any): EventEmitter;
@@ -154,7 +153,6 @@ declare module 'mongoose' {
         createMapping(body?: RequestBody): Promise<Record<PropertyName, Property>>
         esTruncate(): Promise<void>
 
-        // esCount(): void
         esCount(query?: QueryContainer): Promise<ApiResponse<CountResponse>>
 
         refresh(): Promise<ApiResponse<RefreshResponse>>

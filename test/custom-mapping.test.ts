@@ -41,24 +41,23 @@ describe('Custom Properties for Mapping', function () {
 		mongoose.disconnect()
 	})
 
-	it('should index with field "created"', function (done) {
-		config.createModelAndEnsureIndex(Phone, {
+	it('should index with field "created"', async function() {
+		
+		await config.createModelAndEnsureIndex(Phone, {
 			name: 'iPhone'
-		}, async function () {
-      
-			const results = await Phone.search({
-				query_string: {
-					query: 'iPhone'
-				}
-			}, {
-				sort: 'created:asc'
-			})
-
-			const hit = results?.body.hits.hits[0]._source
-        
-			expect(results?.body.hits.total).toEqual(1)
-			expect(hit.created).toBeDefined()
-			done()
 		})
+
+		const results = await Phone.search({
+			query_string: {
+				query: 'iPhone'
+			}
+		}, {
+			sort: 'created:asc'
+		})
+
+		const hit = results?.body.hits.hits[0]._source
+	
+		expect(results?.body.hits.total).toEqual(1)
+		expect(hit.created).toBeDefined()
 	})
 })

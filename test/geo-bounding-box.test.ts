@@ -69,6 +69,7 @@ describe('Geo Bounding Box Test', function () {
 		for (const point of points) {
 			await point.save()
 		}
+		await config.sleep(config.INDEXING_TIMEOUT)
 
 		const res = await GeoBoundingBoxModel.find({})
 		expect(res.length).toEqual(3)
@@ -76,8 +77,6 @@ describe('Geo Bounding Box Test', function () {
 	})
 
 	it('should be able to find geo coordinates in the indexes', async function () {
-
-		await config.sleep(config.INDEXING_TIMEOUT)
 		// ES request
 		const res = await GeoBoundingBoxModel.search({
 			match_all: {}

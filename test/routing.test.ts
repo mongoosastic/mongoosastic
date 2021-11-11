@@ -34,54 +34,48 @@ describe('Routing', function () {
 		mongoose.disconnect()
 	})
 
-	it('should found task if no routing',async function(done) {
+	it('should found task if no routing',async function() {
 
-		config.createModelAndEnsureIndex(Task, { content: Date.now() }, async function(err: unknown, task: ITask){
-			
-			const results = await Task.search({
-				query_string: {
-					query: task.content
-				}
-			})
+		const task = await config.createModelAndEnsureIndex(Task, { content: Date.now() })
 
-			expect(results?.body.hits.total).toEqual(1)
-			done()
+		const results = await Task.search({
+			query_string: {
+				query: task.content
+			}
 		})
+
+		expect(results?.body.hits.total).toEqual(1)
 	})
 
-	it('should found task if routing with task.content', async function(done) {
+	it('should found task if routing with task.content', async function() {
 
-		config.createModelAndEnsureIndex(Task, { content: Date.now() }, async function(err: unknown, task: ITask){
-			
-			const results = await Task.search({
-				query_string: {
-					query: task.content
-				}
-			}, {
-				routing: task.content
-			})
+		const task = await config.createModelAndEnsureIndex(Task, { content: Date.now() })
 
-			expect(results?.body.hits.total).toEqual(1)
-			expect(results?.body._shards.total).toEqual(1)
-			done()
+		const results = await Task.search({
+			query_string: {
+				query: task.content
+			}
+		}, {
+			routing: task.content
 		})
+
+		expect(results?.body.hits.total).toEqual(1)
+		expect(results?.body._shards.total).toEqual(1)
 	})
 
-	it('should not found task if routing with invalid routing',async function(done) {
+	it('should not found task if routing with invalid routing',async function() {
 		
-		config.createModelAndEnsureIndex(Task, { content: Date.now() }, async function(err: unknown, task: ITask){
-			
-			const results = await Task.search({
-				query_string: {
-					query: task.content
-				}
-			}, {
-				routing: task.content + 1
-			})
+		const task = await config.createModelAndEnsureIndex(Task, { content: Date.now() })
 
-			expect(results?.body._shards.total).toEqual(1)
-			done()
+		const results = await Task.search({
+			query_string: {
+				query: task.content
+			}
+		}, {
+			routing: task.content + 1
 		})
+
+		expect(results?.body._shards.total).toEqual(1)
 	})
 
 	it('should not found task after remove', async function() {

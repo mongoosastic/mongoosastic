@@ -25,18 +25,17 @@ async function tryDummySearch (model: Model<Document>) {
 
 describe('Elasticsearch Connection', function () {
 
-	beforeAll(async function(done) {
+	beforeAll(async function() {
     
 		await mongoose.connect(config.mongoUrl, config.mongoOpts)
 		await config.deleteIndexIfExists(['tweets'])
 		await Tweet.deleteMany()
 
-		config.createModelAndEnsureIndex(Tweet, {
+		await config.createModelAndEnsureIndex(Tweet, {
 			user: 'Yahia KERIM',
 			message: 'Hakuna-matata!',
 			post_date: new Date()
-		}, done)
-    
+		})
 	})
 
 	afterAll(async function() {

@@ -37,21 +37,19 @@ describe('Custom Serialize', function () {
 		mongoose.disconnect()
 	})
 
-	it('should index all fields returned from the customSerialize function', function (done) {
+	it('should index all fields returned from the customSerialize function', async function() {
 
-		config.createModelAndEnsureIndex(Food, { name: 'pizza' }, async function() {
-			
-			const results = await Food.search({
-				query_string: {
-					query: 'pizza'
-				} 
-			})
+		await config.createModelAndEnsureIndex(Food, { name: 'pizza' })
 
-			const source = results?.body.hits.hits[0]._source
-				
-			expect(source.name).toEqual('pizza')
-			expect(source.type).toEqual('dinner')
-			done()
+		const results = await Food.search({
+			query_string: {
+				query: 'pizza'
+			} 
 		})
+
+		const source = results?.body.hits.hits[0]._source
+			
+		expect(source.name).toEqual('pizza')
+		expect(source.type).toEqual('dinner')
 	})
 })

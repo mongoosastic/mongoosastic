@@ -23,15 +23,11 @@ describe('Bulk mode', function () {
 		await config.deleteIndexIfExists(['books'])
 		await mongoose.connect(config.mongoUrl, config.mongoOpts)
 		await Book.deleteMany()
-	})
 
-	beforeAll(async function () {
 		for (const title of config.bookTitlesArray()) {
 			await new Book({ title: title }).save()
 		}
-	})
 
-	beforeAll(async function () {
 		const book = await Book.findOne({ title: 'American Gods' })
 		await book?.remove()
 	})
