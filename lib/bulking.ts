@@ -1,5 +1,5 @@
-import { Client } from '@elastic/elasticsearch'
-import { BulkIndexOptions, BulkInstruction, BulkOptions, BulkUnIndexOptions } from 'types'
+import { Model } from 'mongoose'
+import { BulkIndexOptions, BulkInstruction, BulkOptions, BulkUnIndexOptions, PluginDocument } from 'types'
 
 let bulkBuffer: BulkInstruction[] = []
 let bulkTimeout: NodeJS.Timeout | undefined
@@ -17,7 +17,7 @@ export async function bulkAdd(opts: BulkIndexOptions): Promise<void> {
 		}
 	}, opts.body]
 	
-	await bulkIndex(instruction, opts.bulk as BulkOptions, opts.client)
+	await bulkIndex(opts.model, instruction, opts.bulk as BulkOptions)
 }
 
 export async function bulkDelete(opts: BulkUnIndexOptions): Promise<void> {
@@ -28,27 +28,27 @@ export async function bulkDelete(opts: BulkUnIndexOptions): Promise<void> {
 		}
 	}]
 	
-	await bulkIndex(instruction, opts.bulk as BulkOptions, opts.client)
+	await bulkIndex(opts.model, instruction, opts.bulk as BulkOptions)
 }
 
-export async function bulkIndex(instruction: BulkInstruction[], bulk: BulkOptions, client: Client): Promise<void> {
+export async function bulkIndex(model: Model<PluginDocument>, instruction: BulkInstruction[], bulk: BulkOptions): Promise<void> {
 
 	bulkBuffer = bulkBuffer.concat(instruction)
 
 	if (bulkBuffer.length >= bulk.size) {
-		await flush(client)
+		await model.flush()
 		clearBulkTimeout()
 	} else if (bulkTimeout === undefined) {
 		bulkTimeout = setTimeout(async () => {
-			await flush(client)
+			await model.flush()
 			clearBulkTimeout()
 		}, bulk.delay)
 	}
 }
 
-export async function flush(client: Client): Promise<void> {
+export async function flush(this: Model<PluginDocument>): Promise<void> {
 
-	client.bulk({
+	this.esClient().bulk({
 		body: bulkBuffer
 	})
 		.then(res => {
@@ -56,13 +56,12 @@ export async function flush(client: Client): Promise<void> {
 				for (let i = 0; i < res.body.items.length; i++) {
 					const info = res.body.items[i]
 					if (info && info.index && info.index.error) {
-					// bulkErrEm.emit('error', null, info.index)
-						throw Error(info.index)
+						this.bulkError().emit('error', null, info.index)
 					}
 				}
 			}
 		})
-		.catch(error => console.log(error))
+		.catch(error => this.bulkError().emit('error', error, null))
 
 	bulkBuffer = []
 }

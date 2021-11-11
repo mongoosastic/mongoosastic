@@ -1,5 +1,7 @@
+import events from 'events'
 import { Schema } from 'mongoose'
 import { Options, PluginDocument } from 'types'
+import { flush } from './bulking'
 import { createEsClient } from './esClient'
 import { postSave, postRemove } from './hooks'
 import { index, unIndex } from './methods'
@@ -26,6 +28,8 @@ function mongoosastic(schema: Schema<PluginDocument>, options: Options = {}): vo
 	schema.method('index', index)
 	schema.method('unIndex', unIndex)
 
+	schema.static('flush', flush)
+
 	schema.static('synchronize', synchronize)
 	schema.static('esTruncate', esTruncate)
 
@@ -35,6 +39,9 @@ function mongoosastic(schema: Schema<PluginDocument>, options: Options = {}): vo
 	schema.static('createMapping', createMapping)
 	schema.static('refresh', refresh)
 	schema.static('esCount', esCount)
+
+	const bulkErrEm = new events.EventEmitter()
+	schema.static('bulkError', () => { return bulkErrEm })
 
 	if(options.indexAutomatically) {
 		schema.post('save', postSave)

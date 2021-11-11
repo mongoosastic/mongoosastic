@@ -3,7 +3,7 @@
 import { ClientOptions, ApiResponse, Client } from '@elastic/elasticsearch'
 import { Highlight, CountResponse, RefreshResponse, SearchResponse, QueryContainer, SearchRequest, TypeMapping, Hit, PropertyName, Property, HitsMetadata } from '@elastic/elasticsearch/api/types'
 import { RequestBody } from '@elastic/elasticsearch/lib/Transport'
-import { EventEmitter } from 'events'
+import events from 'events'
 import { Schema } from 'mongoose'
 import { Document, Model, PopulateOptions, QueryOptions } from 'mongoose'
 
@@ -41,24 +41,22 @@ declare interface BulkIndexOptions {
     body: any,
     bulk?: BulkOptions,
     refresh?: boolean,
+    model: Model<PluginDocument>,
     routing?: RoutingFn,
-    client: Client
 }
 
 declare interface BulkUnIndexOptions {
     index: string,
     id: string,
     bulk?: BulkOptions,
-    document?: PluginDocument,
+    model: Model<PluginDocument>,
     tries?: number,
     routing?: RoutingFn,
-    client: Client
 }
 
 declare interface DeleteByIdOptions {
     index: string,
     id: string,
-    document: PluginDocument,
     tries: number,
     client: Client
 }
@@ -145,10 +143,12 @@ declare module 'mongoose' {
 
         esSearch(query: SearchRequest['body'], options?: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults<T>>>;
 
-        synchronize(query?: any, options?: any): EventEmitter;
+        synchronize(query?: any, options?: any): events;
         
         esOptions(): Options
         esClient(): Client
+
+        bulkError(): events
 
         createMapping(body?: RequestBody): Promise<Record<PropertyName, Property>>
         esTruncate(): Promise<void>
@@ -156,6 +156,8 @@ declare module 'mongoose' {
         esCount(query?: QueryContainer): Promise<ApiResponse<CountResponse>>
 
         refresh(): Promise<ApiResponse<RefreshResponse>>
+
+        flush(): Promise<void>
     }
 }
 

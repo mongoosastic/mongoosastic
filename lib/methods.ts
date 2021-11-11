@@ -3,6 +3,7 @@ import { deleteById, getIndexName, serialize } from './utils'
 import { bulkAdd, bulkDelete } from './bulking'
 import Generator from './mapping'
 import { ApiResponse } from '@elastic/elasticsearch'
+import { Model } from 'mongoose'
 
 export async function index(this: PluginDocument, inOpts: IndexMethodOptions = {}): Promise<PluginDocument | ApiResponse> {
 
@@ -39,8 +40,10 @@ export async function index(this: PluginDocument, inOpts: IndexMethodOptions = {
 		routing: options.routing ? options.routing(this) : undefined
 	}
 
+	const model = this.constructor as Model<PluginDocument>
+
 	if (opt.bulk) {
-		await bulkAdd({ client, ...opt })
+		await bulkAdd({ model, ...opt })
 		return this
 	} else {
 		return client.index(opt)
@@ -60,14 +63,14 @@ export async function unIndex(this: PluginDocument): Promise<PluginDocument> {
 		tries: 3,
 		id: this._id.toString(),
 		bulk: options.bulk,
-		document: this,
+		model: this.constructor as Model<PluginDocument>,
 		routing: options.routing ? options.routing(this) : undefined
 	}
 
 	if (opt.bulk) {
 		await bulkDelete(opt)
 	} else {
-		await deleteById(opt)
+		await deleteById(this, opt)
 	}
 
 	return this

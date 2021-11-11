@@ -158,7 +158,7 @@ export async function esTruncate(this: Model<PluginDocument>): Promise<void> {
 				id: doc._id,
 				bulk: options.bulk,
 				routing: undefined,
-				client: client
+				model: this
 			}
 				
 			if (options.routing && doc._source != null) {

@@ -78,16 +78,13 @@ export function serialize<T extends PluginDocument>(model: T, mapping: Generated
 	return outModel
 }
 
-export async function deleteById(opt: DeleteByIdOptions): Promise<void> {
-
-	const doc = opt.document
-
+export async function deleteById(document: PluginDocument, opt: DeleteByIdOptions): Promise<void> {
 	await opt.client.delete({
 		index: opt.index,
 		id: opt.id,
 	}, {})
-		.then(res => doc.emit('es-removed', null, res))
-		.catch(error => doc.emit('es-removed', error, null))
+		.then(res => document.emit('es-removed', null, res))
+		.catch(error => document.emit('es-removed', error, null))
 }
 
 export function reformatESTotalNumber<T = unknown>(res: ApiResponse<SearchResponse<T>>): ApiResponse<SearchResponse<T>> {
