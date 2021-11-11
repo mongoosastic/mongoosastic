@@ -3,11 +3,11 @@
 import mongoose, { Model, Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
-import { PluginDocument } from 'types'
+import { MongoosasticDocument } from 'types'
 
 const indexName = 'es-test'
 
-interface IDummy extends PluginDocument {
+interface IDummy extends MongoosasticDocument {
     text: string;
 }
 
@@ -76,7 +76,7 @@ describe('forceIndexRefresh connection option', function () {
 	})
 })
 
-async function doInsertOperation (Model: Model<IDummy>, object: PluginDocument, indexName: string, refresh: boolean) {
+async function doInsertOperation (Model: Model<IDummy>, object: MongoosasticDocument, indexName: string, refresh: boolean) {
 	// save object
 	const savedObject = await object.save()
 
@@ -96,7 +96,7 @@ async function doInsertOperation (Model: Model<IDummy>, object: PluginDocument, 
 	}
 }
 
-async function doUpdateOperation (Model: Model<IDummy>, object: PluginDocument, newText: string, indexName: string, refresh: boolean) {
+async function doUpdateOperation (Model: Model<IDummy>, object: MongoosasticDocument, newText: string, indexName: string, refresh: boolean) {
 	// save object
 	const savedObject = await object.save()
 

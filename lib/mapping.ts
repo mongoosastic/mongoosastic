@@ -3,7 +3,7 @@
 
 import { cloneDeep } from 'lodash'
 import { Schema } from 'mongoose'
-import { PluginDocument } from 'types'
+import { MongoosasticDocument } from 'types'
 
 //
 // Get type from the mongoose schema
@@ -290,13 +290,13 @@ function nestedSchema (paths: Record<string, any>, field: string, cleanTree: Rec
 }
 
 export default class Generator {
-	generateMapping(schema: Schema<PluginDocument>): Record<string, any> {
+	generateMapping(schema: Schema<MongoosasticDocument>): Record<string, any> {
 		const cleanTree = getCleanTree(schema['tree' as keyof Schema], schema.paths, '', true)
 		delete cleanTree[schema.get('versionKey')]
 		const mapping = getMapping(cleanTree, '')
 		return { properties: mapping }
 	}
-	getCleanTree(schema: Schema<PluginDocument>): Record<string, any> {
+	getCleanTree(schema: Schema<MongoosasticDocument>): Record<string, any> {
 		return getCleanTree(schema['tree' as keyof Schema], schema.paths, '', true)
 	}
 }

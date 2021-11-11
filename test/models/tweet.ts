@@ -1,10 +1,10 @@
 'use strict'
 
 import mongoose, { Schema } from 'mongoose'
-import { PluginDocument } from 'types'
+import { MongoosasticDocument } from 'types'
 import mongoosastic from '../../lib/index'
 
-export interface ITweet extends PluginDocument {
+export interface ITweet extends MongoosasticDocument {
 	user: string,
 	userId: number,
 	post_date: Date,

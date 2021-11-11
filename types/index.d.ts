@@ -21,6 +21,30 @@ declare interface GeneratedMapping extends TypeMapping {
     cast?(doc: any): any
 }
 
+declare interface HydratedSearchResults<TDocument = unknown> extends SearchResponse<TDocument> {
+    hits: HydratedSearchHits<TDocument>
+}
+
+declare interface HydratedSearchHits<TDocument> extends HitsMetadata<TDocument> {
+    hydrated: Array<TDocument>
+}
+
+declare type IndexInstruction = {
+    index: {
+        _index: string,
+        _id: string,
+    }
+}
+
+declare type DeleteInstruction = {
+    delete: {
+        _index: string,
+        _id: string,
+    }
+}
+
+declare type BulkInstruction = IndexInstruction | DeleteInstruction | Record<string, unknown>
+
 declare interface BulkOptions {
     delay: number,
     size: number,
@@ -41,7 +65,7 @@ declare interface BulkIndexOptions {
     body: any,
     bulk?: BulkOptions,
     refresh?: boolean,
-    model: Model<PluginDocument>,
+    model: Model<MongoosasticDocument>,
     routing?: RoutingFn,
 }
 
@@ -49,7 +73,7 @@ declare interface BulkUnIndexOptions {
     index: string,
     id: string,
     bulk?: BulkOptions,
-    model: Model<PluginDocument>,
+    model: Model<MongoosasticDocument>,
     tries?: number,
     routing?: RoutingFn,
 }
@@ -60,45 +84,6 @@ declare interface DeleteByIdOptions {
     tries: number,
     client: Client
 }
-
-declare interface HydratedSearchResults<TDocument = unknown> extends SearchResponse<TDocument> {
-    hits: HydratedSearchHits<TDocument>
-}
-
-declare interface HydratedSearchHits<TDocument> extends HitsMetadata<TDocument> {
-    hydrated: Array<TDocument>
-}
-
-declare class PluginDocument<TDocument = any> extends Document<TDocument> {
-
-    _highlight?: Record<string, string[]> | undefined
-    _esResult?: Hit<TDocument>
-    
-    index(opts?: IndexMethodOptions): Promise<PluginDocument | ApiResponse>
-    unIndex(): Promise<PluginDocument>
-    
-    emit(event: string, ...args: any): void
-    esOptions(): Options
-    esClient(): Client
-    on(event: string, cb?: CallableFunction): void
-    once(event: string, cb?: CallableFunction): void
-}
-
-declare type IndexInstruction = {
-    index: {
-        _index: string,
-        _id: string,
-    }
-}
-
-declare type DeleteInstruction = {
-    delete: {
-        _index: string,
-        _id: string,
-    }
-}
-
-declare type BulkInstruction = IndexInstruction | DeleteInstruction | Record<string, unknown>
 
 declare type Options = {
     clientOptions?: ClientOptions,
@@ -130,6 +115,21 @@ declare type EsSearchOptions = {
     hydrateWithESResults?: any
 }
 
+declare class MongoosasticDocument<TDocument = any> extends Document<TDocument> {
+
+    _highlight?: Record<string, string[]> | undefined
+    _esResult?: Hit<TDocument>
+    
+    index(opts?: IndexMethodOptions): Promise<MongoosasticDocument | ApiResponse>
+    unIndex(): Promise<MongoosasticDocument>
+    
+    emit(event: string, ...args: any): void
+    esOptions(): Options
+    esClient(): Client
+    on(event: string, cb?: CallableFunction): void
+    once(event: string, cb?: CallableFunction): void
+}
+
 declare module 'mongoosastic' {
     const Mongoosastic: (schema: Schema, Options?: Partial<Options>) => void
     export = Mongoosastic;
@@ -143,7 +143,7 @@ declare module 'mongoose' {
 
         esSearch(query: SearchRequest['body'], options?: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults<T>>>;
 
-        synchronize(query?: any, options?: any): events;
+        synchronize(query?: any, options?: SynchronizeOptions): events;
         esTruncate(): Promise<void>
         
         esOptions(): Options
@@ -162,7 +162,7 @@ declare module 'mongoose' {
 
 export {
 	Options,
-	PluginDocument,
+	MongoosasticDocument,
 	EsSearchOptions,
 	BulkIndexOptions,
 	BulkUnIndexOptions,

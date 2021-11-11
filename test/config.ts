@@ -3,7 +3,7 @@
 import { Client } from '@elastic/elasticsearch'
 import { toInteger } from 'lodash'
 import { Model } from 'mongoose'
-import { PluginDocument } from 'types'
+import { MongoosasticDocument } from 'types'
 
 const esClient = new Client({ node: 'http://localhost:9200' })
 
@@ -21,13 +21,13 @@ async function deleteIndexIfExists(indexes: Array<string>): Promise<void> {
 	}
 }
 
-async function deleteDocs<T extends PluginDocument>(models: Array<Model<T>>): Promise<void> {
+async function deleteDocs<T extends MongoosasticDocument>(models: Array<Model<T>>): Promise<void> {
 	for (const model of models) {
 		await model.deleteMany()
 	}
 }
 
-async function createModelAndEnsureIndex<T extends PluginDocument>(Model: Model<T>, obj: unknown): Promise<T> {
+async function createModelAndEnsureIndex<T extends MongoosasticDocument>(Model: Model<T>, obj: unknown): Promise<T> {
 	const doc = new Model(obj)
 	await doc.save()
 
@@ -39,12 +39,12 @@ async function createModelAndEnsureIndex<T extends PluginDocument>(Model: Model<
 	})
 }
 
-async function createModelAndSave<T extends PluginDocument>(Model: Model<T>, obj: unknown): Promise<T> {
+async function createModelAndSave<T extends MongoosasticDocument>(Model: Model<T>, obj: unknown): Promise<T> {
 	const dude = new Model(obj)
 	return await dude.save()
 }
 
-async function saveAndWaitIndex(doc: PluginDocument): Promise<void> {
+async function saveAndWaitIndex(doc: MongoosasticDocument): Promise<void> {
 	await doc.save()
 
 	return new Promise((resolve) => {

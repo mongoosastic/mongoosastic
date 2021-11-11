@@ -1,7 +1,7 @@
 import { Property, PropertyName, QueryContainer, SearchResponse } from '@elastic/elasticsearch/api/types'
 import events from 'events'
 import { FilterQuery, Model } from 'mongoose'
-import { PluginDocument, SynchronizeOptions } from 'types'
+import { MongoosasticDocument, SynchronizeOptions } from 'types'
 import { postSave } from './hooks'
 import { filterMappingFromMixed, getIndexName, reformatESTotalNumber } from './utils'
 import { bulkDelete } from './bulking'
@@ -9,7 +9,7 @@ import Generator from './mapping'
 import { ApiResponse, RequestBody } from '@elastic/elasticsearch/lib/Transport'
 import { Search } from '@elastic/elasticsearch/api/requestParams'
 
-export async function createMapping(this: Model<PluginDocument>, body: RequestBody): Promise<Record<PropertyName, Property>> {
+export async function createMapping(this: Model<MongoosasticDocument>, body: RequestBody): Promise<Record<PropertyName, Property>> {
 
 	const options = this.esOptions()
 	const client = this.esClient()
@@ -55,7 +55,7 @@ export async function createMapping(this: Model<PluginDocument>, body: RequestBo
 
 }
 
-export function synchronize(this: Model<PluginDocument>, query: FilterQuery<PluginDocument> = {}, inOpts: SynchronizeOptions = {}): events {
+export function synchronize(this: Model<MongoosasticDocument>, query: FilterQuery<MongoosasticDocument> = {}, inOpts: SynchronizeOptions = {}): events {
 
 	const options = this.esOptions()
 
@@ -79,7 +79,7 @@ export function synchronize(this: Model<PluginDocument>, query: FilterQuery<Plug
 		stream.pause()
 		counter++
 
-		function onIndex (indexErr: unknown, inDoc: PluginDocument) {
+		function onIndex (indexErr: unknown, inDoc: MongoosasticDocument) {
 			counter--
 			if (indexErr) {
 				em.emit('error', indexErr)
@@ -122,7 +122,7 @@ export function synchronize(this: Model<PluginDocument>, query: FilterQuery<Plug
 	return em
 }
 
-export async function esTruncate(this: Model<PluginDocument>): Promise<void> {
+export async function esTruncate(this: Model<MongoosasticDocument>): Promise<void> {
 
 	const options = this.esOptions()
 	const client = this.esClient()
@@ -147,7 +147,7 @@ export async function esTruncate(this: Model<PluginDocument>): Promise<void> {
 		batch: (options.bulk && options.bulk.batch) || 50
 	}
 
-	let res: ApiResponse<SearchResponse<PluginDocument>> = await client.search(esQuery)
+	let res: ApiResponse<SearchResponse<MongoosasticDocument>> = await client.search(esQuery)
 
 	res = reformatESTotalNumber(res)
 	if (res.body.hits.total) {
@@ -172,13 +172,13 @@ export async function esTruncate(this: Model<PluginDocument>): Promise<void> {
 	options.bulk = bulkOptions
 }
 
-export async function refresh(this: Model<PluginDocument>): Promise<ApiResponse> {
+export async function refresh(this: Model<MongoosasticDocument>): Promise<ApiResponse> {
 	return await this.esClient().indices.refresh({
 		index: getIndexName(this)
 	})
 }
 
-export async function esCount(this: Model<PluginDocument>, query: QueryContainer): Promise<ApiResponse> {
+export async function esCount(this: Model<MongoosasticDocument>, query: QueryContainer): Promise<ApiResponse> {
 
 	if (query === undefined) {
 		query = {

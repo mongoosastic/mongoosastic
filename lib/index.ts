@@ -1,6 +1,6 @@
 import events from 'events'
 import { Schema } from 'mongoose'
-import { Options, PluginDocument } from 'types'
+import { Options, MongoosasticDocument } from 'types'
 import { flush } from './bulking'
 import { createEsClient } from './esClient'
 import { postSave, postRemove } from './hooks'
@@ -14,7 +14,7 @@ const defaultOptions = {
 	saveOnSynchronize: true
 }
 
-function mongoosastic(schema: Schema<PluginDocument>, options: Options = {}): void {
+function mongoosastic(schema: Schema<MongoosasticDocument>, options: Options = {}): void {
 
 	options = { ...defaultOptions, ...options }
 
@@ -49,7 +49,7 @@ function mongoosastic(schema: Schema<PluginDocument>, options: Options = {}): vo
 
 	if(options.indexAutomatically) {
 		schema.post('save', postSave)
-		schema.post('insertMany', (docs: PluginDocument[]) => docs.forEach((doc) => postSave(doc)))
+		schema.post('insertMany', (docs: MongoosasticDocument[]) => docs.forEach((doc) => postSave(doc)))
 
 		schema.post('findOneAndUpdate', postSave)
 

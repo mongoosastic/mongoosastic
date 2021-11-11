@@ -1,6 +1,6 @@
 import { Model } from 'mongoose'
 import { isEmpty } from 'lodash'
-import { DeleteByIdOptions, EsSearchOptions, GeneratedMapping, HydratedSearchResults, PluginDocument } from 'types'
+import { DeleteByIdOptions, EsSearchOptions, GeneratedMapping, HydratedSearchResults, MongoosasticDocument } from 'types'
 import { ApiResponse } from '@elastic/elasticsearch'
 import { Property, PropertyName, SearchResponse, TotalHits } from '@elastic/elasticsearch/api/types'
 
@@ -13,7 +13,7 @@ export function isStringArray(arr: Array<unknown>): boolean {
 	return arr.filter && arr.length === (arr.filter((item: unknown) => typeof item === 'string')).length
 }
 
-export function getIndexName(doc: PluginDocument | Model<PluginDocument>): string {
+export function getIndexName(doc: MongoosasticDocument | Model<MongoosasticDocument>): string {
 	const options = doc.esOptions()
 	const indexName = options && options.index
 	if (!indexName) return doc.collection.name
@@ -37,16 +37,16 @@ export function filterMappingFromMixed(props: Record<PropertyName, Property>): R
 	return filteredMapping
 }
 
-export function serialize<T extends PluginDocument>(model: T, mapping: GeneratedMapping): T | T[] | string {
+export function serialize<T extends MongoosasticDocument>(model: T, mapping: GeneratedMapping): T | T[] | string {
 	let name
 
-	function _serializeObject(object: PluginDocument, mappingData: GeneratedMapping) {
+	function _serializeObject(object: MongoosasticDocument, mappingData: GeneratedMapping) {
 		const serialized: Record<string, unknown> = {}
 		let field
 		let val
 		for (field in mappingData.properties) {
 			if (mappingData.properties?.hasOwnProperty(field)) {
-				val = serialize.call(object, object[field as keyof PluginDocument], mappingData.properties[field])
+				val = serialize.call(object, object[field as keyof MongoosasticDocument], mappingData.properties[field])
 				if (val !== undefined) {
 					serialized[field] = val
 				}
@@ -78,7 +78,7 @@ export function serialize<T extends PluginDocument>(model: T, mapping: Generated
 	return outModel
 }
 
-export async function deleteById(document: PluginDocument, opt: DeleteByIdOptions): Promise<void> {
+export async function deleteById(document: MongoosasticDocument, opt: DeleteByIdOptions): Promise<void> {
 	await opt.client.delete({
 		index: opt.index,
 		id: opt.id,
@@ -95,7 +95,7 @@ export function reformatESTotalNumber<T = unknown>(res: ApiResponse<SearchRespon
 	return res
 }
 
-export async function hydrate(res: ApiResponse<SearchResponse>, model: Model<PluginDocument>, opts: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults>> {
+export async function hydrate(res: ApiResponse<SearchResponse>, model: Model<MongoosasticDocument>, opts: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults>> {
 
 	const options = model.esOptions()
 	
@@ -123,7 +123,7 @@ export async function hydrate(res: ApiResponse<SearchResponse>, model: Model<Plu
 	const docs = await query.exec()
 
 	let hits
-	const docsMap: Record<string, PluginDocument> = {}
+	const docsMap: Record<string, MongoosasticDocument> = {}
 
 	if (!docs || docs.length === 0) {
 		results.hits = []

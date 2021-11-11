@@ -1,6 +1,6 @@
-import { PluginDocument } from 'types'
+import { MongoosasticDocument } from 'types'
 
-export function postSave(doc: PluginDocument): void {
+export function postSave(doc: MongoosasticDocument): void {
 
 	if (!doc) {
 		return
@@ -37,7 +37,7 @@ export function postSave(doc: PluginDocument): void {
 	}
 }
 
-export function postRemove(doc: PluginDocument): void {
+export function postRemove(doc: MongoosasticDocument): void {
 	
 	if (!doc) {
 		return

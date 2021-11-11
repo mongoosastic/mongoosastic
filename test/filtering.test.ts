@@ -3,9 +3,9 @@
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
-import { Options, PluginDocument } from 'types'
+import { Options, MongoosasticDocument } from 'types'
 
-interface IMovie extends PluginDocument {
+interface IMovie extends MongoosasticDocument {
 	title: string,
 	genre: string,
 }

@@ -3,9 +3,9 @@
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
-import { PluginDocument } from 'types'
+import { MongoosasticDocument } from 'types'
 
-interface IRank extends PluginDocument {
+interface IRank extends MongoosasticDocument {
 	title: string,
 	rank: number
 }

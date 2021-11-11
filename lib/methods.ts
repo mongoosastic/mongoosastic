@@ -1,11 +1,11 @@
-import { IndexMethodOptions, PluginDocument } from 'types'
+import { IndexMethodOptions, MongoosasticDocument } from 'types'
 import { deleteById, getIndexName, serialize } from './utils'
 import { bulkAdd, bulkDelete } from './bulking'
 import Generator from './mapping'
 import { ApiResponse } from '@elastic/elasticsearch'
 import { Model } from 'mongoose'
 
-export async function index(this: PluginDocument, inOpts: IndexMethodOptions = {}): Promise<PluginDocument | ApiResponse> {
+export async function index(this: MongoosasticDocument, inOpts: IndexMethodOptions = {}): Promise<MongoosasticDocument | ApiResponse> {
 
 	const options = this.esOptions()
 	const client = this.esClient()
@@ -40,7 +40,7 @@ export async function index(this: PluginDocument, inOpts: IndexMethodOptions = {
 		routing: options.routing ? options.routing(this) : undefined
 	}
 
-	const model = this.constructor as Model<PluginDocument>
+	const model = this.constructor as Model<MongoosasticDocument>
 
 	if (opt.bulk) {
 		await bulkAdd({ model, ...opt })
@@ -50,7 +50,7 @@ export async function index(this: PluginDocument, inOpts: IndexMethodOptions = {
 	}
 }
 
-export async function unIndex(this: PluginDocument): Promise<PluginDocument> {
+export async function unIndex(this: MongoosasticDocument): Promise<MongoosasticDocument> {
 
 	const options = this.esOptions()
 	const client = this.esClient()
@@ -63,7 +63,7 @@ export async function unIndex(this: PluginDocument): Promise<PluginDocument> {
 		tries: 3,
 		id: this._id.toString(),
 		bulk: options.bulk,
-		model: this.constructor as Model<PluginDocument>,
+		model: this.constructor as Model<MongoosasticDocument>,
 		routing: options.routing ? options.routing(this) : undefined
 	}
 

@@ -4,9 +4,9 @@ import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
 import { Aggregate, Hit } from '@elastic/elasticsearch/api/types'
-import { PluginDocument } from 'types'
+import { MongoosasticDocument } from 'types'
 
-interface IBond extends PluginDocument {
+interface IBond extends MongoosasticDocument {
 	name: string,
 	type: string,
 	price: number

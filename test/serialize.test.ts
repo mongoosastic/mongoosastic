@@ -1,12 +1,12 @@
 'use strict'
 
 import mongoose, { Schema } from 'mongoose'
-import { PluginDocument } from 'types'
+import { MongoosasticDocument } from 'types'
 import Generator from '../lib/mapping'
 const generator = new Generator()
 import { serialize } from '../lib/utils'
 
-interface IPerson extends PluginDocument {
+interface IPerson extends MongoosasticDocument {
 	name: {
 		first: string,
 		last: string

@@ -5,7 +5,7 @@ import { config } from './config'
 import mongoosastic from '../lib/index'
 import { ITweet, Tweet } from './models/tweet'
 import { QueryContainer } from '@elastic/elasticsearch/api/types'
-import { PluginDocument } from 'types'
+import { MongoosasticDocument } from 'types'
 
 const esClient = config.getClient()
 
@@ -31,7 +31,7 @@ const BumSchema = new Schema({
 	name: String
 })
 
-interface IPerson extends PluginDocument {
+interface IPerson extends MongoosasticDocument {
 	name: string,
 	phone: string,
 	address: string,

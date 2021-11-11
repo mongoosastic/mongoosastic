@@ -3,9 +3,9 @@
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
-import { PluginDocument } from 'types'
+import { MongoosasticDocument } from 'types'
 
-interface IText extends PluginDocument {
+interface IText extends MongoosasticDocument {
 	title: string,
 	quote: string
 }
