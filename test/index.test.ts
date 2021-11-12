@@ -18,7 +18,7 @@ interface ITalk extends MongoosasticDocument {
 }
 
 // -- Only index specific field
-const TalkSchema = new Schema({
+const TalkSchema = new Schema<ITalk>({
 	speaker: String,
 	year: {
 		type: Number,
@@ -39,7 +39,7 @@ interface IBum extends MongoosasticDocument {
 	name: string
 }
 
-const BumSchema = new Schema({
+const BumSchema = new Schema<IBum>({
 	name: String
 })
 
@@ -53,7 +53,7 @@ interface IPerson extends MongoosasticDocument {
 	}
 }
 
-const PersonSchema = new Schema({
+const PersonSchema = new Schema<IPerson>({
 	name: {
 		type: String,
 		es_indexed: true
@@ -75,7 +75,7 @@ const PersonSchema = new Schema({
 	}
 })
 
-const DogSchema = new Schema({
+const DogSchema = new Schema<MongoosasticDocument>({
 	name: { type: String, es_indexed: true }
 })
 

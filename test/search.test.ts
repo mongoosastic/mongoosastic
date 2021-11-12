@@ -12,7 +12,7 @@ interface IBond extends MongoosasticDocument {
 	price: number
 }
 
-const BondSchema = new Schema({
+const BondSchema = new Schema<IBond>({
 	name: String,
 	type: {
 		type: String,

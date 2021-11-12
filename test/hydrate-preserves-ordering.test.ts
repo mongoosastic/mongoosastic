@@ -10,7 +10,7 @@ interface IRank extends MongoosasticDocument {
 	rank: number
 }
 
-const rankSchema = new Schema({
+const rankSchema = new Schema<IRank>({
 	title: String,
 	rank: Number
 })

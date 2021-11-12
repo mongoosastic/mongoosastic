@@ -5,18 +5,18 @@ import { EsSearchOptions, HydratedSearchResults, MongoosasticDocument, Mongoosas
 import { getIndexName, hydrate, isString, isStringArray, reformatESTotalNumber } from './utils'
 
 
-export async function search(this: MongoosasticModel<MongoosasticDocument>, query: QueryContainer, opts: EsSearchOptions = {}): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>> {
+export async function search<T extends MongoosasticDocument>(this: MongoosasticModel<T>, query: QueryContainer, opts: EsSearchOptions = {}): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>> {
 
 	const fullQuery = {
 		query: query
 	}
 
-	const bindedEsSearch = esSearch.bind(this)
+	// const bindedEsSearch = esSearch.bind(this)
 
-	return bindedEsSearch(fullQuery, opts)
+	return this.esSearch(fullQuery, opts)
 }
 
-export async function esSearch(this: MongoosasticModel<MongoosasticDocument>, query: SearchRequest['body'], opts: EsSearchOptions = {}): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>> {
+export async function esSearch<T extends MongoosasticDocument>(this: MongoosasticModel<T>, query: SearchRequest['body'], opts: EsSearchOptions = {}): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>> {
 
 	const options = this.esOptions()
 	const client = this.esClient()
@@ -50,7 +50,7 @@ export async function esSearch(this: MongoosasticModel<MongoosasticDocument>, qu
 
 	const resp = reformatESTotalNumber(res)
 	if (options.alwaysHydrate || opts.hydrate) {
-		return hydrate(resp, this, opts)
+		return hydrate(resp, this as any, opts)
 	} else {
 		return resp
 	}

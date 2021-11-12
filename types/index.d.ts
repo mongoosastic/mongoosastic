@@ -60,21 +60,21 @@ declare interface SynchronizeOptions {
     saveOnSynchronize?: boolean
 }
 
-declare interface BulkIndexOptions {
+declare interface BulkIndexOptions<T extends MongoosasticDocument> {
     index: string,
     id: string,
     body: any,
     bulk?: BulkOptions,
     refresh?: boolean,
-    model: MongoosasticModel<MongoosasticDocument>,
+    model: MongoosasticModel<T>,
     routing?: RoutingFn,
 }
 
-declare interface BulkUnIndexOptions {
+declare interface BulkUnIndexOptions<T extends MongoosasticDocument> {
     index: string,
     id: string,
     bulk?: BulkOptions,
-    model: MongoosasticModel<MongoosasticDocument>,
+    model: MongoosasticModel<T>,
     tries?: number,
     routing?: RoutingFn,
 }

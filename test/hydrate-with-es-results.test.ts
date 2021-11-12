@@ -10,7 +10,7 @@ interface IText extends MongoosasticDocument {
 	quote: string
 }
 
-const textSchema = new Schema({
+const textSchema = new Schema<IText>({
 	title: String,
 	quote: String
 })

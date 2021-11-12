@@ -16,7 +16,7 @@ interface ISchema extends MongoosasticDocument {
 	},
 }
 
-const schema = new Schema({
+const schema = new Schema<ISchema>({
 	string: String,
 	mixed_field: {
 		type: mongoose.Schema.Types.Mixed

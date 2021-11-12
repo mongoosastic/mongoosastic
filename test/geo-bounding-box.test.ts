@@ -6,7 +6,7 @@ import mongoosastic from '../lib/index'
 import { QueryContainer } from '@elastic/elasticsearch/api/types'
 import { MongoosasticDocument, MongoosasticModel } from 'types'
 
-const GeoBoundingBoxSchema = new Schema({
+const GeoBoundingBoxSchema = new Schema<MongoosasticDocument>({
 	text: {
 		type: String,
 		es_indexed: true

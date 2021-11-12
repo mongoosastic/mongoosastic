@@ -16,7 +16,7 @@ interface IGeo extends MongoosasticDocument {
 	}
 }
 
-const GeoSchema = new Schema({
+const GeoSchema = new Schema<IGeo>({
 	myId: Number,
 	frame: {
 		coordinates: [],

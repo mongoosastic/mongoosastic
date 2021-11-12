@@ -9,7 +9,7 @@ interface ITask extends MongoosasticDocument {
 	content: string
 }
 
-const TaskSchema = new Schema({
+const TaskSchema = new Schema<ITask>({
 	content: String
 })
 

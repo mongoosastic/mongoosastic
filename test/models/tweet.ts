@@ -12,7 +12,7 @@ export interface ITweet extends MongoosasticDocument {
 }
 
 // -- simplest indexing... index all fields
-const TweetSchema = new Schema({
+const TweetSchema = new Schema<ITweet>({
 	user: String,
 	userId: Number,
 	post_date: Date,

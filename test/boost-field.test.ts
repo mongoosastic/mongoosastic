@@ -3,10 +3,11 @@
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
+import { MongoosasticDocument, MongoosasticModel } from 'types'
 
 const esClient = config.getClient()
 
-const TweetSchema = new Schema({
+const TweetSchema = new Schema<MongoosasticDocument>({
 	user: String,
 	post_date: {
 		type: Date,
@@ -23,7 +24,7 @@ const TweetSchema = new Schema({
 
 TweetSchema.plugin(mongoosastic)
 
-const BlogPost = mongoose.model('BlogPost', TweetSchema)
+const BlogPost = mongoose.model<MongoosasticDocument, MongoosasticModel<MongoosasticDocument>>('BlogPost', TweetSchema)
 
 describe('Add Boost Option Per Field', function () {
 

@@ -1,6 +1,6 @@
 import events from 'events'
 import { Schema } from 'mongoose'
-import { Options, MongoosasticDocument } from 'types'
+import { Options, MongoosasticDocument, MongoosasticModel } from 'types'
 import { flush } from './bulking'
 import { createEsClient } from './esClient'
 import { postSave, postRemove } from './hooks'
@@ -14,7 +14,7 @@ const defaultOptions = {
 	saveOnSynchronize: true
 }
 
-function mongoosastic(schema: Schema<MongoosasticDocument>, options: Options = {}): void {
+function mongoosastic<T extends MongoosasticDocument>(schema: Schema<T, MongoosasticModel<T>>, options: Options = {}): void {
 
 	options = { ...defaultOptions, ...options }
 

@@ -8,7 +8,7 @@ function clearBulkTimeout() {
 	bulkTimeout = undefined
 }
 
-export async function bulkAdd(opts: BulkIndexOptions): Promise<void> {
+export async function bulkAdd<T extends MongoosasticDocument>(opts: BulkIndexOptions<T>): Promise<void> {
 	const instruction = [{
 		index: {
 			_index: opts.index,
@@ -19,7 +19,7 @@ export async function bulkAdd(opts: BulkIndexOptions): Promise<void> {
 	await bulkIndex(opts.model, instruction, opts.bulk as BulkOptions)
 }
 
-export async function bulkDelete(opts: BulkUnIndexOptions): Promise<void> {
+export async function bulkDelete<T extends MongoosasticDocument>(opts: BulkUnIndexOptions<T>): Promise<void> {
 	const instruction = [{
 		delete: {
 			_index: opts.index,
@@ -30,7 +30,7 @@ export async function bulkDelete(opts: BulkUnIndexOptions): Promise<void> {
 	await bulkIndex(opts.model, instruction, opts.bulk as BulkOptions)
 }
 
-export async function bulkIndex(model: MongoosasticModel<MongoosasticDocument>, instruction: BulkInstruction[], bulk: BulkOptions): Promise<void> {
+export async function bulkIndex<T extends MongoosasticDocument>(model: MongoosasticModel<T>, instruction: BulkInstruction[], bulk: BulkOptions): Promise<void> {
 
 	bulkBuffer = bulkBuffer.concat(instruction)
 
@@ -45,7 +45,7 @@ export async function bulkIndex(model: MongoosasticModel<MongoosasticDocument>, 
 	}
 }
 
-export async function flush(this: MongoosasticModel<MongoosasticDocument>): Promise<void> {
+export async function flush<T extends MongoosasticDocument>(this: MongoosasticModel<T>): Promise<void> {
 
 	this.esClient().bulk({
 		body: bulkBuffer
