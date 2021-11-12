@@ -9,7 +9,7 @@ import Generator from './mapping'
 import { ApiResponse, RequestBody } from '@elastic/elasticsearch/lib/Transport'
 import { Search } from '@elastic/elasticsearch/api/requestParams'
 
-export async function createMapping<T extends MongoosasticDocument>(this: MongoosasticModel<T>, body: RequestBody): Promise<Record<PropertyName, Property>> {
+export async function createMapping(this: MongoosasticModel<MongoosasticDocument>, body: RequestBody): Promise<Record<PropertyName, Property>> {
 
 	const options = this.esOptions()
 	const client = this.esClient()
@@ -55,7 +55,7 @@ export async function createMapping<T extends MongoosasticDocument>(this: Mongoo
 
 }
 
-export function synchronize<T extends MongoosasticDocument>(this: MongoosasticModel<T>, query: FilterQuery<MongoosasticDocument> = {}, inOpts: SynchronizeOptions = {}): events {
+export function synchronize(this: MongoosasticModel<MongoosasticDocument>, query: FilterQuery<MongoosasticDocument> = {}, inOpts: SynchronizeOptions = {}): events {
 
 	const options = this.esOptions()
 
@@ -122,7 +122,7 @@ export function synchronize<T extends MongoosasticDocument>(this: MongoosasticMo
 	return em
 }
 
-export async function esTruncate<T extends MongoosasticDocument>(this: MongoosasticModel<T>): Promise<void> {
+export async function esTruncate(this: MongoosasticModel<MongoosasticDocument>): Promise<void> {
 
 	const options = this.esOptions()
 	const client = this.esClient()
@@ -172,13 +172,13 @@ export async function esTruncate<T extends MongoosasticDocument>(this: Mongoosas
 	options.bulk = bulkOptions
 }
 
-export async function refresh<T extends MongoosasticDocument>(this: MongoosasticModel<T>): Promise<ApiResponse> {
+export async function refresh(this: MongoosasticModel<MongoosasticDocument>): Promise<ApiResponse> {
 	return await this.esClient().indices.refresh({
 		index: getIndexName(this)
 	})
 }
 
-export async function esCount<T extends MongoosasticDocument>(this: MongoosasticModel<T>, query: QueryContainer): Promise<ApiResponse> {
+export async function esCount(this: MongoosasticModel<MongoosasticDocument>, query: QueryContainer): Promise<ApiResponse> {
 
 	if (query === undefined) {
 		query = {

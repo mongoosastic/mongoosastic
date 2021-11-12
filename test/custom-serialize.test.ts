@@ -10,7 +10,7 @@ interface IFood extends MongoosasticDocument {
 	type: string
 }
 
-const FoodSchema = new Schema<IFood>({
+const FoodSchema = new Schema<MongoosasticDocument>({
 	name: {
 		type: String
 	}

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ClientOptions, ApiResponse, Client } from '@elastic/elasticsearch'
@@ -60,21 +59,21 @@ declare interface SynchronizeOptions {
     saveOnSynchronize?: boolean
 }
 
-declare interface BulkIndexOptions<T extends MongoosasticDocument> {
+declare interface BulkIndexOptions {
     index: string,
     id: string,
     body: any,
     bulk?: BulkOptions,
     refresh?: boolean,
-    model: MongoosasticModel<T>,
+    model: MongoosasticModel<MongoosasticDocument>,
     routing?: RoutingFn,
 }
 
-declare interface BulkUnIndexOptions<T extends MongoosasticDocument> {
+declare interface BulkUnIndexOptions {
     index: string,
     id: string,
     bulk?: BulkOptions,
-    model: MongoosasticModel<T>,
+    model: MongoosasticModel<MongoosasticDocument>,
     tries?: number,
     routing?: RoutingFn,
 }
@@ -157,31 +156,6 @@ interface MongoosasticModel<T> extends Model<T> {
     refresh(): Promise<ApiResponse<RefreshResponse>>
     flush(): Promise<void>
 }
-
-// declare module 'mongoose' {
-
-//     export interface Model<T extends Document> {
-
-//         search(query: QueryContainer, options?: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults<T>>>;
-
-//         esSearch(query: SearchRequest['body'], options?: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults<T>>>;
-
-//         synchronize(query?: any, options?: SynchronizeOptions): events;
-//         esTruncate(): Promise<void>
-        
-//         esOptions(): Options
-//         esClient(): Client
-//         bulkError(): events
-
-//         createMapping(body?: RequestBody): Promise<Record<PropertyName, Property>>
-//         getMapping(): Record<string, any>
-//         getCleanTree(): Record<string, any>
-
-//         esCount(query?: QueryContainer): Promise<ApiResponse<CountResponse>>
-//         refresh(): Promise<ApiResponse<RefreshResponse>>
-//         flush(): Promise<void>
-//     }
-// }
 
 export {
 	Options,

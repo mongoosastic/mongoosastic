@@ -9,7 +9,7 @@ interface IBook extends MongoosasticDocument {
 	title: string
 }
 
-const BookSchema = new Schema<IBook>({
+const BookSchema = new Schema<MongoosasticDocument>({
 	title: String
 })
 

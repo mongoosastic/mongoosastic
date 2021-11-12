@@ -12,7 +12,7 @@ interface IRepo extends MongoosasticDocument {
 }
 
 // -- Only index specific field
-const RepoSchema = new Schema<IRepo>({
+const RepoSchema = new Schema<MongoosasticDocument>({
 	name: {
 		type: String,
 		es_indexed: true

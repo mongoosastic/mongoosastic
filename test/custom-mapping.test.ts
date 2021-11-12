@@ -11,7 +11,7 @@ interface IPhone extends MongoosasticDocument {
 }
 
 // -- Only index specific field
-const PhoneSchema = new Schema<IPhone>({
+const PhoneSchema = new Schema<MongoosasticDocument>({
 	name: {
 		type: String,
 		es_indexed: true

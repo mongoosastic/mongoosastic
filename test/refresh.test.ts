@@ -9,7 +9,7 @@ interface IRefresh extends MongoosasticDocument {
 	title: string
 }
 
-const RefreshSchema = new Schema<IRefresh>({
+const RefreshSchema = new Schema<MongoosasticDocument>({
 	title: String
 })
 

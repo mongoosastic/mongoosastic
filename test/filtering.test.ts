@@ -11,7 +11,7 @@ interface IMovie extends MongoosasticDocument {
 }
 
 // -- Only index specific field
-const MovieSchema = new Schema<IMovie>({
+const MovieSchema = new Schema<MongoosasticDocument>({
 	title: {
 		type: String,
 		required: true,

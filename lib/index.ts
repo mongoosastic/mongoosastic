@@ -14,7 +14,7 @@ const defaultOptions = {
 	saveOnSynchronize: true
 }
 
-function mongoosastic<T extends MongoosasticDocument>(schema: Schema<T, MongoosasticModel<T>>, options: Options = {}): void {
+function mongoosastic(schema: Schema<MongoosasticDocument, MongoosasticModel<MongoosasticDocument>>, options: Options = {}): void {
 
 	options = { ...defaultOptions, ...options }
 

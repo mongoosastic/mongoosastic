@@ -11,10 +11,10 @@ interface IDummy extends MongoosasticDocument {
     text: string;
 }
 
-const DummySchema = new Schema<IDummy>({
+const DummySchema = new Schema<MongoosasticDocument>({
 	text: String
 })
-const DummySchemaRefresh = new Schema<IDummy>({
+const DummySchemaRefresh = new Schema<MongoosasticDocument>({
 	text: String
 })
 DummySchema.plugin(mongoosastic, {

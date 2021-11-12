@@ -290,13 +290,13 @@ function nestedSchema (paths: Record<string, any>, field: string, cleanTree: Rec
 }
 
 export default class Generator {
-	generateMapping<T extends MongoosasticDocument>(schema: Schema<T, MongoosasticModel<T>>): Record<string, any> {
+	generateMapping(schema: Schema<MongoosasticDocument, MongoosasticModel<MongoosasticDocument>>): Record<string, any> {
 		const cleanTree = getCleanTree(schema['tree' as keyof Schema], schema.paths, '', true)
 		delete cleanTree[schema.get('versionKey')]
 		const mapping = getMapping(cleanTree, '')
 		return { properties: mapping }
 	}
-	getCleanTree<T extends MongoosasticDocument>(schema: Schema<T, MongoosasticModel<T>>): Record<string, any> {
+	getCleanTree(schema: Schema<MongoosasticDocument, MongoosasticModel<MongoosasticDocument>>): Record<string, any> {
 		return getCleanTree(schema['tree' as keyof Schema], schema.paths, '', true)
 	}
 }

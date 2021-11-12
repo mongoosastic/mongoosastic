@@ -12,7 +12,7 @@ export function isStringArray(arr: Array<unknown>): boolean {
 	return arr.filter && arr.length === (arr.filter((item: unknown) => typeof item === 'string')).length
 }
 
-export function getIndexName<T extends MongoosasticDocument>(doc: T | MongoosasticModel<T>): string {
+export function getIndexName(doc: MongoosasticDocument | MongoosasticModel<MongoosasticDocument>): string {
 	const options = doc.esOptions()
 	const indexName = options && options.index
 	if (!indexName) return doc.collection.name
