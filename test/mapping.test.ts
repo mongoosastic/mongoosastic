@@ -63,7 +63,7 @@ describe('MappingGenerator', function () {
 		it('maps field with simple text type', function (done) {
 			const schema = new Schema({ name: String })
 			const mapping = generator.generateMapping(schema)
-			// mapping.properties.name.type.should.eql('text')
+
 			expect(mapping.properties.name.type).toEqual('text')
 			done()
 		})
@@ -75,7 +75,7 @@ describe('MappingGenerator', function () {
 				}
 			})
 			const mapping = generator.generateMapping(schema)
-			// mapping.properties.name.type.should.eql('text')
+
 			expect(mapping.properties.name.type).toEqual('text')
 			done()
 		})
@@ -88,7 +88,7 @@ describe('MappingGenerator', function () {
 				}
 			})
 			const mapping = generator.generateMapping(schema)
-			// mapping.properties.graduationDate.type.should.eql('date')
+
 			expect(mapping.properties.graduationDate.type).toEqual('date')
 			done()
 		})
@@ -108,7 +108,7 @@ describe('MappingGenerator', function () {
 				}
 			})
 			const mapping = generator.generateMapping(schema)
-			// mapping.properties.should.not.have.property('_id')
+
 			expect(mapping.properties).not.toHaveProperty('_id')
 			done()
 		})
@@ -128,7 +128,7 @@ describe('MappingGenerator', function () {
 				}
 			})
 			const mapping = generator.generateMapping(schema)
-			// mapping.properties.user.properties.should.have.property('_id')
+
 			expect(mapping.properties.user.properties).toHaveProperty('_id')
 			done()
 		})
@@ -140,7 +140,7 @@ describe('MappingGenerator', function () {
 				}
 			})
 			const mapping = generator.generateMapping(schema)
-			// mapping.properties.oid.type.should.eql('text')
+
 			expect(mapping.properties.oid.type).toEqual('text')
 			done()
 		})
@@ -150,9 +150,8 @@ describe('MappingGenerator', function () {
 				oid: Schema.Types.ObjectId
 			})
 			const mapping = generator.generateMapping(schema)
-			// mapping.properties.oid.type.should.eql('text')
+
 			expect(mapping.properties.oid.type).toEqual('text')
-			// should.not.exist(schema.tree.oid.type)
 			expect(schema['tree' as keyof Schema].oid.type).toBeUndefined()
 			done()
 		})
@@ -169,9 +168,8 @@ describe('MappingGenerator', function () {
 				}
 			})
 			const mapping = generator.generateMapping(schema)
-			// mapping.properties.contact.properties.email.type.should.eql('text')
+
 			expect(mapping.properties.contact.properties.email.type).toEqual('text')
-			// mapping.properties.contact.properties.telephone.type.should.eql('text')
 			expect(mapping.properties.contact.properties.telephone.type).toEqual('text')
 			done()
 		})
@@ -198,15 +196,11 @@ describe('MappingGenerator', function () {
 				}
 			})
 			const mapping = generator.generateMapping(schema)
-			// mapping.properties.name.type.should.eql('text')
+
 			expect(mapping.properties.name.type).toEqual('text')
-			// mapping.properties.contact.properties.email.type.should.eql('text')
 			expect(mapping.properties.contact.properties.email.type).toEqual('text')
-			// mapping.properties.contact.properties.tags.type.should.eql('text')
 			expect(mapping.properties.contact.properties.tags.type).toEqual('text')
-			// mapping.properties.contact.properties.should.not.have.property('telephone')
 			expect(mapping.properties.contact.properties).not.toHaveProperty('telephone')
-			// mapping.properties.contact.properties.should.not.have.property('keys')
 			expect(mapping.properties.contact.properties).not.toHaveProperty('keys')
 			done()
 		})
@@ -240,15 +234,10 @@ describe('MappingGenerator', function () {
 
 			const mapping = generator.generateMapping(schema)
 
-			// mapping.properties.name.type.should.eql('text')
 			expect(mapping.properties.name.type).toEqual('text')
-			// mapping.properties.contact.properties.email.type.should.eql('text')
 			expect(mapping.properties.contact.properties.email.type).toEqual('text')
-			// mapping.properties.contact.properties.tags.type.should.eql('text')
 			expect(mapping.properties.contact.properties.tags.type).toEqual('text')
-			// mapping.properties.contact.properties.should.not.have.property('telephone')
 			expect(mapping.properties.contact.properties).not.toHaveProperty('telephone')
-			// mapping.properties.contact.properties.should.not.have.property('keys')
 			expect(mapping.properties.contact.properties).not.toHaveProperty('keys')
 			done()
 		})
@@ -274,15 +263,10 @@ describe('MappingGenerator', function () {
 
 			const mapping = generator.generateMapping(schema)
 
-			// mapping.properties.test.type.should.eql('multi_field')
 			expect(mapping.properties.test.type).toEqual('multi_field')
-			// mapping.properties.test.fields.test.type.should.eql('text')
 			expect(mapping.properties.test.fields.test.type).toEqual('text')
-			// mapping.properties.test.fields.test.index.should.eql('analyzed')
 			expect(mapping.properties.test.fields.test.index).toEqual('analyzed')
-			// mapping.properties.test.fields.untouched.type.should.eql('text')
 			expect(mapping.properties.test.fields.untouched.type).toEqual('text')
-			// mapping.properties.test.fields.untouched.index.should.eql('not_analyzed')
 			expect(mapping.properties.test.fields.untouched.index).toEqual('not_analyzed')
 			done()
 		})
@@ -297,7 +281,6 @@ describe('MappingGenerator', function () {
 
 			const mapping = generator.generateMapping(schema)
 
-			// mapping.properties.geo.type.should.eql('geo_point')
 			expect(mapping.properties.geo.type).toEqual('geo_point')
 			done()
 		})
@@ -321,9 +304,7 @@ describe('MappingGenerator', function () {
 
 			const mapping = generator.generateMapping(schema)
 
-			// mapping.properties.geo_with_lat_lon.type.should.eql('geo_point')
 			expect(mapping.properties.geo_with_lat_lon.type).toEqual('geo_point')
-			// mapping.properties.geo_with_lat_lon.lat_lon.should.eql(true)
 			expect(mapping.properties.geo_with_lat_lon.lat_lon).toEqual(true)
 			done()
 		})
@@ -341,11 +322,8 @@ describe('MappingGenerator', function () {
 			const schema = new Schema({ name: [NameSchema] })
 			const mapping = generator.generateMapping(schema)
 
-			// mapping.properties.name.type.should.eql('object')
 			expect(mapping.properties.name.type).toEqual('object')
-			// mapping.properties.name.properties.first_name.type.should.eql('text')
 			expect(mapping.properties.name.properties.first_name.type).toEqual('text')
-			// mapping.properties.name.properties.last_name.type.should.eql('text')
 			expect(mapping.properties.name.properties.last_name.type).toEqual('text')
 			done()
 		})
@@ -373,21 +351,13 @@ describe('MappingGenerator', function () {
 
 			const mapping = generator.generateMapping(schema)
 
-			// mapping.properties.name.type.should.eql('nested')
 			expect(mapping.properties.name.type).toEqual('nested')
-			// mapping.properties.name.include_in_parent.should.eql(true)
 			expect(mapping.properties.name.include_in_parent).toEqual(true)
-			// mapping.properties.name.properties.first_name.type.should.eql('text')
 			expect(mapping.properties.name.properties.first_name.type).toEqual('text')
-			// mapping.properties.name.properties.first_name.index.should.eql('not_analyzed')
 			expect(mapping.properties.name.properties.first_name.index).toEqual('not_analyzed')
-			// mapping.properties.name.properties.last_name.type.should.eql('text')
 			expect(mapping.properties.name.properties.last_name.type).toEqual('text')
-			// mapping.properties.name.properties.last_name.index.should.eql('not_analyzed')
 			expect(mapping.properties.name.properties.last_name.index).toEqual('not_analyzed')
-			// should.not.exist(mapping.properties.name.properties.es_include_in_parent)
 			expect(mapping.properties.name.properties.es_include_in_parent).toBeUndefined()
-			// should.not.exist(mapping.properties.name.properties.es_type)
 			expect(mapping.properties.name.properties.es_type).toBeUndefined()
 			done()
 		})
@@ -399,7 +369,6 @@ describe('MappingGenerator', function () {
 
 			const mapping = generator.generateMapping(schema)
 
-			// mapping.properties.contacts.type.should.eql('text')
 			expect(mapping.properties.contacts.type).toEqual('text')
 			done()
 		})
@@ -414,9 +383,7 @@ describe('MappingGenerator', function () {
 
 			const mapping = generator.generateMapping(schema)
 
-			// mapping.properties.contacts.type.should.eql('text')
 			expect(mapping.properties.contacts.type).toEqual('text')
-			// mapping.properties.contacts.index.should.eql('not_analyzed')
 			expect(mapping.properties.contacts.index).toEqual('not_analyzed')
 			done()
 		})
@@ -435,13 +402,9 @@ describe('MappingGenerator', function () {
 
 			const mapping = generator.generateMapping(schema)
 
-			// mapping.properties.name.type.should.eql('text')
 			expect(mapping.properties.name.type).toEqual('text')
-			// mapping.properties.contacts.properties.email.type.should.eql('text')
 			expect(mapping.properties.contacts.properties.email.type).toEqual('text')
-			// mapping.properties.contacts.properties.email.index.should.eql('not_analyzed')
 			expect(mapping.properties.contacts.properties.email.index).toEqual('not_analyzed')
-			// mapping.properties.contacts.properties.telephone.type.should.eql('text')
 			expect(mapping.properties.contacts.properties.telephone.type).toEqual('text')
 			done()
 		})
@@ -475,13 +438,9 @@ describe('MappingGenerator', function () {
 
 			const mapping = generator.generateMapping(schema)
 
-			// mapping.properties.name.properties.first_name.type.should.eql('text')
 			expect(mapping.properties.name.properties.first_name.type).toEqual('text')
-			// mapping.properties.name.properties.last_name.type.should.eql('text')
 			expect(mapping.properties.name.properties.last_name.type).toEqual('text')
-			// mapping.properties.name.properties.age.type.should.eql('long')
 			expect(mapping.properties.name.properties.age.type).toEqual('long')
-			// should.not.exist(mapping.properties.name.properties.birthYear)
 			expect(mapping.properties.name.properties.birthYear).toBeUndefined()
 			done()
 		})
@@ -497,12 +456,9 @@ describe('MappingGenerator', function () {
 			})
 
 			const source = res?.body.hits.hits[0]._source
-				
-			// source.mixed_field.should.eql('mixed')
+
 			expect(source?.mixed_field).toEqual('mixed')
-			// source.mixed_arr_field.should.eql([1, 2])
 			expect(source?.mixed_arr_field).toEqual([1, 2])
-			// source.obj_mixed.mixed.should.eql('nested mixed')
 			expect(source?.obj_mixed.mixed).toEqual('nested mixed')
 		})
 	})
@@ -518,7 +474,6 @@ describe('MappingGenerator', function () {
 
 			const mapping = generator.generateMapping(schema)
 
-			// mapping.properties.name.type.should.eql('date')
 			expect(mapping.properties.name.type).toEqual('date')
 			done()
 		})
@@ -533,7 +488,6 @@ describe('MappingGenerator', function () {
 
 			const mapping = generator.generateMapping(schema)
 
-			// mapping.properties.name.boost.should.eql(2.2)
 			expect(mapping.properties.name.boost).toEqual(2.2)
 			done()
 		})
@@ -628,9 +582,7 @@ describe('MappingGenerator', function () {
 
 			const mapping = generator.generateMapping(schema)
 
-			// mapping.properties.name.properties.firstName.type.should.eql('text')
 			expect(mapping.properties.name.properties.firstName.type).toEqual('text')
-			// mapping.properties.name.properties.lastName.type.should.eql('text')
 			expect(mapping.properties.name.properties.lastName.type).toEqual('text')
 			done()
 		})
@@ -647,9 +599,7 @@ describe('MappingGenerator', function () {
 
 			const mapping = generator.generateMapping(schema)
 
-			// mapping.properties.name.properties.firstName.type.should.eql('text')
 			expect(mapping.properties.name.properties.firstName.type).toEqual('text')
-			// should.not.exist(mapping.properties.name.properties.lastName)
 			expect(mapping.properties.name.properties.lastName).toBeUndefined()
 			done()
 		})
@@ -669,9 +619,7 @@ describe('MappingGenerator', function () {
 
 			const mapping = generator.generateMapping(schema)
 
-			// mapping.properties.name.properties.firstName.type.should.eql('text')
 			expect(mapping.properties.name.properties.firstName.type).toEqual('text')
-			// mapping.properties.name.properties.lastName.type.should.eql('text')
 			expect(mapping.properties.name.properties.lastName.type).toEqual('text')
 			done()
 		})
@@ -691,9 +639,7 @@ describe('MappingGenerator', function () {
 
 			const mapping = generator.generateMapping(schema)
 
-			// mapping.properties.name.properties.firstName.type.should.eql('text')
 			expect(mapping.properties.name.properties.firstName.type).toEqual('text')
-			// should.not.exist(mapping.properties.name.properties.lastName)
 			expect(mapping.properties.name.properties.lastName).toBeUndefined()
 			done()
 		})
@@ -724,8 +670,7 @@ describe('MappingGenerator', function () {
 			})
 
 			const mapping = generator.generateMapping(schema)
-
-			// mapping.properties.locations.properties.coordinates.type.should.eql('geo_point')
+			
 			expect(mapping.properties.locations.properties.coordinates.type).toEqual('geo_point')
 			done()
 		})
