@@ -3,8 +3,14 @@
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
+import { MongoosasticDocument, MongoosasticModel } from 'types'
 
 const esClient = config.getClient()
+
+interface IKitten extends MongoosasticDocument {
+	name: string,
+	breed: string
+}
 
 const KittenSchema = new Schema({
 	name: {
@@ -20,7 +26,7 @@ const KittenSchema = new Schema({
 
 KittenSchema.plugin(mongoosastic)
 
-const Kitten = mongoose.model('Kitten', KittenSchema)
+const Kitten = mongoose.model<IKitten, MongoosasticModel<IKitten>>('Kitten', KittenSchema)
 
 const kittens = [
 	new Kitten({

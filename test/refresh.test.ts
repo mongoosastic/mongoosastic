@@ -3,6 +3,11 @@
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
+import { MongoosasticDocument, MongoosasticModel } from 'types'
+
+interface IRefresh extends MongoosasticDocument {
+	title: string
+}
 
 const RefreshSchema = new Schema({
 	title: String
@@ -10,7 +15,7 @@ const RefreshSchema = new Schema({
 
 RefreshSchema.plugin(mongoosastic)
 
-const Refresh = mongoose.model('Refresh', RefreshSchema)
+const Refresh = mongoose.model<IRefresh, MongoosasticModel<IRefresh>>('Refresh', RefreshSchema)
 
 describe('Refresh', function () {
   

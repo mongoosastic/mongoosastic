@@ -3,6 +3,11 @@
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
+import { MongoosasticDocument, MongoosasticModel } from 'types'
+
+interface IDummy extends MongoosasticDocument {
+	text: string
+}
 
 const DummySchema = new Schema({
 	text: String
@@ -10,7 +15,7 @@ const DummySchema = new Schema({
 
 DummySchema.plugin(mongoosastic)
 
-const Dummy = mongoose.model('DummyTruncate', DummySchema)
+const Dummy = mongoose.model<IDummy, MongoosasticModel<IDummy>>('DummyTruncate', DummySchema)
 
 describe('Truncate', function () {
 	beforeAll(async function() {

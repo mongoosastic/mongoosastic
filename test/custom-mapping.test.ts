@@ -3,7 +3,12 @@
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
-import { Options } from 'types'
+import { MongoosasticDocument, MongoosasticModel, Options } from 'types'
+
+interface IPhone extends MongoosasticDocument {
+	name: string,
+	created: Date
+}
 
 // -- Only index specific field
 const PhoneSchema = new Schema({
@@ -25,7 +30,7 @@ PhoneSchema.plugin(mongoosastic, {
 	},
 } as Options)
 
-const Phone = mongoose.model('Phone', PhoneSchema)
+const Phone = mongoose.model<IPhone, MongoosasticModel<IPhone>>('Phone', PhoneSchema)
 
 describe('Custom Properties for Mapping', function () {
 
@@ -58,6 +63,6 @@ describe('Custom Properties for Mapping', function () {
 		const hit = results?.body.hits.hits[0]._source
 	
 		expect(results?.body.hits.total).toEqual(1)
-		expect(hit.created).toBeDefined()
+		expect(hit?.created).toBeDefined()
 	})
 })

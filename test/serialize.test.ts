@@ -1,7 +1,7 @@
 'use strict'
 
 import mongoose, { Schema } from 'mongoose'
-import { MongoosasticDocument } from 'types'
+import { MongoosasticDocument, MongoosasticModel } from 'types'
 import Generator from '../lib/mapping'
 const generator = new Generator()
 import { serialize } from '../lib/utils'
@@ -49,7 +49,7 @@ const PersonSchema = new Schema({
 	}
 })
 
-const Person = mongoose.model<IPerson>('Person', PersonSchema)
+const Person = mongoose.model<IPerson, MongoosasticModel<IPerson>>('Person', PersonSchema)
 
 const mapping = generator.generateMapping(PersonSchema)
 

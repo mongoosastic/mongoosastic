@@ -3,7 +3,7 @@
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
-import { MongoosasticDocument } from 'types'
+import { MongoosasticDocument, MongoosasticModel } from 'types'
 
 interface IRepo extends MongoosasticDocument {
 	name: string,
@@ -32,7 +32,7 @@ RepoSchema.plugin(mongoosastic, {
 	}
 })
 
-const Repo = mongoose.model<IRepo>('Repo', RepoSchema)
+const Repo = mongoose.model<IRepo, MongoosasticModel<IRepo>>('Repo', RepoSchema)
 
 describe('Transform mode', function () {
 

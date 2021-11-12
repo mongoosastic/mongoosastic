@@ -3,8 +3,9 @@
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
+import { MongoosasticDocument, MongoosasticModel } from 'types'
 
-interface ITask {
+interface ITask extends MongoosasticDocument {
 	content: string
 }
 
@@ -18,7 +19,7 @@ TaskSchema.plugin(mongoosastic, {
 	}
 })
 
-const Task = mongoose.model('Task', TaskSchema)
+const Task = mongoose.model<ITask, MongoosasticModel<ITask>>('Task', TaskSchema)
 
 describe('Routing', function () {
 

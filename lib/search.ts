@@ -1,12 +1,11 @@
 import { ApiResponse } from '@elastic/elasticsearch'
 import { Search } from '@elastic/elasticsearch/api/requestParams'
 import { QueryContainer, SearchRequest, SearchResponse } from '@elastic/elasticsearch/api/types'
-import { Model } from 'mongoose'
-import { EsSearchOptions, HydratedSearchResults, MongoosasticDocument } from 'types'
+import { EsSearchOptions, HydratedSearchResults, MongoosasticDocument, MongoosasticModel } from 'types'
 import { getIndexName, hydrate, isString, isStringArray, reformatESTotalNumber } from './utils'
 
 
-export async function search(this: Model<MongoosasticDocument>, query: QueryContainer, opts: EsSearchOptions = {}): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>> {
+export async function search(this: MongoosasticModel<MongoosasticDocument>, query: QueryContainer, opts: EsSearchOptions = {}): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>> {
 
 	const fullQuery = {
 		query: query
@@ -17,7 +16,7 @@ export async function search(this: Model<MongoosasticDocument>, query: QueryCont
 	return bindedEsSearch(fullQuery, opts)
 }
 
-export async function esSearch(this: Model<MongoosasticDocument>, query: SearchRequest['body'], opts: EsSearchOptions = {}): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>> {
+export async function esSearch(this: MongoosasticModel<MongoosasticDocument>, query: SearchRequest['body'], opts: EsSearchOptions = {}): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>> {
 
 	const options = this.esOptions()
 	const client = this.esClient()

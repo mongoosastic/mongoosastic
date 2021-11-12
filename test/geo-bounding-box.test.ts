@@ -4,6 +4,7 @@ import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
 import { QueryContainer } from '@elastic/elasticsearch/api/types'
+import { MongoosasticDocument, MongoosasticModel } from 'types'
 
 const GeoBoundingBoxSchema = new Schema({
 	text: {
@@ -22,7 +23,7 @@ const GeoBoundingBoxSchema = new Schema({
 })
 
 GeoBoundingBoxSchema.plugin(mongoosastic)
-const GeoBoundingBoxModel = mongoose.model('geoboundingdoc', GeoBoundingBoxSchema)
+const GeoBoundingBoxModel = mongoose.model<MongoosasticDocument, MongoosasticModel<MongoosasticDocument>>('geoboundingdoc', GeoBoundingBoxSchema)
 
 const points = [
 	new GeoBoundingBoxModel({

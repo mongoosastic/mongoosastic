@@ -3,7 +3,7 @@
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
-import { MongoosasticDocument } from 'types'
+import { MongoosasticDocument, MongoosasticModel } from 'types'
 
 interface IText extends MongoosasticDocument {
 	title: string,
@@ -17,7 +17,7 @@ const TextSchema = new Schema({
 
 TextSchema.plugin(mongoosastic)
 
-const Text = mongoose.model<IText>('Text', TextSchema)
+const Text = mongoose.model<IText, MongoosasticModel<IText>>('Text', TextSchema)
 
 const texts = [
 	new Text({

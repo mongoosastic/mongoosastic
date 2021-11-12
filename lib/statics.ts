@@ -1,7 +1,7 @@
 import { Property, PropertyName, QueryContainer, SearchResponse } from '@elastic/elasticsearch/api/types'
 import events from 'events'
-import { FilterQuery, Model } from 'mongoose'
-import { MongoosasticDocument, SynchronizeOptions } from 'types'
+import { FilterQuery } from 'mongoose'
+import { MongoosasticDocument, MongoosasticModel, SynchronizeOptions } from 'types'
 import { postSave } from './hooks'
 import { filterMappingFromMixed, getIndexName, reformatESTotalNumber } from './utils'
 import { bulkDelete } from './bulking'
@@ -9,7 +9,7 @@ import Generator from './mapping'
 import { ApiResponse, RequestBody } from '@elastic/elasticsearch/lib/Transport'
 import { Search } from '@elastic/elasticsearch/api/requestParams'
 
-export async function createMapping(this: Model<MongoosasticDocument>, body: RequestBody): Promise<Record<PropertyName, Property>> {
+export async function createMapping(this: MongoosasticModel<MongoosasticDocument>, body: RequestBody): Promise<Record<PropertyName, Property>> {
 
 	const options = this.esOptions()
 	const client = this.esClient()
@@ -55,7 +55,7 @@ export async function createMapping(this: Model<MongoosasticDocument>, body: Req
 
 }
 
-export function synchronize(this: Model<MongoosasticDocument>, query: FilterQuery<MongoosasticDocument> = {}, inOpts: SynchronizeOptions = {}): events {
+export function synchronize(this: MongoosasticModel<MongoosasticDocument>, query: FilterQuery<MongoosasticDocument> = {}, inOpts: SynchronizeOptions = {}): events {
 
 	const options = this.esOptions()
 
@@ -122,7 +122,7 @@ export function synchronize(this: Model<MongoosasticDocument>, query: FilterQuer
 	return em
 }
 
-export async function esTruncate(this: Model<MongoosasticDocument>): Promise<void> {
+export async function esTruncate(this: MongoosasticModel<MongoosasticDocument>): Promise<void> {
 
 	const options = this.esOptions()
 	const client = this.esClient()
@@ -172,13 +172,13 @@ export async function esTruncate(this: Model<MongoosasticDocument>): Promise<voi
 	options.bulk = bulkOptions
 }
 
-export async function refresh(this: Model<MongoosasticDocument>): Promise<ApiResponse> {
+export async function refresh(this: MongoosasticModel<MongoosasticDocument>): Promise<ApiResponse> {
 	return await this.esClient().indices.refresh({
 		index: getIndexName(this)
 	})
 }
 
-export async function esCount(this: Model<MongoosasticDocument>, query: QueryContainer): Promise<ApiResponse> {
+export async function esCount(this: MongoosasticModel<MongoosasticDocument>, query: QueryContainer): Promise<ApiResponse> {
 
 	if (query === undefined) {
 		query = {

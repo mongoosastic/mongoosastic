@@ -3,6 +3,11 @@
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
+import { MongoosasticDocument, MongoosasticModel } from 'types'
+
+interface IBook extends MongoosasticDocument {
+	title: string
+}
 
 const BookSchema = new Schema({
 	title: String
@@ -15,7 +20,7 @@ BookSchema.plugin(mongoosastic, {
 	}
 })
 
-const Book = mongoose.model('Book', BookSchema)
+const Book = mongoose.model<IBook, MongoosasticModel<IBook>>('Book', BookSchema)
 
 describe('Bulk mode', function () {
 

@@ -5,9 +5,17 @@ import { config } from './config'
 import mongoosastic from '../lib/index'
 import { ITweet, Tweet } from './models/tweet'
 import { QueryContainer } from '@elastic/elasticsearch/api/types'
-import { MongoosasticDocument } from 'types'
+import { MongoosasticDocument, MongoosasticModel } from 'types'
 
 const esClient = config.getClient()
+
+interface ITalk extends MongoosasticDocument {
+	speaker: string,
+	year: number,
+	title: string,
+	abstract: string,
+	bio: string,
+}
 
 // -- Only index specific field
 const TalkSchema = new Schema({
@@ -26,6 +34,10 @@ const TalkSchema = new Schema({
 	},
 	bio: String
 })
+
+interface IBum extends MongoosasticDocument {
+	name: string
+}
 
 const BumSchema = new Schema({
 	name: String
@@ -89,9 +101,9 @@ DogSchema.plugin(mongoosastic, {
 	indexAutomatically: false
 })
 
-const Person = mongoose.model<IPerson>('Person', PersonSchema)
-const Talk = mongoose.model('Talk', TalkSchema)
-const Bum = mongoose.model('bum', BumSchema)
+const Person = mongoose.model<IPerson, MongoosasticModel<IPerson>>('Person', PersonSchema)
+const Talk = mongoose.model<ITalk, MongoosasticModel<ITalk>>('Talk', TalkSchema)
+const Bum = mongoose.model<IBum, MongoosasticModel<IBum>>('bum', BumSchema)
 const Dog = mongoose.model('dog', DogSchema)
 
 // -- alright let's test this shiznit!
@@ -390,7 +402,7 @@ describe('indexing', function () {
 			})
 
 			expect(res?.body.hits.total).toEqual(1)
-			expect(res?.body.hits.hits[0]._source.title).toEqual('Dude')
+			expect(res?.body.hits.hits[0]._source?.title).toEqual('Dude')
 		})
 	})
 

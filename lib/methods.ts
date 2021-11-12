@@ -1,9 +1,8 @@
-import { IndexMethodOptions, MongoosasticDocument } from 'types'
+import { IndexMethodOptions, MongoosasticDocument, MongoosasticModel } from 'types'
 import { deleteById, getIndexName, serialize } from './utils'
 import { bulkAdd, bulkDelete } from './bulking'
 import Generator from './mapping'
 import { ApiResponse } from '@elastic/elasticsearch'
-import { Model } from 'mongoose'
 
 export async function index(this: MongoosasticDocument, inOpts: IndexMethodOptions = {}): Promise<MongoosasticDocument | ApiResponse> {
 
@@ -40,7 +39,7 @@ export async function index(this: MongoosasticDocument, inOpts: IndexMethodOptio
 		routing: options.routing ? options.routing(this) : undefined
 	}
 
-	const model = this.constructor as Model<MongoosasticDocument>
+	const model = this.constructor as MongoosasticModel<MongoosasticDocument>
 
 	if (opt.bulk) {
 		await bulkAdd({ model, ...opt })
@@ -63,7 +62,7 @@ export async function unIndex(this: MongoosasticDocument): Promise<MongoosasticD
 		tries: 3,
 		id: this._id.toString(),
 		bulk: options.bulk,
-		model: this.constructor as Model<MongoosasticDocument>,
+		model: this.constructor as MongoosasticModel<MongoosasticDocument>,
 		routing: options.routing ? options.routing(this) : undefined
 	}
 

@@ -3,6 +3,14 @@
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
+import { MongoosasticDocument, MongoosasticModel } from 'types'
+
+interface IComment extends MongoosasticDocument {
+	user: string,
+	post_date: Date,
+	message: string,
+	title: string
+}
 
 const CommentSchema = new Schema({
 	user: String,
@@ -26,7 +34,7 @@ CommentSchema.plugin(mongoosastic, {
 	}
 })
 
-const Comment = mongoose.model('Comment', CommentSchema)
+const Comment = mongoose.model<IComment, MongoosasticModel<IComment>>('Comment', CommentSchema)
 
 const comments = [
 	{

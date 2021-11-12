@@ -1,7 +1,7 @@
 'use strict'
 
 import mongoose, { Schema } from 'mongoose'
-import { MongoosasticDocument } from 'types'
+import { MongoosasticDocument, MongoosasticModel } from 'types'
 import mongoosastic from '../../lib/index'
 
 export interface ITweet extends MongoosasticDocument {
@@ -24,4 +24,4 @@ TweetSchema.plugin(mongoosastic, {
 	type: 'tweet'
 })
 
-export const Tweet = mongoose.model<ITweet>('Tweet', TweetSchema)
+export const Tweet = mongoose.model<ITweet, MongoosasticModel<ITweet>>('Tweet', TweetSchema)

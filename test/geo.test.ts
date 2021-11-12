@@ -3,8 +3,18 @@
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
+import { MongoosasticDocument, MongoosasticModel } from 'types'
 
 const esClient = config.getClient()
+
+interface IGeo extends MongoosasticDocument {
+	myId: number,
+	frame: {
+		coordinates: Array<unknown>,
+		type: string,
+		geo_shape: string
+	}
+}
 
 const GeoSchema = new Schema({
 	myId: Number,
@@ -24,7 +34,7 @@ const GeoSchema = new Schema({
 })
 
 GeoSchema.plugin(mongoosastic)
-const GeoModel = mongoose.model('geodoc', GeoSchema)
+const GeoModel = mongoose.model<IGeo, MongoosasticModel<IGeo>>('geodoc', GeoSchema)
 
 const points = [
 	new GeoModel({
@@ -92,12 +102,12 @@ describe('GeoTest', function () {
 			sort: 'myId:asc'
 		})
 
-		const frame = res?.body.hits.hits[0]._source.frame
+		const frame = res?.body.hits.hits[0]._source?.frame
 
 		expect(res?.body.hits.total).toEqual(2)
 
-		expect(frame.type).toEqual('envelope')	
-		expect(frame.coordinates).toEqual([[1, 4], [3, 2]])	
+		expect(frame?.type).toEqual('envelope')	
+		expect(frame?.coordinates).toEqual([[1, 4], [3, 2]])	
 	})
 
 	it('should be able to resync geo coordinates from the database',async function (done) {
@@ -125,12 +135,12 @@ describe('GeoTest', function () {
 				sort: 'myId:asc'
 			})
 
-			const frame = res?.body.hits.hits[0]._source.frame
+			const frame = res?.body.hits.hits[0]._source?.frame
 
 			expect(res?.body.hits.total).toEqual(2)
 
-			expect(frame.type).toEqual('envelope')	
-			expect(frame.coordinates).toEqual([[1, 4], [3, 2]])
+			expect(frame?.type).toEqual('envelope')	
+			expect(frame?.coordinates).toEqual([[1, 4], [3, 2]])
 
 			done()
 		})
@@ -159,13 +169,13 @@ describe('GeoTest', function () {
 
 		const res1 = await GeoModel.search(geoQuery)
 		expect(res1?.body.hits.total).toEqual(1)
-		expect(res1?.body.hits.hits[0]._source.myId).toEqual(2)
+		expect(res1?.body.hits.hits[0]._source?.myId).toEqual(2)
 
 		geoQuery.bool.filter.geo_shape.frame.shape.coordinates = [1.5, 2.5]
 
 		const res2 = await GeoModel.search(geoQuery)
 		expect(res2?.body.hits.total).toEqual(1)
-		expect(res2?.body.hits.hits[0]._source.myId).toEqual(1)
+		expect(res2?.body.hits.hits[0]._source?.myId).toEqual(1)
 
 		geoQuery.bool.filter.geo_shape.frame.shape.coordinates = [3, 2]
 

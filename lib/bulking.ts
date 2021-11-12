@@ -1,5 +1,4 @@
-import { Model } from 'mongoose'
-import { BulkIndexOptions, BulkInstruction, BulkOptions, BulkUnIndexOptions, MongoosasticDocument } from 'types'
+import { BulkIndexOptions, BulkInstruction, BulkOptions, BulkUnIndexOptions, MongoosasticDocument, MongoosasticModel } from 'types'
 
 let bulkBuffer: BulkInstruction[] = []
 let bulkTimeout: NodeJS.Timeout | undefined
@@ -31,7 +30,7 @@ export async function bulkDelete(opts: BulkUnIndexOptions): Promise<void> {
 	await bulkIndex(opts.model, instruction, opts.bulk as BulkOptions)
 }
 
-export async function bulkIndex(model: Model<MongoosasticDocument>, instruction: BulkInstruction[], bulk: BulkOptions): Promise<void> {
+export async function bulkIndex(model: MongoosasticModel<MongoosasticDocument>, instruction: BulkInstruction[], bulk: BulkOptions): Promise<void> {
 
 	bulkBuffer = bulkBuffer.concat(instruction)
 
@@ -46,7 +45,7 @@ export async function bulkIndex(model: Model<MongoosasticDocument>, instruction:
 	}
 }
 
-export async function flush(this: Model<MongoosasticDocument>): Promise<void> {
+export async function flush(this: MongoosasticModel<MongoosasticDocument>): Promise<void> {
 
 	this.esClient().bulk({
 		body: bulkBuffer

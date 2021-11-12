@@ -4,7 +4,7 @@ import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
 import { Aggregate, Hit } from '@elastic/elasticsearch/api/types'
-import { MongoosasticDocument } from 'types'
+import { MongoosasticDocument, MongoosasticModel } from 'types'
 
 interface IBond extends MongoosasticDocument {
 	name: string,
@@ -23,7 +23,7 @@ const BondSchema = new Schema({
 
 BondSchema.plugin(mongoosastic)
 
-const Bond = mongoose.model<IBond>('Bond', BondSchema)
+const Bond = mongoose.model<IBond, MongoosasticModel<IBond>>('Bond', BondSchema)
 
 const bonds = [
 	new Bond({

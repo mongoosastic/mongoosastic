@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 /* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ClientOptions, ApiResponse, Client } from '@elastic/elasticsearch'
@@ -65,7 +66,7 @@ declare interface BulkIndexOptions {
     body: any,
     bulk?: BulkOptions,
     refresh?: boolean,
-    model: Model<MongoosasticDocument>,
+    model: MongoosasticModel<MongoosasticDocument>,
     routing?: RoutingFn,
 }
 
@@ -73,7 +74,7 @@ declare interface BulkUnIndexOptions {
     index: string,
     id: string,
     bulk?: BulkOptions,
-    model: Model<MongoosasticDocument>,
+    model: MongoosasticModel<MongoosasticDocument>,
     tries?: number,
     routing?: RoutingFn,
 }
@@ -98,7 +99,7 @@ declare type Options = {
     indexAutomatically?: boolean,
     forceIndexRefresh?: boolean,
     properties?: any,
-    customSerialize?(model: Document | Model<Document>, ...args: any): any;
+    customSerialize?(model: Document | MongoosasticModel<Document>, ...args: any): any;
     saveOnSynchronize?: boolean
 }
 
@@ -135,33 +136,56 @@ declare module 'mongoosastic' {
     export = Mongoosastic;
 }
 
-declare module 'mongoose' {
+interface MongoosasticModel<T> extends Model<T> {
 
-    export interface Model<T extends Document> {
+    search(query: QueryContainer, options?: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults<T>>>;
 
-        search(query: QueryContainer, options?: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults<T>>>;
+    esSearch(query: SearchRequest['body'], options?: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults<T>>>;
 
-        esSearch(query: SearchRequest['body'], options?: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults<T>>>;
+    synchronize(query?: any, options?: SynchronizeOptions): events;
+    esTruncate(): Promise<void>
+    
+    esOptions(): Options
+    esClient(): Client
+    bulkError(): events
 
-        synchronize(query?: any, options?: SynchronizeOptions): events;
-        esTruncate(): Promise<void>
-        
-        esOptions(): Options
-        esClient(): Client
-        bulkError(): events
+    createMapping(body?: RequestBody): Promise<Record<PropertyName, Property>>
+    getMapping(): Record<string, any>
+    getCleanTree(): Record<string, any>
 
-        createMapping(body?: RequestBody): Promise<Record<PropertyName, Property>>
-        getMapping(): Record<string, any>
-        getCleanTree(): Record<string, any>
-
-        esCount(query?: QueryContainer): Promise<ApiResponse<CountResponse>>
-        refresh(): Promise<ApiResponse<RefreshResponse>>
-        flush(): Promise<void>
-    }
+    esCount(query?: QueryContainer): Promise<ApiResponse<CountResponse>>
+    refresh(): Promise<ApiResponse<RefreshResponse>>
+    flush(): Promise<void>
 }
+
+// declare module 'mongoose' {
+
+//     export interface Model<T extends Document> {
+
+//         search(query: QueryContainer, options?: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults<T>>>;
+
+//         esSearch(query: SearchRequest['body'], options?: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults<T>>>;
+
+//         synchronize(query?: any, options?: SynchronizeOptions): events;
+//         esTruncate(): Promise<void>
+        
+//         esOptions(): Options
+//         esClient(): Client
+//         bulkError(): events
+
+//         createMapping(body?: RequestBody): Promise<Record<PropertyName, Property>>
+//         getMapping(): Record<string, any>
+//         getCleanTree(): Record<string, any>
+
+//         esCount(query?: QueryContainer): Promise<ApiResponse<CountResponse>>
+//         refresh(): Promise<ApiResponse<RefreshResponse>>
+//         flush(): Promise<void>
+//     }
+// }
 
 export {
 	Options,
+	MongoosasticModel,
 	MongoosasticDocument,
 	EsSearchOptions,
 	BulkIndexOptions,

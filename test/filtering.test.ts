@@ -3,7 +3,7 @@
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
-import { Options, MongoosasticDocument } from 'types'
+import { Options, MongoosasticDocument, MongoosasticModel } from 'types'
 
 interface IMovie extends MongoosasticDocument {
 	title: string,
@@ -33,7 +33,7 @@ MovieSchema.plugin(mongoosastic, {
 	}
 } as Options)
 
-const Movie = mongoose.model<IMovie>('Movie', MovieSchema)
+const Movie = mongoose.model<IMovie, MongoosasticModel<IMovie>>('Movie', MovieSchema)
 
 describe('Filter mode', function () {
 	

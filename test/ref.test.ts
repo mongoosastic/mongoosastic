@@ -3,19 +3,35 @@
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
+import { MongoosasticDocument, MongoosasticModel } from 'types'
 
 const esClient = config.getClient()
+
+interface IUser extends MongoosasticDocument {
+	name: string,
+}
 
 const UserSchema = new Schema({
 	name: { type: String }
 })
 const User = mongoose.model('User', UserSchema)
 
+interface IPostComment extends MongoosasticDocument {
+	author: IUser,
+	text: string
+}
+
 const PostCommentSchema = new Schema({
 	author: { type: Schema.Types.ObjectId, ref: 'User' },
 	text: { type: String }
 })
 const PostComment = mongoose.model('PostComment', PostCommentSchema)
+
+interface IPost extends MongoosasticDocument {
+	body: string,
+	author: IUser,
+	comments: IPostComment,
+}
 
 const PostSchema = new Schema({
 	body: { type: String, es_indexed: true },
@@ -30,7 +46,7 @@ PostSchema.plugin(mongoosastic, {
 	]
 })
 
-const Post = mongoose.model('Post', PostSchema)
+const Post = mongoose.model<IPost, MongoosasticModel<IPost>>('Post', PostSchema)
 
 describe('references', function () {
 
@@ -82,7 +98,7 @@ describe('references', function () {
 			
 			const res = await esClient.get({
 				index: 'posts',
-				id: post._id.toString()
+				id: post?._id.toString()
 			})
 
 			expect(res.body._source.author.name).toEqual('jake')
@@ -97,7 +113,7 @@ describe('references', function () {
 			})
 
 			expect(results?.body.hits.total).toEqual(1)
-			expect(results?.body.hits.hits[0]._source.body).toEqual('A very short post')
+			expect(results?.body.hits.hits[0]._source?.body).toEqual('A very short post')
 		})
 
 		
@@ -109,7 +125,7 @@ describe('references', function () {
 
 				const res = await esClient.get({
 					index: 'posts',
-					id: post._id.toString()
+					id: post?._id.toString()
 				})
 
 				const comments = res.body._source.comments
@@ -124,7 +140,7 @@ describe('references', function () {
 
 				const res = await esClient.get({
 					index: 'posts',
-					id: post._id.toString()
+					id: post?._id.toString()
 				})
 
 				const comments = res.body._source.comments

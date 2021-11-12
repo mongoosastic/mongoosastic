@@ -3,7 +3,12 @@
 import mongoose, { Document, Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
-import { Options } from 'types'
+import { MongoosasticDocument, MongoosasticModel, Options } from 'types'
+
+interface IFood extends MongoosasticDocument {
+	name: string,
+	type: string
+}
 
 const FoodSchema = new Schema({
 	name: {
@@ -22,7 +27,7 @@ FoodSchema.plugin(mongoosastic, {
 	}
 } as Options)
 
-const Food = mongoose.model('Food', FoodSchema)
+const Food = mongoose.model<IFood, MongoosasticModel<IFood>>('Food', FoodSchema)
 
 describe('Custom Serialize', function () {
 	beforeAll(async function() {
@@ -49,7 +54,7 @@ describe('Custom Serialize', function () {
 
 		const source = results?.body.hits.hits[0]._source
 			
-		expect(source.name).toEqual('pizza')
-		expect(source.type).toEqual('dinner')
+		expect(source?.name).toEqual('pizza')
+		expect(source?.type).toEqual('dinner')
 	})
 })

@@ -5,6 +5,16 @@ import Generator from '../lib/mapping'
 const generator = new Generator()
 import { config } from './config'
 import mongoosastic from '../lib/index'
+import { MongoosasticDocument, MongoosasticModel } from 'types'
+
+interface ISchema extends MongoosasticDocument {
+	string: string,
+	mixed_field: unknown,
+	mixed_arr_field: unknown,
+	obj_mixed: {
+		mixed: unknown
+	},
+}
 
 const schema = new Schema({
 	string: String,
@@ -23,7 +33,7 @@ const schema = new Schema({
 
 schema.plugin(mongoosastic)
 
-const MyModel = mongoose.model('MyModel', schema)
+const MyModel = mongoose.model<ISchema, MongoosasticModel<ISchema>>('MyModel', schema)
 
 describe('MappingGenerator', function () {
   
@@ -489,11 +499,11 @@ describe('MappingGenerator', function () {
 			const source = res?.body.hits.hits[0]._source
 				
 			// source.mixed_field.should.eql('mixed')
-			expect(source.mixed_field).toEqual('mixed')
+			expect(source?.mixed_field).toEqual('mixed')
 			// source.mixed_arr_field.should.eql([1, 2])
-			expect(source.mixed_arr_field).toEqual([1, 2])
+			expect(source?.mixed_arr_field).toEqual([1, 2])
 			// source.obj_mixed.mixed.should.eql('nested mixed')
-			expect(source.obj_mixed.mixed).toEqual('nested mixed')
+			expect(source?.obj_mixed.mixed).toEqual('nested mixed')
 		})
 	})
 

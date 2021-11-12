@@ -1,6 +1,5 @@
-import { Model } from 'mongoose'
 import { isEmpty } from 'lodash'
-import { DeleteByIdOptions, EsSearchOptions, GeneratedMapping, HydratedSearchResults, MongoosasticDocument } from 'types'
+import { DeleteByIdOptions, EsSearchOptions, GeneratedMapping, HydratedSearchResults, MongoosasticDocument, MongoosasticModel } from 'types'
 import { ApiResponse } from '@elastic/elasticsearch'
 import { Property, PropertyName, SearchResponse, TotalHits } from '@elastic/elasticsearch/api/types'
 
@@ -13,7 +12,7 @@ export function isStringArray(arr: Array<unknown>): boolean {
 	return arr.filter && arr.length === (arr.filter((item: unknown) => typeof item === 'string')).length
 }
 
-export function getIndexName(doc: MongoosasticDocument | Model<MongoosasticDocument>): string {
+export function getIndexName(doc: MongoosasticDocument | MongoosasticModel<MongoosasticDocument>): string {
 	const options = doc.esOptions()
 	const indexName = options && options.index
 	if (!indexName) return doc.collection.name
@@ -95,7 +94,7 @@ export function reformatESTotalNumber<T = unknown>(res: ApiResponse<SearchRespon
 	return res
 }
 
-export async function hydrate(res: ApiResponse<SearchResponse>, model: Model<MongoosasticDocument>, opts: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults>> {
+export async function hydrate(res: ApiResponse<SearchResponse>, model: MongoosasticModel<MongoosasticDocument>, opts: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults>> {
 
 	const options = model.esOptions()
 	

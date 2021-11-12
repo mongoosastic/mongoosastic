@@ -1,9 +1,9 @@
 'use strict'
 
-import mongoose, { Model, Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
-import { MongoosasticDocument } from 'types'
+import { MongoosasticDocument, MongoosasticModel } from 'types'
 
 const indexName = 'es-test'
 
@@ -25,8 +25,8 @@ DummySchemaRefresh.plugin(mongoosastic, {
 	forceIndexRefresh: true
 })
 
-const Dummy = mongoose.model<IDummy>('Dummy', DummySchema)
-const DummyRefresh = mongoose.model<IDummy>('DummyRefresh', DummySchemaRefresh)
+const Dummy = mongoose.model<IDummy, MongoosasticModel<IDummy>>('Dummy', DummySchema)
+const DummyRefresh = mongoose.model<IDummy, MongoosasticModel<IDummy>>('DummyRefresh', DummySchemaRefresh)
 
 describe('forceIndexRefresh connection option', function () {
 
@@ -76,7 +76,7 @@ describe('forceIndexRefresh connection option', function () {
 	})
 })
 
-async function doInsertOperation (Model: Model<IDummy>, object: MongoosasticDocument, indexName: string, refresh: boolean) {
+async function doInsertOperation (Model: MongoosasticModel<IDummy>, object: MongoosasticDocument, indexName: string, refresh: boolean) {
 	// save object
 	const savedObject = await object.save()
 
@@ -96,7 +96,7 @@ async function doInsertOperation (Model: Model<IDummy>, object: MongoosasticDocu
 	}
 }
 
-async function doUpdateOperation (Model: Model<IDummy>, object: MongoosasticDocument, newText: string, indexName: string, refresh: boolean) {
+async function doUpdateOperation (Model: MongoosasticModel<IDummy>, object: MongoosasticDocument, newText: string, indexName: string, refresh: boolean) {
 	// save object
 	const savedObject = await object.save()
 

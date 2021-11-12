@@ -1,15 +1,20 @@
 'use strict'
 
-import mongoose, { Model, Schema, Document } from 'mongoose'
+import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
 import { Tweet } from './models/tweet'
+import { MongoosasticDocument, MongoosasticModel } from 'types'
+
+interface IDummy extends MongoosasticDocument {
+	text: string
+}
 
 const DummySchema = new Schema({
 	text: String
 })
 
-async function tryDummySearch (model: Model<Document>) {
+async function tryDummySearch<T extends MongoosasticDocument>(model: MongoosasticModel<T>) {
 	await config.sleep(config.INDEXING_TIMEOUT)
 
 	const results = await model.search({
@@ -46,7 +51,7 @@ describe('Elasticsearch Connection', function () {
 
 	it('should be able to connect with default options', async function() {
 		DummySchema.plugin(mongoosastic)
-		const Dummy2 = mongoose.model('Dummy2', DummySchema, 'dummys')
+		const Dummy2 = mongoose.model<IDummy, MongoosasticModel<IDummy>>('Dummy2', DummySchema, 'dummys')
 
 		await tryDummySearch(Dummy2)
 	})
@@ -58,7 +63,7 @@ describe('Elasticsearch Connection', function () {
 			}
 		})
 
-		const Dummy3 = mongoose.model('Dummy3', DummySchema, 'dummys')
+		const Dummy3 = mongoose.model<IDummy, MongoosasticModel<IDummy>>('Dummy3', DummySchema, 'dummys')
 
 		await tryDummySearch(Dummy3)
 	})

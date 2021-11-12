@@ -3,7 +3,7 @@
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
-import { MongoosasticDocument } from 'types'
+import { MongoosasticDocument, MongoosasticModel } from 'types'
 
 interface IRank extends MongoosasticDocument {
 	title: string,
@@ -17,7 +17,7 @@ const rankSchema = new Schema({
 
 rankSchema.plugin(mongoosastic)
 
-const RankModel = mongoose.model<IRank>('rank', rankSchema)
+const RankModel = mongoose.model<IRank, MongoosasticModel<IRank>>('rank', rankSchema)
 
 const esResultTexts = [
 	new RankModel({
