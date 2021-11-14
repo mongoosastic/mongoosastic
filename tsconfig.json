@@ -15,6 +15,7 @@
     "strict": true,
     "target": "es6",
     "moduleResolution": "node",
+    "declaration": true,
     "types": [
       "node",
       "jest"
@@ -25,9 +26,10 @@
   },
   "include": [
     "lib/**/*.ts",
-    "test/**/*.ts",
-    "types/**/*.ts",
-    "example/**/*.ts"
   ],
-  // "exclude": []
+  "exclude": [
+    "node_modules",
+    "test",
+    "dist",
+  ]
 }
