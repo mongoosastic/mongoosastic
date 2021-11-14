@@ -1,7 +1,5 @@
-'use strict'
-
 import mongoose, { Schema } from 'mongoose'
-import { MongoosasticDocument, MongoosasticModel } from 'types'
+import { MongoosasticDocument, MongoosasticModel } from '../lib/types'
 import Generator from '../lib/mapping'
 const generator = new Generator()
 import { serialize } from '../lib/utils'

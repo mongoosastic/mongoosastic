@@ -1,7 +1,7 @@
 import { ApiResponse } from '@elastic/elasticsearch'
 import { Search } from '@elastic/elasticsearch/api/requestParams'
 import { QueryContainer, SearchRequest, SearchResponse } from '@elastic/elasticsearch/api/types'
-import { EsSearchOptions, HydratedSearchResults, MongoosasticDocument, MongoosasticModel } from 'types'
+import { EsSearchOptions, HydratedSearchResults, MongoosasticDocument, MongoosasticModel } from './types'
 import { getIndexName, hydrate, isString, isStringArray, reformatESTotalNumber } from './utils'
 
 

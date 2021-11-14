@@ -1,11 +1,9 @@
-'use strict'
-
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
 import { ITweet, Tweet } from './models/tweet'
 import { QueryContainer } from '@elastic/elasticsearch/api/types'
-import { MongoosasticDocument, MongoosasticModel } from 'types'
+import { MongoosasticDocument, MongoosasticModel } from '../lib/types'
 
 const esClient = config.getClient()
 

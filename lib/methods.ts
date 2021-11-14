@@ -1,4 +1,4 @@
-import { IndexMethodOptions, MongoosasticDocument, MongoosasticModel } from 'types'
+import { IndexMethodOptions, MongoosasticDocument, MongoosasticModel } from './types'
 import { deleteById, getIndexName, serialize } from './utils'
 import { bulkAdd, bulkDelete } from './bulking'
 import Generator from './mapping'

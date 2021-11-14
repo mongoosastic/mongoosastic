@@ -1,9 +1,7 @@
-'use strict'
-
 import mongoose, { Document, Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
-import { MongoosasticDocument, MongoosasticModel, Options } from 'types'
+import { MongoosasticDocument, MongoosasticModel, Options } from '../lib/types'
 
 interface IFood extends MongoosasticDocument {
 	name: string,

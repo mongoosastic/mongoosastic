@@ -1,7 +1,7 @@
 import { Property, PropertyName, QueryContainer, SearchResponse } from '@elastic/elasticsearch/api/types'
 import events from 'events'
 import { FilterQuery } from 'mongoose'
-import { MongoosasticDocument, MongoosasticModel, SynchronizeOptions } from 'types'
+import { MongoosasticDocument, MongoosasticModel, SynchronizeOptions } from './types'
 import { postSave } from './hooks'
 import { filterMappingFromMixed, getIndexName, reformatESTotalNumber } from './utils'
 import { bulkDelete } from './bulking'

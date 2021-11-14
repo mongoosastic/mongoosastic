@@ -1,6 +1,6 @@
 import events from 'events'
 import { Schema } from 'mongoose'
-import { Options, MongoosasticDocument, MongoosasticModel } from 'types'
+import { Options, MongoosasticDocument, MongoosasticModel } from './types'
 import { flush } from './bulking'
 import { createEsClient } from './esClient'
 import { postSave, postRemove } from './hooks'
@@ -58,4 +58,4 @@ function mongoosastic(schema: Schema<MongoosasticDocument, MongoosasticModel<Mon
 	}
 }
 
-export default mongoosastic
+export = mongoosastic

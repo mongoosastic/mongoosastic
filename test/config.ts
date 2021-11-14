@@ -1,9 +1,7 @@
-'use strict'
-
 import { Client } from '@elastic/elasticsearch'
 import { toInteger } from 'lodash'
 import { Model } from 'mongoose'
-import { MongoosasticDocument } from 'types'
+import { MongoosasticDocument } from '../lib/types'
 
 const esClient = new Client({ node: 'http://localhost:9200' })
 

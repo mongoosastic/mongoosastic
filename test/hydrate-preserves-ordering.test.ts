@@ -1,9 +1,7 @@
-'use strict'
-
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
-import { MongoosasticDocument, MongoosasticModel } from 'types'
+import { MongoosasticDocument, MongoosasticModel } from '../lib/types'
 
 interface IRank extends MongoosasticDocument {
 	title: string,

@@ -1,7 +1,5 @@
-'use strict'
-
 import mongoose, { Schema } from 'mongoose'
-import { MongoosasticDocument, MongoosasticModel } from 'types'
+import { MongoosasticDocument, MongoosasticModel } from '../../lib/types'
 import mongoosastic from '../../lib/index'
 
 export interface ITweet extends MongoosasticDocument {

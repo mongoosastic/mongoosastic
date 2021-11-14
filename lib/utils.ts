@@ -1,5 +1,5 @@
 import { isEmpty } from 'lodash'
-import { DeleteByIdOptions, EsSearchOptions, GeneratedMapping, HydratedSearchResults, MongoosasticDocument, MongoosasticModel } from 'types'
+import { DeleteByIdOptions, EsSearchOptions, GeneratedMapping, HydratedSearchResults, MongoosasticDocument, MongoosasticModel } from './types'
 import { ApiResponse } from '@elastic/elasticsearch'
 import { Property, PropertyName, SearchResponse, TotalHits } from '@elastic/elasticsearch/api/types'
 

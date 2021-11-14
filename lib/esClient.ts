@@ -1,5 +1,5 @@
 import { Client } from '@elastic/elasticsearch'
-import { Options } from 'types'
+import { Options } from './types'
 
 export function createEsClient(options: Options): Client {
 	

@@ -1,4 +1,4 @@
-import { BulkIndexOptions, BulkInstruction, BulkOptions, BulkUnIndexOptions, MongoosasticDocument, MongoosasticModel } from 'types'
+import { BulkIndexOptions, BulkInstruction, BulkOptions, BulkUnIndexOptions, MongoosasticDocument, MongoosasticModel } from './types'
 
 let bulkBuffer: BulkInstruction[] = []
 let bulkTimeout: NodeJS.Timeout | undefined

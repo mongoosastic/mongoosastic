@@ -1,11 +1,9 @@
-'use strict'
-
 import mongoose, { Schema } from 'mongoose'
 import Generator from '../lib/mapping'
 const generator = new Generator()
 import { config } from './config'
 import mongoosastic from '../lib/index'
-import { MongoosasticDocument, MongoosasticModel } from 'types'
+import { MongoosasticDocument, MongoosasticModel } from '../lib/types'
 
 interface ISchema extends MongoosasticDocument {
 	string: string,

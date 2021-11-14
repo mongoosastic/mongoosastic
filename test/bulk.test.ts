@@ -1,9 +1,7 @@
-'use strict'
-
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
-import { MongoosasticDocument, MongoosasticModel } from 'types'
+import { MongoosasticDocument, MongoosasticModel } from '../lib/types'
 
 interface IBook extends MongoosasticDocument {
 	title: string
@@ -34,7 +32,7 @@ describe('Bulk mode', function () {
 		}
 
 		const book = await Book.findOne({ title: 'American Gods' })
-		await book?.remove()
+		if(book) await book.remove()
 	})
 
 	afterAll(async function () {

@@ -1,9 +1,7 @@
-'use strict'
-
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
-import { MongoosasticDocument, MongoosasticModel, Options } from 'types'
+import { MongoosasticDocument, MongoosasticModel, Options } from '../lib/types'
 
 interface IPhone extends MongoosasticDocument {
 	name: string,

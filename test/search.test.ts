@@ -1,10 +1,8 @@
-'use strict'
-
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
 import { Aggregate, Hit } from '@elastic/elasticsearch/api/types'
-import { MongoosasticDocument, MongoosasticModel } from 'types'
+import { MongoosasticDocument, MongoosasticModel } from '../lib/types'
 
 interface IBond extends MongoosasticDocument {
 	name: string,

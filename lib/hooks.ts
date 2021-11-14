@@ -1,4 +1,4 @@
-import { MongoosasticDocument } from 'types'
+import { MongoosasticDocument } from './types'
 
 export function postSave(doc: MongoosasticDocument): void {
 

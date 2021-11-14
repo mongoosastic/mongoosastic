@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-'use strict'
-
 import { cloneDeep } from 'lodash'
 import { Schema } from 'mongoose'
-import { MongoosasticDocument, MongoosasticModel } from 'types'
+import { MongoosasticDocument, MongoosasticModel } from './types'
 
 //
 // Get type from the mongoose schema

@@ -1,9 +1,7 @@
-'use strict'
-
 import mongoose, { Schema } from 'mongoose'
 import { config } from './config'
 import mongoosastic from '../lib/index'
-import { Options, MongoosasticDocument, MongoosasticModel } from 'types'
+import { Options, MongoosasticDocument, MongoosasticModel } from '../lib/types'
 
 interface IMovie extends MongoosasticDocument {
 	title: string,
