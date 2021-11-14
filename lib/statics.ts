@@ -1,5 +1,5 @@
 import { Property, PropertyName, QueryContainer, SearchResponse } from '@elastic/elasticsearch/api/types'
-import events from 'events'
+import { EventEmitter } from 'events'
 import { FilterQuery } from 'mongoose'
 import { MongoosasticDocument, MongoosasticModel, SynchronizeOptions } from './types'
 import { postSave } from './hooks'
@@ -55,11 +55,11 @@ export async function createMapping(this: MongoosasticModel<MongoosasticDocument
 
 }
 
-export function synchronize(this: MongoosasticModel<MongoosasticDocument>, query: FilterQuery<MongoosasticDocument> = {}, inOpts: SynchronizeOptions = {}): events {
+export function synchronize(this: MongoosasticModel<MongoosasticDocument>, query: FilterQuery<MongoosasticDocument> = {}, inOpts: SynchronizeOptions = {}): EventEmitter {
 
 	const options = this.esOptions()
 
-	const em = new events.EventEmitter()
+	const em = new EventEmitter()
 	let counter = 0
 
 	// Set indexing to be bulk when synchronizing to make synchronizing faster

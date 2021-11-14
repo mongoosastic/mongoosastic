@@ -3,7 +3,7 @@
 import { ClientOptions, ApiResponse, Client } from '@elastic/elasticsearch'
 import { Highlight, CountResponse, RefreshResponse, SearchResponse, QueryContainer, SearchRequest, TypeMapping, Hit, PropertyName, Property, HitsMetadata } from '@elastic/elasticsearch/api/types'
 import { RequestBody } from '@elastic/elasticsearch/lib/Transport'
-import events from 'events'
+import { EventEmitter } from 'events'
 import { Document, Model, PopulateOptions, QueryOptions } from 'mongoose'
 
 declare interface FilterFn {
@@ -114,7 +114,7 @@ declare type EsSearchOptions = {
     hydrateWithESResults?: any
 }
 
-declare class MongoosasticDocument<TDocument = any> extends Document<TDocument> {
+declare interface MongoosasticDocument<TDocument = any> extends Document<TDocument>, EventEmitter {
 
     _highlight?: Record<string, string[]> | undefined
     _esResult?: Hit<TDocument>
@@ -122,11 +122,8 @@ declare class MongoosasticDocument<TDocument = any> extends Document<TDocument> 
     index(opts?: IndexMethodOptions): Promise<MongoosasticDocument | ApiResponse>
     unIndex(): Promise<MongoosasticDocument>
     
-    emit(event: string, ...args: any): void
     esOptions(): Options
     esClient(): Client
-    on(event: string, cb?: CallableFunction): void
-    once(event: string, cb?: CallableFunction): void
 }
 
 interface MongoosasticModel<T> extends Model<T> {
@@ -135,12 +132,12 @@ interface MongoosasticModel<T> extends Model<T> {
 
     esSearch(query: SearchRequest['body'], options?: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults<T>>>;
 
-    synchronize(query?: any, options?: SynchronizeOptions): events;
+    synchronize(query?: any, options?: SynchronizeOptions): EventEmitter;
     esTruncate(): Promise<void>
     
     esOptions(): Options
     esClient(): Client
-    bulkError(): events
+    bulkError(): EventEmitter
 
     createMapping(body?: RequestBody): Promise<Record<PropertyName, Property>>
     getMapping(): Record<string, any>
