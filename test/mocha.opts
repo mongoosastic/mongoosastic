@@ -1,5 +1,0 @@
---require should
---require co-mocha
---timeout 60000
---reporter spec
---exit
