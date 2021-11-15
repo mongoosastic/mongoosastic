@@ -1,108 +1,110 @@
 import mongoose, { Schema } from 'mongoose'
-import { config } from './config'
 import mongoosastic from '../lib/index'
-import { Options, MongoosasticDocument, MongoosasticModel } from '../lib/types'
+import { MongoosasticDocument, MongoosasticModel, Options } from '../lib/types'
+import { config } from './config'
 
 interface IMovie extends MongoosasticDocument {
-	title: string,
-	genre: string,
+  title: string,
+  genre: string,
 }
 
 // -- Only index specific field
 const MovieSchema = new Schema<MongoosasticDocument>({
-	title: {
-		type: String,
-		required: true,
-		default: '',
-		es_indexed: true
-	},
-	genre: {
-		type: String,
-		required: true,
-		default: '',
-		enum: ['horror', 'action', 'adventure', 'other'],
-		es_indexed: true
-	}
+  title: {
+    type: String,
+    required: true,
+    default: '',
+    es_indexed: true
+  },
+  genre: {
+    type: String,
+    required: true,
+    default: '',
+    enum: ['horror', 'action', 'adventure', 'other'],
+    es_indexed: true
+  }
 })
 
 MovieSchema.plugin(mongoosastic, {
-	filter: function(self: IMovie) {
-		return self.genre === 'action'
-	}
+  filter: function (self: IMovie) {
+    return self.genre === 'action'
+  }
 } as Options)
 
 const Movie = mongoose.model<IMovie, MongoosasticModel<IMovie>>('Movie', MovieSchema)
 
 describe('Filter mode', function () {
-	
-	beforeAll(async function() {
-		await mongoose.connect(config.mongoUrl, config.mongoOpts)
-		await Movie.deleteMany()
-		await config.deleteIndexIfExists(['movies'])
-	})
 
-	afterAll(async function() {
-		await Movie.deleteMany()
-		await config.deleteIndexIfExists(['movies'])
-		mongoose.disconnect()
-	})
+  beforeAll(async function () {
+    await mongoose.connect(config.mongoUrl, config.mongoOpts)
+    await Movie.deleteMany()
+    await config.deleteIndexIfExists(['movies'])
+  })
 
-	it('should index horror genre', async function () {
-		await config.createModelAndEnsureIndex(Movie, {
-			title: 'LOTR',
-			genre: 'horror'
-		})
+  afterAll(async function () {
+    await Movie.deleteMany()
+    await config.deleteIndexIfExists(['movies'])
+    await mongoose.disconnect()
+  })
 
-		const results = await Movie.search({
-			term: {
-				genre: 'horror'
-			}
-		})
+  it('should index horror genre', async function () {
+    await config.createModelAndEnsureIndex(Movie, {
+      title: 'LOTR',
+      genre: 'horror'
+    })
 
-		expect(results?.body.hits.total).toEqual(1)
-	})
+    const results = await Movie.search({
+      term: {
+        genre: 'horror'
+      }
+    })
 
-	it('should not index action genre', async function (done) {
-		
-		await config.createModelAndSave(Movie, {
-			title: 'Man in Black',
-			genre: 'action'
-		})
+    expect(results?.body.hits.total).toEqual(1)
+  })
 
-		const results = await Movie.search({
-			term: {
-				genre: 'action'
-			}
-		})
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore: callback type
+  it('should not index action genre', async function (done) {
 
-		expect(results?.body.hits.total).toEqual(0)
-		done()
-	})
+    await config.createModelAndSave(Movie, {
+      title: 'Man in Black',
+      genre: 'action'
+    })
 
-	it('should unindex filtered models', async function () {
-		const movie = await config.createModelAndEnsureIndex(Movie, {
-			title: 'REC',
-			genre: 'horror'
-		})
+    const results = await Movie.search({
+      term: {
+        genre: 'action'
+      }
+    })
 
-		const results = await Movie.search({
-			term: {
-				title: 'rec'
-			}
-		})
+    expect(results?.body.hits.total).toEqual(0)
+    done()
+  })
 
-		expect(results?.body.hits.total).toEqual(1)
+  it('should unindex filtered models', async function () {
+    const movie = await config.createModelAndEnsureIndex(Movie, {
+      title: 'REC',
+      genre: 'horror'
+    })
 
-		movie.genre = 'action'
-		await config.saveAndWaitIndex(movie)
+    const results = await Movie.search({
+      term: {
+        title: 'rec'
+      }
+    })
 
-		await config.sleep(config.INDEXING_TIMEOUT)
-		const res = await Movie.search({
-			term: {
-				title: 'rec'
-			}
-		})
+    expect(results?.body.hits.total).toEqual(1)
 
-		expect(res?.body.hits.total).toEqual(0)
-	})
+    movie.genre = 'action'
+    await config.saveAndWaitIndex(movie)
+
+    await config.sleep(config.INDEXING_TIMEOUT)
+    const res = await Movie.search({
+      term: {
+        title: 'rec'
+      }
+    })
+
+    expect(res?.body.hits.total).toEqual(0)
+  })
 })

@@ -1,14 +1,14 @@
 import mongoose, { Schema } from 'mongoose'
-import { config } from './config'
 import mongoosastic from '../lib/index'
 import { MongoosasticDocument, MongoosasticModel } from '../lib/types'
+import { config } from './config'
 
 interface IRefresh extends MongoosasticDocument {
-	title: string
+  title: string
 }
 
 const RefreshSchema = new Schema<MongoosasticDocument>({
-	title: String
+  title: String
 })
 
 RefreshSchema.plugin(mongoosastic)
@@ -16,34 +16,34 @@ RefreshSchema.plugin(mongoosastic)
 const Refresh = mongoose.model<IRefresh, MongoosasticModel<IRefresh>>('Refresh', RefreshSchema)
 
 describe('Refresh', function () {
-  
-	beforeAll(async function() {
-		await mongoose.connect(config.mongoUrl, config.mongoOpts)
-		await Refresh.deleteMany()
-		await config.deleteIndexIfExists(['refreshes'])
 
-		await Refresh.createMapping()
-	})
+  beforeAll(async function () {
+    await mongoose.connect(config.mongoUrl, config.mongoOpts)
+    await Refresh.deleteMany()
+    await config.deleteIndexIfExists(['refreshes'])
 
-	afterAll(async function() {
-		await Refresh.deleteMany()
-		await config.deleteIndexIfExists(['refreshes'])
-		mongoose.disconnect()
-	})
+    await Refresh.createMapping()
+  })
 
-	it('should be able to search for the element after refresh', async function() {
+  afterAll(async function () {
+    await Refresh.deleteMany()
+    await config.deleteIndexIfExists(['refreshes'])
+    await mongoose.disconnect()
+  })
 
-		const refresh = new Refresh({ title: `${Date.now()}` })
+  it('should be able to search for the element after refresh', async function () {
 
-		await config.saveAndWaitIndex(refresh)
+    const refresh = new Refresh({ title: `${Date.now()}` })
 
-		await Refresh.refresh()
-		await config.sleep(config.INDEXING_TIMEOUT)
+    await config.saveAndWaitIndex(refresh)
 
-		const res = await Refresh.search({
-			match_all: {}
-		})
+    await Refresh.refresh()
+    await config.sleep(config.INDEXING_TIMEOUT)
 
-		expect(res?.body.hits.total).toEqual(1)
-	})
+    const res = await Refresh.search({
+      match_all: {}
+    })
+
+    expect(res?.body.hits.total).toEqual(1)
+  })
 })

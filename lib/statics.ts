@@ -1,197 +1,203 @@
+import { Search } from '@elastic/elasticsearch/api/requestParams'
 import { Property, PropertyName, QueryContainer, SearchResponse } from '@elastic/elasticsearch/api/types'
+import { ApiResponse, RequestBody } from '@elastic/elasticsearch/lib/Transport'
 import { EventEmitter } from 'events'
 import { FilterQuery } from 'mongoose'
-import { MongoosasticDocument, MongoosasticModel, SynchronizeOptions } from './types'
-import { postSave } from './hooks'
-import { filterMappingFromMixed, getIndexName, reformatESTotalNumber } from './utils'
 import { bulkDelete } from './bulking'
+import { postSave } from './hooks'
 import Generator from './mapping'
-import { ApiResponse, RequestBody } from '@elastic/elasticsearch/lib/Transport'
-import { Search } from '@elastic/elasticsearch/api/requestParams'
+import { MongoosasticDocument, MongoosasticModel, SynchronizeOptions } from './types'
+import { filterMappingFromMixed, getIndexName, reformatESTotalNumber } from './utils'
 
-export async function createMapping(this: MongoosasticModel<MongoosasticDocument>, body: RequestBody): Promise<Record<PropertyName, Property>> {
+export async function createMapping(
+  this: MongoosasticModel<MongoosasticDocument>,
+  body: RequestBody
+): Promise<Record<PropertyName, Property>> {
+  const options = this.esOptions()
+  const client = this.esClient()
 
-	const options = this.esOptions()
-	const client = this.esClient()
-	
-	const indexName = getIndexName(this)
-	
-	const generator = new Generator()
-	const completeMapping = generator.generateMapping(this.schema)
+  const indexName = getIndexName(this)
 
-	const filtered = filterMappingFromMixed(completeMapping.properties)
-	completeMapping.properties = filtered
+  const generator = new Generator()
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const completeMapping = generator.generateMapping(this.schema)
 
-	const properties = options.properties
-	if (properties) {
-		Object.keys(properties).map(key => {
-			completeMapping.properties[key] = properties[key]
-		})
-	}
+  completeMapping.properties = filterMappingFromMixed(completeMapping.properties)
 
-	const exists = await client.indices.exists({
-		index: indexName
-	})
+  const properties = options.properties
+  if (properties) {
+    Object.keys(properties).map((key) => {
+      completeMapping.properties[key] = properties[key]
+    })
+  }
 
-	if (exists.body) {
-		await client.indices.putMapping({
-			index: indexName,
-			body: completeMapping
-		})
-		return completeMapping
-	}
+  const exists = await client.indices.exists({
+    index: indexName,
+  })
 
-	await client.indices.create({
-		index: indexName,
-		body: body
-	})
+  if (exists.body) {
+    await client.indices.putMapping({
+      index: indexName,
+      body: completeMapping,
+    })
+    return completeMapping
+  }
 
-	await client.indices.putMapping({
-		index: indexName,
-		body: completeMapping
-	})
+  await client.indices.create({
+    index: indexName,
+    body: body,
+  })
 
-	return completeMapping
+  await client.indices.putMapping({
+    index: indexName,
+    body: completeMapping,
+  })
 
+  return completeMapping
 }
 
-export function synchronize(this: MongoosasticModel<MongoosasticDocument>, query: FilterQuery<MongoosasticDocument> = {}, inOpts: SynchronizeOptions = {}): EventEmitter {
+export function synchronize(
+  this: MongoosasticModel<MongoosasticDocument>,
+  query: FilterQuery<MongoosasticDocument> = {},
+  inOpts: SynchronizeOptions = {}
+): EventEmitter {
+  const options = this.esOptions()
 
-	const options = this.esOptions()
+  const em = new EventEmitter()
+  let counter = 0
 
-	const em = new EventEmitter()
-	let counter = 0
+  // Set indexing to be bulk when synchronizing to make synchronizing faster
+  // Set default values when not present
+  const bulkOptions = options.bulk
+  options.bulk = {
+    delay: (options.bulk && options.bulk.delay) || 1000,
+    size: (options.bulk && options.bulk.size) || 1000,
+    batch: (options.bulk && options.bulk.batch) || 50,
+  }
 
-	// Set indexing to be bulk when synchronizing to make synchronizing faster
-	// Set default values when not present
-	const bulkOptions = options.bulk
-	options.bulk = {
-		delay: (options.bulk && options.bulk.delay) || 1000,
-		size: (options.bulk && options.bulk.size) || 1000,
-		batch: (options.bulk && options.bulk.batch) || 50
-	}
+  const saveOnSynchronize =
+    inOpts.saveOnSynchronize !== undefined ? inOpts.saveOnSynchronize : options.saveOnSynchronize
 
-	const saveOnSynchronize = inOpts.saveOnSynchronize !== undefined ? inOpts.saveOnSynchronize : options.saveOnSynchronize
+  const stream = this.find(query).batchSize(options.bulk.batch).cursor()
 
-	const stream = this.find(query).batchSize(options.bulk.batch).cursor()
+  stream.on('data', (doc) => {
+    stream.pause()
+    counter++
 
-	stream.on('data', doc => {
-		stream.pause()
-		counter++
+    function onIndex(indexErr: unknown, inDoc: MongoosasticDocument) {
+      counter--
+      if (indexErr) {
+        em.emit('error', indexErr)
+      } else {
+        em.emit('data', null, inDoc)
+      }
+      stream.resume()
+    }
 
-		function onIndex (indexErr: unknown, inDoc: MongoosasticDocument) {
-			counter--
-			if (indexErr) {
-				em.emit('error', indexErr)
-			} else {
-				em.emit('data', null, inDoc)
-			}
-			stream.resume()
-		}
+    doc.on('es-indexed', onIndex)
+    doc.on('es-filtered', onIndex)
 
-		doc.on('es-indexed', onIndex)
-		doc.on('es-filtered', onIndex)
+    if (saveOnSynchronize) {
+      doc.save((err: unknown) => {
+        if (err) {
+          counter--
+          em.emit('error', err)
+          return stream.resume()
+        }
+      })
+    } else {
+      postSave(doc)
+    }
+  })
 
-		if(saveOnSynchronize){
-			doc.save((err: unknown) => {
-				if (err) {
-					counter--
-					em.emit('error', err)
-					return stream.resume()
-				}
-			})
-		} else {
-			postSave(doc)
-		}
-	})
+  stream.on('close', () => {
+    const closeInterval = setInterval(() => {
+      if (counter === 0) {
+        clearInterval(closeInterval)
+        em.emit('close')
+        options.bulk = bulkOptions
+      }
+    }, 1000)
+  })
 
-	stream.on('close', () => {
-		const closeInterval = setInterval(() => {
-			if (counter === 0) {
-				clearInterval(closeInterval)
-				em.emit('close')
-				options.bulk = bulkOptions
-			}
-		}, 1000)
-	})
+  stream.on('error', (err) => {
+    em.emit('error', err)
+  })
 
-	stream.on('error', err => {
-		em.emit('error', err)
-	})
-
-	return em
+  return em
 }
 
 export async function esTruncate(this: MongoosasticModel<MongoosasticDocument>): Promise<void> {
+  const options = this.esOptions()
+  const client = this.esClient()
 
-	const options = this.esOptions()
-	const client = this.esClient()
+  const indexName = getIndexName(this)
 
-	const indexName = getIndexName(this)
+  const esQuery: Search = {
+    index: indexName,
+    body: {
+      query: {
+        match_all: {},
+      },
+    },
+  }
 
-	const esQuery: Search = {
-		index: indexName,
-		body: {
-			query: {
-				match_all: {}
-			}
-		}
-	}
+  // Set indexing to be bulk when synchronizing to make synchronizing faster
+  // Set default values when not present
+  const bulkOptions = options.bulk
+  options.bulk = {
+    delay: (options.bulk && options.bulk.delay) || 1000,
+    size: (options.bulk && options.bulk.size) || 1000,
+    batch: (options.bulk && options.bulk.batch) || 50,
+  }
 
-	// Set indexing to be bulk when synchronizing to make synchronizing faster
-	// Set default values when not present
-	const bulkOptions = options.bulk
-	options.bulk = {
-		delay: (options.bulk && options.bulk.delay) || 1000,
-		size: (options.bulk && options.bulk.size) || 1000,
-		batch: (options.bulk && options.bulk.batch) || 50
-	}
+  let res: ApiResponse<SearchResponse<MongoosasticDocument>> = await client.search(esQuery)
 
-	let res: ApiResponse<SearchResponse<MongoosasticDocument>> = await client.search(esQuery)
+  res = reformatESTotalNumber(res)
+  if (res.body.hits.total) {
+    for (const doc of res.body.hits.hits) {
+      const opts = {
+        index: indexName,
+        id: doc._id,
+        bulk: options.bulk,
+        routing: undefined,
+        model: this,
+      }
 
-	res = reformatESTotalNumber(res)
-	if (res.body.hits.total) {
-		res.body.hits.hits.forEach(async (doc) => {
-				
-			const opts = {
-				index: indexName,
-				id: doc._id,
-				bulk: options.bulk,
-				routing: undefined,
-				model: this
-			}
-				
-			if (options.routing && doc._source != null) {
-				doc._source._id = doc._id
-				opts.routing = options.routing(doc._source)
-			}
+      if (options.routing && doc._source != null) {
+        doc._source._id = doc._id
+        opts.routing = options.routing(doc._source)
+      }
 
-			await bulkDelete(opts)
-		})
-	}
-	options.bulk = bulkOptions
+      await bulkDelete(opts)
+    }
+  }
+  options.bulk = bulkOptions
 }
 
 export async function refresh(this: MongoosasticModel<MongoosasticDocument>): Promise<ApiResponse> {
-	return await this.esClient().indices.refresh({
-		index: getIndexName(this)
-	})
+  return this.esClient().indices.refresh({
+    index: getIndexName(this),
+  })
 }
 
-export async function esCount(this: MongoosasticModel<MongoosasticDocument>, query: QueryContainer): Promise<ApiResponse> {
+export async function esCount(
+  this: MongoosasticModel<MongoosasticDocument>,
+  query: QueryContainer
+): Promise<ApiResponse> {
+  if (query === undefined) {
+    query = {
+      match_all: {},
+    }
+  }
 
-	if (query === undefined) {
-		query = {
-			match_all: {}
-		}
-	}
+  const esQuery = {
+    body: {
+      query: query,
+    },
+    index: getIndexName(this),
+  }
 
-	const esQuery = {
-		body: {
-			query: query
-		},
-		index: getIndexName(this)
-	}
-
-	return await this.esClient().count(esQuery)
+  return this.esClient().count(esQuery)
 }

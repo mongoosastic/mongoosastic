@@ -4,54 +4,59 @@ import { QueryContainer, SearchRequest, SearchResponse } from '@elastic/elastics
 import { EsSearchOptions, HydratedSearchResults, MongoosasticDocument, MongoosasticModel } from './types'
 import { getIndexName, hydrate, isString, isStringArray, reformatESTotalNumber } from './utils'
 
+export async function search(
+  this: MongoosasticModel<MongoosasticDocument>,
+  query: QueryContainer,
+  opts: EsSearchOptions = {}
+): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>> {
+  const fullQuery = {
+    query: query,
+  }
 
-export async function search(this: MongoosasticModel<MongoosasticDocument>, query: QueryContainer, opts: EsSearchOptions = {}): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>> {
+  const bindedEsSearch = esSearch.bind(this)
 
-	const fullQuery = {
-		query: query
-	}
-
-	const bindedEsSearch = esSearch.bind(this)
-
-	return bindedEsSearch(fullQuery, opts)
+  return bindedEsSearch(fullQuery, opts)
 }
 
-export async function esSearch(this: MongoosasticModel<MongoosasticDocument>, query: SearchRequest['body'], opts: EsSearchOptions = {}): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>> {
+export async function esSearch(
+  this: MongoosasticModel<MongoosasticDocument>,
+  query: SearchRequest['body'],
+  opts: EsSearchOptions = {}
+): Promise<ApiResponse<SearchResponse, unknown> | ApiResponse<HydratedSearchResults>> {
+  const options = this.esOptions()
+  const client = this.esClient()
 
-	const options = this.esOptions()
-	const client = this.esClient()
+  const { highlight, suggest, aggs, min_score, routing } = opts
 
-	const { highlight, suggest, aggs, min_score, routing } = opts
+  const body = { highlight, suggest, aggs, min_score, ...query }
 
-	const body = { highlight, suggest, aggs, min_score, ...query }
+  const esQuery: Search = {
+    body: body,
+    routing: routing,
+    index: getIndexName(this),
+  }
 
-	const esQuery: Search = {
-		body: body,
-		routing: routing,
-		index: getIndexName(this), 
-	}
+  if (opts.sort) {
+    if (isString(opts.sort) || isStringArray(opts.sort)) {
+      esQuery.sort = opts.sort
+    } else {
+      body.sort = opts.sort
+      esQuery.body = body
+    }
+  }
 
-	if (opts.sort) {
-		if (isString(opts.sort) || isStringArray(opts.sort)) {
-			esQuery.sort = opts.sort
-		} else {
-			body.sort = opts.sort
-			esQuery.body = body
-		}
-	}
+  Object.keys(opts).forEach((opt) => {
+    if (!opt.match(/(hydrate|sort|aggs|highlight|suggest)/) && opts.hasOwnProperty(opt)) {
+      esQuery[opt as keyof Search] = opts[opt as keyof EsSearchOptions]
+    }
+  })
 
-	Object.keys(opts).forEach(opt => {
-		if (!opt.match(/(hydrate|sort|aggs|highlight|suggest)/) && opts.hasOwnProperty(opt)) {
-			esQuery[opt as keyof Search] = opts[opt as keyof EsSearchOptions]
-		}
-	})
+  const res: ApiResponse<SearchResponse> = await client.search(esQuery)
 
-	const res: ApiResponse<SearchResponse> = await client.search(esQuery)
-
-	const resp = reformatESTotalNumber(res)
-	if (options.alwaysHydrate || opts.hydrate) {
-		return hydrate(resp, this, opts)
-	} else {
-		return resp
-	}
+  const resp = reformatESTotalNumber(res)
+  if (options.alwaysHydrate || opts.hydrate) {
+    return hydrate(resp, this, opts)
+  } else {
+    return resp
+  }
 }

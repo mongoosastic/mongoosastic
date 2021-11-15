@@ -12,22 +12,22 @@ import { MongoosasticDocument, MongoosasticModel } from './types'
 // @param field
 // @return the type or false
 
-function getTypeFromPaths (paths: Record<string, any>, field: string) {
-	let type = false
+function getTypeFromPaths(paths: Record<string, any>, field: string) {
+  let type = false
 
-	if (paths[field] && paths[field].options.type === Date) {
-		return 'date'
-	}
+  if (paths[field] && paths[field].options.type === Date) {
+    return 'date'
+  }
 
-	if (paths[field] && paths[field].options.type === Boolean) {
-		return 'boolean'
-	}
+  if (paths[field] && paths[field].options.type === Boolean) {
+    return 'boolean'
+  }
 
-	if (paths[field]) {
-		type = paths[field].instance ? paths[field].instance.toLowerCase() : 'object'
-	}
+  if (paths[field]) {
+    type = paths[field].instance ? paths[field].instance.toLowerCase() : 'object'
+  }
 
-	return type
+  return type
 }
 
 //
@@ -39,89 +39,89 @@ function getTypeFromPaths (paths: Record<string, any>, field: string) {
 // @param inPrefix
 // @return the mapping
 //
-function getMapping (cleanTree: Record<string, any>, inPrefix: string) {
-	const mapping: Record<string, any> = {}
-	let value
-	let field: string
-	let prop: string
-	const implicitFields = []
-	let hasEsIndex = false
-	const prefix = inPrefix !== '' ? `${inPrefix}.` : inPrefix
+function getMapping(cleanTree: Record<string, any>, inPrefix: string) {
+  const mapping: Record<string, any> = {}
+  let value
+  let field: string
+  let prop: string
+  const implicitFields = []
+  let hasEsIndex = false
+  const prefix = inPrefix !== '' ? `${inPrefix}.` : inPrefix
 
-	for (field in cleanTree) {
-		if (!cleanTree.hasOwnProperty(field)) {
-			continue
-		}
-		value = cleanTree[field]
-		mapping[field] = {}
-		mapping[field].type = value.type
+  for (field in cleanTree) {
+    if (!cleanTree.hasOwnProperty(field)) {
+      continue
+    }
+    value = cleanTree[field]
+    mapping[field] = {}
+    mapping[field].type = value.type
 
-		// Check if field was explicity indexed, if not keep track implicitly
-		if (value.es_indexed) {
-			hasEsIndex = true
-		} else if (value.type) {
-			implicitFields.push(field)
-		}
+    // Check if field was explicity indexed, if not keep track implicitly
+    if (value.es_indexed) {
+      hasEsIndex = true
+    } else if (value.type) {
+      implicitFields.push(field)
+    }
 
-		// If there is no type, then it's an object with subfields.
-		if (typeof value === 'object' && !value.type) {
-			mapping[field].type = 'object'
-			mapping[field].properties = getMapping(value, prefix + field)
-		}
+    // If there is no type, then it's an object with subfields.
+    if (typeof value === 'object' && !value.type) {
+      mapping[field].type = 'object'
+      mapping[field].properties = getMapping(value, prefix + field)
+    }
 
-		// If it is a objectid make it a string.
-		if (value.type === 'objectid') {
-			if (value.ref && value.es_schema) {
-				mapping[field].type = 'object'
-				mapping[field].properties = getMapping(value, prefix + field)
-				continue
-			}
-			// do not continue here so we can handle other es_ options
-			mapping[field].type = 'string'
-		}
+    // If it is a objectid make it a string.
+    if (value.type === 'objectid') {
+      if (value.ref && value.es_schema) {
+        mapping[field].type = 'object'
+        mapping[field].properties = getMapping(value, prefix + field)
+        continue
+      }
+      // do not continue here so we can handle other es_ options
+      mapping[field].type = 'string'
+    }
 
-		// If indexing a number, and no es_type specified, default to long
-		if (value.type === 'number' && value.es_type === undefined) {
-			mapping[field].type = 'long'
-			continue
-		}
+    // If indexing a number, and no es_type specified, default to long
+    if (value.type === 'number' && value.es_type === undefined) {
+      mapping[field].type = 'long'
+      continue
+    }
 
-		// Else, it has a type and we want to map that!
-		for (prop in value) {
-			// Map to field if it's an Elasticsearch option
-			if (value.hasOwnProperty(prop) && prop.indexOf('es_') === 0 && prop !== 'es_indexed') {
-				mapping[field][prop.replace(/^es_/, '')] = value[prop]
-			}
-		}
+    // Else, it has a type and we want to map that!
+    for (prop in value) {
+      // Map to field if it's an Elasticsearch option
+      if (value.hasOwnProperty(prop) && prop.indexOf('es_') === 0 && prop !== 'es_indexed') {
+        mapping[field][prop.replace(/^es_/, '')] = value[prop]
+      }
+    }
 
-		// if type is never mapped, delete mapping
-		if (mapping[field].type === undefined)
-			delete mapping[field]
-		
+    // if type is never mapped, delete mapping
+    if (mapping[field].type === undefined) {
+      delete mapping[field]
+    }
 
-		// Set default string type
-		if (mapping[field] && mapping[field].type === 'string') {
-			const textType = {
-				type: 'text',
-				fields: {
-					keyword: {
-						type: 'keyword',
-						ignore_above: 256
-					}
-				}
-			}
-			mapping[field] = Object.assign(mapping[field], textType)
-		}
-	}
+    // Set default string type
+    if (mapping[field] && mapping[field].type === 'string') {
+      const textType = {
+        type: 'text',
+        fields: {
+          keyword: {
+            type: 'keyword',
+            ignore_above: 256,
+          },
+        },
+      }
+      mapping[field] = Object.assign(mapping[field], textType)
+    }
+  }
 
-	// If one of the fields was explicitly indexed, delete all implicit fields
-	if (hasEsIndex) {
-		implicitFields.forEach(implicitField => {
-			delete mapping[implicitField]
-		})
-	}
+  // If one of the fields was explicitly indexed, delete all implicit fields
+  if (hasEsIndex) {
+    implicitFields.forEach((implicitField) => {
+      delete mapping[implicitField]
+    })
+  }
 
-	return mapping
+  return mapping
 }
 
 //
@@ -134,102 +134,116 @@ function getMapping (cleanTree: Record<string, any>, inPrefix: string) {
 // @param prefix
 // @return the tree
 //
-function getCleanTree (tree: Record<string, any>, paths: Record<string, any>, inPrefix: string, isRoot=false) {
-	const cleanTree: Record<string, any> = {}
-	let type
-	let value
-	let field
-	let prop
-	let treeNode
-	let subTree
-	let key
-	let geoFound = false
-	const prefix = inPrefix !== '' ? `${inPrefix}.` : inPrefix
+function getCleanTree(tree: Record<string, any>, paths: Record<string, any>, inPrefix: string, isRoot = false): Record<string, any> {
+  const cleanTree: Record<string, any> = {}
+  let type
+  let value
+  let field
+  let prop
+  let treeNode
+  let subTree
+  let key
+  let geoFound = false
+  const prefix = inPrefix !== '' ? `${inPrefix}.` : inPrefix
 
-	tree = cloneDeep(tree)
-	paths = cloneDeep(paths)
+  tree = cloneDeep(tree)
+  paths = cloneDeep(paths)
 
-	for (field in tree) {
-		if (prefix === '' && field === '_id' && isRoot) {
-			continue
-		}
+  for (field in tree) {
+    if (prefix === '' && field === '_id' && isRoot) {
+      continue
+    }
 
-		type = getTypeFromPaths(paths, prefix + field)
-		value = tree[field]
+    type = getTypeFromPaths(paths, prefix + field)
+    value = tree[field]
 
-		if (value.es_indexed === false) {
-			continue
-		}
+    if (value.es_indexed === false) {
+      continue
+    }
 
-		// Field has some kind of type
-		if (type) {
-			// If it is an nested schema
-			if (value[0] || type === 'embedded') {
-				// A nested array can contain complex objects
-				nestedSchema(paths, field, cleanTree, value, prefix) // eslint-disable-line no-use-before-define
-			} else if (value.type && Array.isArray(value.type)) {
-				// An object with a nested array
-				nestedSchema(paths, field, cleanTree, value, prefix) // eslint-disable-line no-use-before-define
-				// Merge top level es settings
-				for (prop in value) {
-					// Map to field if it's an Elasticsearch option
-					if (value.hasOwnProperty(prop) && prop.indexOf('es_') === 0) {
-						cleanTree[field][prop] = value[prop]
-					}
-				}
-			} else if (paths[field] && paths[field].options.es_schema && paths[field].options.es_schema.tree && paths[field].options.es_schema.paths) {
-				subTree = paths[field].options.es_schema.tree
-				if (paths[field].options.es_select) {
-					for (treeNode in subTree) {
-						if (!subTree.hasOwnProperty(treeNode)) { continue }
-						if (paths[field].options.es_select.split(' ').indexOf(treeNode) === -1) {
-							delete subTree[treeNode]
-						}
-					}
-				}
-				cleanTree[field] = getCleanTree(subTree, paths[field].options.es_schema.paths, '')
-			} else if (value === String || value === Object || value === Date || value === Number || value === Boolean || value === Array) {
-				cleanTree[field] = {}
-				cleanTree[field].type = type
-			} else {
-				cleanTree[field] = {}
-				for (key in value) {
-					if (value.hasOwnProperty(key)) {
-						cleanTree[field][key] = value[key]
-					}
-				}
-				cleanTree[field].type = type
-			}
+    // Field has some kind of type
+    if (type) {
+      // If it is an nested schema
+      if (value[0] || type === 'embedded') {
+        // A nested array can contain complex objects
+        nestedSchema(paths, field, cleanTree, value, prefix) // eslint-disable-line no-use-before-define
+      } else if (value.type && Array.isArray(value.type)) {
+        // An object with a nested array
+        nestedSchema(paths, field, cleanTree, value, prefix) // eslint-disable-line no-use-before-define
+        // Merge top level es settings
+        for (prop in value) {
+          // Map to field if it's an Elasticsearch option
+          if (value.hasOwnProperty(prop) && prop.indexOf('es_') === 0) {
+            cleanTree[field][prop] = value[prop]
+          }
+        }
+      } else if (
+        paths[field] &&
+        paths[field].options.es_schema &&
+        paths[field].options.es_schema.tree &&
+        paths[field].options.es_schema.paths
+      ) {
+        subTree = paths[field].options.es_schema.tree
+        if (paths[field].options.es_select) {
+          for (treeNode in subTree) {
+            if (!subTree.hasOwnProperty(treeNode)) {
+              continue
+            }
+            if (paths[field].options.es_select.split(' ').indexOf(treeNode) === -1) {
+              delete subTree[treeNode]
+            }
+          }
+        }
+        cleanTree[field] = getCleanTree(subTree, paths[field].options.es_schema.paths, '')
+      } else if (
+        value === String ||
+        value === Object ||
+        value === Date ||
+        value === Number ||
+        value === Boolean ||
+        value === Array
+      ) {
+        cleanTree[field] = {}
+        cleanTree[field].type = type
+      } else {
+        cleanTree[field] = {}
+        for (key in value) {
+          if (value.hasOwnProperty(key)) {
+            cleanTree[field][key] = value[key]
+          }
+        }
+        cleanTree[field].type = type
+      }
 
-			// It has no type for some reason
-		} else {
-			// Because it is an geo_* object!!
-			if (typeof value === 'object') {
-				for (key in value) {
-					if (value.hasOwnProperty(key) && /^geo_/.test(key)) {
-						cleanTree[field] = value[key]
-						geoFound = true
-					}
-				}
+      // It has no type for some reason
+    } else {
+      // Because it is an geo_* object!!
+      if (typeof value === 'object') {
+        for (key in value) {
+          if (value.hasOwnProperty(key) && /^geo_/.test(key)) {
+            cleanTree[field] = value[key]
+            geoFound = true
+          }
+        }
 
-				if (geoFound) {
-					continue
-				}
-			}
+        if (geoFound) {
+          continue
+        }
+      }
 
-			// If it's a virtual type, don't map it
-			if (typeof value === 'object' && value.getters && value.setters && value.options) {
-				continue
-			}
+      // If it's a virtual type, don't map it
+      if (typeof value === 'object' && value.getters && value.setters && value.options) {
+        continue
+      }
 
-			// Because it is some other object!! Or we assumed that it is one.
-			if (typeof value === 'object') {
-				cleanTree[field] = getCleanTree(value, paths, prefix + field)
-			}
-		}
-	}
+      // Because it is some other object!! Or we assumed that it is one.
+      if (typeof value === 'object') {
+        cleanTree[field] = getCleanTree(value, paths, prefix + field)
+      }
+    }
+  }
 
-	return cleanTree
+  return cleanTree
 }
 
 //
@@ -242,59 +256,78 @@ function getCleanTree (tree: Record<string, any>, paths: Record<string, any>, in
 // @param prefix
 // @return cleanTree modified
 //
-function nestedSchema (paths: Record<string, any>, field: string, cleanTree: Record<string, any>, value: Array<any>, prefix: string) {
-	let treeNode
-	let subTree
-	// A nested array can contain complex objects
-	if (paths[prefix + field] && paths[prefix + field].schema && paths[prefix + field].schema.tree && paths[prefix + field].schema.paths) {
-		cleanTree[field] = getCleanTree(paths[prefix + field].schema.tree, paths[prefix + field].schema.paths, '')
-	} else if (paths[prefix + field] && Array.isArray(paths[prefix + field].options.type) && paths[prefix + field].options.type[0].es_schema &&
-    paths[prefix + field].options.type[0].es_schema.tree && paths[prefix + field].options.type[0].es_schema.paths) {
-		// A nested array of references filtered by the 'es_select' option
-		subTree = paths[field].options.type[0].es_schema.tree
-		if (paths[field].options.type[0].es_select) {
-			for (treeNode in subTree) {
-				if (!subTree.hasOwnProperty(treeNode)) {
-					continue
-				}
-				if (paths[field].options.type[0].es_select.split(' ').indexOf(treeNode) === -1) {
-					delete subTree[treeNode]
-				}
-			}
-		}
-		cleanTree[field] = getCleanTree(subTree, paths[prefix + field].options.type[0].es_schema.paths, '')
-	} else if (paths[prefix + field] && paths[prefix + field].caster && paths[prefix + field].caster.instance) {
-		// Even for simple types the value can be an object if there is other attributes than type
-		if (typeof value[0] === 'object') {
-			cleanTree[field] = value[0]
-		} else if (typeof value === 'object') {
-			cleanTree[field] = value
-		} else {
-			cleanTree[field] = {}
-		}
+function nestedSchema(
+  paths: Record<string, any>,
+  field: string,
+  cleanTree: Record<string, any>,
+  value: Array<any>,
+  prefix: string
+) {
+  let treeNode
+  let subTree
+  // A nested array can contain complex objects
+  if (
+    paths[prefix + field] &&
+    paths[prefix + field].schema &&
+    paths[prefix + field].schema.tree &&
+    paths[prefix + field].schema.paths
+  ) {
+    cleanTree[field] = getCleanTree(paths[prefix + field].schema.tree, paths[prefix + field].schema.paths, '')
+  } else if (
+    paths[prefix + field] &&
+    Array.isArray(paths[prefix + field].options.type) &&
+    paths[prefix + field].options.type[0].es_schema &&
+    paths[prefix + field].options.type[0].es_schema.tree &&
+    paths[prefix + field].options.type[0].es_schema.paths
+  ) {
+    // A nested array of references filtered by the 'es_select' option
+    subTree = paths[field].options.type[0].es_schema.tree
+    if (paths[field].options.type[0].es_select) {
+      for (treeNode in subTree) {
+        if (!subTree.hasOwnProperty(treeNode)) {
+          continue
+        }
+        if (paths[field].options.type[0].es_select.split(' ').indexOf(treeNode) === -1) {
+          delete subTree[treeNode]
+        }
+      }
+    }
+    cleanTree[field] = getCleanTree(subTree, paths[prefix + field].options.type[0].es_schema.paths, '')
+  } else if (paths[prefix + field] && paths[prefix + field].caster && paths[prefix + field].caster.instance) {
+    // Even for simple types the value can be an object if there is other attributes than type
+    if (typeof value[0] === 'object') {
+      cleanTree[field] = value[0]
+    } else if (typeof value === 'object') {
+      cleanTree[field] = value
+    } else {
+      cleanTree[field] = {}
+    }
 
-		cleanTree[field].type = paths[prefix + field].caster.instance.toLowerCase()
-	} else if (!paths[field] && prefix) {
-		if (paths[prefix + field] && paths[prefix + field].caster && paths[prefix + field].caster.instance) {
-			cleanTree[field] = {
-				type: paths[prefix + field].caster.instance.toLowerCase()
-			}
-		}
-	} else {
-		cleanTree[field] = {
-			type: 'object'
-		}
-	}
+    cleanTree[field].type = paths[prefix + field].caster.instance.toLowerCase()
+  } else if (!paths[field] && prefix) {
+    if (paths[prefix + field] && paths[prefix + field].caster && paths[prefix + field].caster.instance) {
+      cleanTree[field] = {
+        type: paths[prefix + field].caster.instance.toLowerCase(),
+      }
+    }
+  } else {
+    cleanTree[field] = {
+      type: 'object',
+    }
+  }
 }
 
 export default class Generator {
-	generateMapping(schema: Schema<MongoosasticDocument, MongoosasticModel<MongoosasticDocument>>): Record<string, any> {
-		const cleanTree = getCleanTree(schema['tree' as keyof Schema], schema.paths, '', true)
-		delete cleanTree[schema.get('versionKey')]
-		const mapping = getMapping(cleanTree, '')
-		return { properties: mapping }
-	}
-	getCleanTree(schema: Schema<MongoosasticDocument, MongoosasticModel<MongoosasticDocument>>): Record<string, any> {
-		return getCleanTree(schema['tree' as keyof Schema], schema.paths, '', true)
-	}
+  generateMapping(schema: Schema<MongoosasticDocument, MongoosasticModel<MongoosasticDocument>>): Record<string, any> {
+    const cleanTree = getCleanTree(schema['tree' as keyof Schema], schema.paths, '', true)
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    delete cleanTree[schema.get('versionKey')]
+    const mapping = getMapping(cleanTree, '')
+    return { properties: mapping }
+  }
+
+  getCleanTree(schema: Schema<MongoosasticDocument, MongoosasticModel<MongoosasticDocument>>): Record<string, any> {
+    return getCleanTree(schema['tree' as keyof Schema], schema.paths, '', true)
+  }
 }

@@ -1,161 +1,163 @@
 import mongoose, { Schema } from 'mongoose'
-import { config } from './config'
 import mongoosastic from '../lib/index'
 import { MongoosasticDocument, MongoosasticModel } from '../lib/types'
+import { config } from './config'
 
 interface IBook extends MongoosasticDocument {
-	title: string,
+  title: string,
 }
 
 const BookSchema = new Schema<MongoosasticDocument>({
-	title: {
-		type: String,
-		required: true
-	}
+  title: {
+    type: String,
+    required: true
+  }
 })
 
 BookSchema.plugin(mongoosastic)
 
 let saveCounter = 0
 BookSchema.pre('save', function (next) {
-	// Count save
-	++saveCounter
-	next()
+  // Count save
+  ++saveCounter
+  next()
 })
 
 const Book = mongoose.model<IBook, MongoosasticModel<IBook>>('Book', BookSchema)
 
 describe('Synchronize', () => {
-	
-	let books
 
-	beforeAll(function() {
-		jest.setTimeout(10000)
-	})
+  let books
 
-	afterAll(async function() {
-		await Book.deleteMany()
-		await config.deleteIndexIfExists(['books'])
-		mongoose.disconnect()
-	})
+  beforeAll(function () {
+    jest.setTimeout(10000)
+  })
 
-	describe('an existing collection with invalid field values', () => {
+  afterAll(async function () {
+    await Book.deleteMany()
+    await config.deleteIndexIfExists(['books'])
+    await mongoose.disconnect()
+  })
 
-		beforeAll(async function() {
-			await config.deleteIndexIfExists(['books'])
-			await mongoose.connect(config.mongoUrl, config.mongoOpts)
-			const client = mongoose.connections[0].db
-			books = client.collection('books')
-			
-			await Book.deleteMany()
+  describe('an existing collection with invalid field values', () => {
 
-			for (const title of config.bookTitlesArray()) {
-				await books.insertOne({
-					title: title
-				})
-			}
+    beforeAll(async function () {
+      await config.deleteIndexIfExists(['books'])
+      await mongoose.connect(config.mongoUrl, config.mongoOpts)
+      const client = mongoose.connections[0].db
+      books = client.collection('books')
 
-			await books.insertOne({})
-		})
+      await Book.deleteMany()
 
-		it('should index all but one document', done => {
-			saveCounter = 0
-			const stream = Book.synchronize()
-			let count = 0
-			let errorCount = 0
-			stream.on('data', () => {
-				count++
-			})
-			stream.on('error', () => {
-				errorCount += 1
-			})
-			stream.on('close', async () => {
+      for (const title of config.bookTitlesArray()) {
+        await books.insertOne({
+          title: title
+        })
+      }
 
-				expect(count).toEqual(53)
-				expect(saveCounter).toEqual(count)
-				expect(errorCount).toEqual(1)
+      await books.insertOne({})
+    })
 
-				await config.sleep(config.BULK_ACTION_TIMEOUT)
+    it('should index all but one document', done => {
+      saveCounter = 0
+      const stream = Book.synchronize()
+      let count = 0
+      let errorCount = 0
+      stream.on('data', () => {
+        count++
+      })
+      stream.on('error', () => {
+        errorCount += 1
+      })
+      stream.on('close', async () => {
 
-				const results = await Book.search({
-					query_string: {
-						query: 'American'
-					}
-				})
+        expect(count).toEqual(53)
+        expect(saveCounter).toEqual(count)
+        expect(errorCount).toEqual(1)
 
-				expect(results?.body.hits.total).toEqual(2)
-				done()
-			})
-		})
-	})
+        await config.sleep(config.BULK_ACTION_TIMEOUT)
 
-	describe('an existing collection', () => {
+        const results = await Book.search({
+          query_string: {
+            query: 'American'
+          }
+        })
 
-		beforeAll(async function() {
-			await config.deleteIndexIfExists(['books'])
-			await mongoose.connect(config.mongoUrl, config.mongoOpts)
-			const client = mongoose.connections[0].db
-			books = client.collection('books')
-			
-			await Book.deleteMany()
+        expect(results?.body.hits.total).toEqual(2)
+        done()
+      })
+    })
+  })
 
-			for (const title of config.bookTitlesArray()) {
-				await books.insertOne({
-					title: title
-				})
-			}
-		})
+  describe('an existing collection', () => {
 
-		it('should index all existing objects', done => {
-			saveCounter = 0
-			let count = 0
-			const stream = Book.synchronize()
+    beforeAll(async function () {
+      await config.deleteIndexIfExists(['books'])
+      await mongoose.connect(config.mongoUrl, config.mongoOpts)
+      const client = mongoose.connections[0].db
+      books = client.collection('books')
 
-			stream.on('data', () => {
-				count++
-			})
+      await Book.deleteMany()
 
-			stream.on('close', async () => {
-				expect(count).toEqual(53)
-				expect(saveCounter).toEqual(count)
+      for (const title of config.bookTitlesArray()) {
+        await books.insertOne({
+          title: title
+        })
+      }
+    })
 
-				await config.sleep(config.BULK_ACTION_TIMEOUT)
+    it('should index all existing objects', done => {
+      saveCounter = 0
+      let count = 0
+      const stream = Book.synchronize()
 
-				const results = await Book.search({
-					query_string: {
-						query: 'American'
-					}
-				})
+      stream.on('data', () => {
+        count++
+      })
 
-				expect(results?.body.hits.total).toEqual(2)
-				done()
-			})
-		})
+      stream.on('close', async () => {
+        expect(count).toEqual(53)
+        expect(saveCounter).toEqual(count)
 
-		it('should index all existing objects without saving them in MongoDB', done => {
-			saveCounter = 0
-			const stream = Book.synchronize({}, { saveOnSynchronize: false })
-			let count = 0
+        await config.sleep(config.BULK_ACTION_TIMEOUT)
 
-			stream.on('data', (err, doc) => {
-				if (doc._id) count++
-			})
+        const results = await Book.search({
+          query_string: {
+            query: 'American'
+          }
+        })
 
-			stream.on('close', async () => {
-				expect(count).toEqual(53)
-				expect(saveCounter).toEqual(0)
+        expect(results?.body.hits.total).toEqual(2)
+        done()
+      })
+    })
 
-				await config.sleep(config.BULK_ACTION_TIMEOUT)
+    it('should index all existing objects without saving them in MongoDB', done => {
+      saveCounter = 0
+      const stream = Book.synchronize({}, { saveOnSynchronize: false })
+      let count = 0
 
-				const results = await Book.search({
-					query_string: {
-						query: 'American'
-					}
-				})
+      stream.on('data', (err, doc) => {
+        if (doc._id) {
+          count++
+        }
+      })
 
-				expect(results?.body.hits.total).toEqual(2)
-				done()
-			})
-		})
-	})
+      stream.on('close', async () => {
+        expect(count).toEqual(53)
+        expect(saveCounter).toEqual(0)
+
+        await config.sleep(config.BULK_ACTION_TIMEOUT)
+
+        const results = await Book.search({
+          query_string: {
+            query: 'American'
+          }
+        })
+
+        expect(results?.body.hits.total).toEqual(2)
+        done()
+      })
+    })
+  })
 })

@@ -1,47 +1,47 @@
 import { MongoosasticDocument } from './types'
 
 export function postSave(doc: MongoosasticDocument): void {
+  if (!doc) {
+    return
+  }
 
-	if (!doc) {
-		return
-	}
+  const options = doc.esOptions()
 
-	const options = doc.esOptions()
+  const filter = options && options.filter
 
-	const filter = options && options.filter
+  function onIndex(err: unknown, res: unknown) {
+    if (!filter || !filter(doc)) {
+      doc.emit('es-indexed', err, res)
+    } else {
+      doc.emit('es-filtered', err, res)
+    }
+  }
 
-	function onIndex (err: unknown, res: unknown) {
-		if (!filter || !filter(doc)) {
-			doc.emit('es-indexed', err, res)
-		} else {
-			doc.emit('es-filtered', err, res)
-		}
-	}
-
-	const populate = options && options.populate
-	if (doc) {
-		if (populate && populate.length) {
-			populate.forEach(populateOpts => {
-				doc.populate(populateOpts)
-			})
-			doc.execPopulate().then(popDoc => {
-				popDoc.index()
-					.then(res => onIndex(null, res))
-					.catch(err => onIndex(err, null))
-			})
-		} else {
-			doc.index()
-				.then(res => onIndex(null, res))
-				.catch(err => onIndex(err, null))
-		}
-	}
+  const populate = options && options.populate
+  if (doc) {
+    if (populate && populate.length) {
+      populate.forEach((populateOpts) => {
+        doc.populate(populateOpts)
+      })
+      doc.execPopulate().then((popDoc) => {
+        popDoc
+          .index()
+          .then((res) => onIndex(null, res))
+          .catch((err) => onIndex(err, null))
+      })
+    } else {
+      doc
+        .index()
+        .then((res) => onIndex(null, res))
+        .catch((err) => onIndex(err, null))
+    }
+  }
 }
 
 export function postRemove(doc: MongoosasticDocument): void {
-	
-	if (!doc) {
-		return
-	}
-	
-	doc.unIndex()
+  if (!doc) {
+    return
+  }
+
+  doc.unIndex()
 }
