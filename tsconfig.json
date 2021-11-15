@@ -10,6 +10,18 @@
     "importHelpers": true,
     "module": "commonjs",
     "outDir": "dist",
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "lib": [
+      "es2017",
+      "es2018",
+      "es2019",
+      "ES2020",
+      "ES2021",
+      "es7",
+      "es6",
+      "es5"
+    ],
     "removeComments": true,
     "sourceMap": true,
     "strict": true,
@@ -21,15 +33,15 @@
       "jest"
     ],
     "typeRoots": [
-      "node_modules/@types",
+      "node_modules/@types"
     ]
   },
   "include": [
-    "lib/**/*.ts",
+    "lib/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "test",
-    "dist",
+    "dist"
   ]
 }
