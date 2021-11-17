@@ -5,7 +5,7 @@ import { Tweet } from './models/tweet'
 describe('Index Method', function () {
 
   beforeAll(async function () {
-    await mongoose.connect(config.mongoUrl, config.mongoOpts)
+    await mongoose.connect(config.mongoUrl)
     await config.deleteIndexIfExists(['tweets', 'public_tweets'])
 
     await Tweet.deleteMany()

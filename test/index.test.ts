@@ -16,7 +16,7 @@ interface ITalk extends MongoosasticDocument {
 }
 
 // -- Only index specific field
-const TalkSchema = new Schema<MongoosasticDocument>({
+const TalkSchema = new Schema({
   speaker: String,
   year: {
     type: Number,
@@ -37,7 +37,7 @@ interface IBum extends MongoosasticDocument {
   name: string
 }
 
-const BumSchema = new Schema<MongoosasticDocument>({
+const BumSchema = new Schema({
   name: String
 })
 
@@ -51,7 +51,7 @@ interface IPerson extends MongoosasticDocument {
   }
 }
 
-const PersonSchema = new Schema<MongoosasticDocument>({
+const PersonSchema = new Schema({
   name: {
     type: String,
     es_indexed: true
@@ -73,7 +73,7 @@ const PersonSchema = new Schema<MongoosasticDocument>({
   }
 })
 
-const DogSchema = new Schema<MongoosasticDocument>({
+const DogSchema = new Schema({
   name: { type: String, es_indexed: true }
 })
 
@@ -360,7 +360,7 @@ describe('indexing', function () {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: callback type
-    beforeAll(async function (done) {
+    beforeAll(async function () {
       const talk = new Talk({
         speaker: '',
         year: 2013,
@@ -377,8 +377,11 @@ describe('indexing', function () {
       await tweet.save()
       await talk.save()
 
-      talk.on('es-indexed', function () {
-        setTimeout(done, config.INDEXING_TIMEOUT as number)
+      await new Promise((resolve) => {
+        talk.on('es-indexed', async function() {
+          await config.sleep(config.INDEXING_TIMEOUT)
+          resolve(talk)
+        })
       })
     })
 
@@ -578,7 +581,7 @@ describe('indexing', function () {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore: callback type
-    it('should save but not index', async function (done) {
+    it('should save but not index', async function () {
       const newDog = new Dog({ name: 'Sparky' })
 
       let whoopsIndexed = false
@@ -589,10 +592,9 @@ describe('indexing', function () {
         whoopsIndexed = true
       })
 
-      setTimeout(function () {
-        expect(whoopsIndexed).toBeFalsy()
-        done()
-      }, config.INDEXING_TIMEOUT)
+      await config.sleep(config.INDEXING_TIMEOUT)
+      expect(whoopsIndexed).toBeFalsy()
+
     })
   })
 })

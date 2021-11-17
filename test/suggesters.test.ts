@@ -10,7 +10,7 @@ interface IKitten extends MongoosasticDocument {
   breed: string
 }
 
-const KittenSchema = new Schema<MongoosasticDocument>({
+const KittenSchema = new Schema({
   name: {
     type: String,
     es_type: 'completion',

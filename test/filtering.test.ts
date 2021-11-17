@@ -9,7 +9,7 @@ interface IMovie extends MongoosasticDocument {
 }
 
 // -- Only index specific field
-const MovieSchema = new Schema<MongoosasticDocument>({
+const MovieSchema = new Schema({
   title: {
     type: String,
     required: true,
@@ -64,7 +64,7 @@ describe('Filter mode', function () {
 
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore: callback type
-  it('should not index action genre', async function (done) {
+  it('should not index action genre', async function () {
 
     await config.createModelAndSave(Movie, {
       title: 'Man in Black',
@@ -78,7 +78,6 @@ describe('Filter mode', function () {
     })
 
     expect(results?.body.hits.total).toEqual(0)
-    done()
   })
 
   it('should unindex filtered models', async function () {

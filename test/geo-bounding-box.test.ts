@@ -4,7 +4,7 @@ import mongoosastic from '../lib/index'
 import { MongoosasticDocument, MongoosasticModel } from '../lib/types'
 import { config } from './config'
 
-const GeoBoundingBoxSchema = new Schema<MongoosasticDocument>({
+const GeoBoundingBoxSchema = new Schema({
   text: {
     type: String,
     es_indexed: true

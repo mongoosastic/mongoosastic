@@ -5,7 +5,7 @@ import { config } from './config'
 
 const esClient = config.getClient()
 
-const TweetSchema = new Schema<MongoosasticDocument>({
+const TweetSchema = new Schema({
   user: String,
   post_date: {
     type: Date,
