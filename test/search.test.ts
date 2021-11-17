@@ -1,4 +1,4 @@
-import { Aggregate, Hit } from '@elastic/elasticsearch/api/types'
+import { AggregationsAggregate, SearchHit } from '@elastic/elasticsearch/api/types'
 import mongoose, { Schema } from 'mongoose'
 import mongoosastic from '../lib/index'
 import { MongoosasticDocument, MongoosasticModel } from '../lib/types'
@@ -70,8 +70,8 @@ describe('Query DSL', function () {
       const res = await Bond.search({
         range: {
           price: {
-            from: 20000,
-            to: 30000
+            gte: 20000,
+            lte: 30000
           }
         }
       })
@@ -85,7 +85,7 @@ describe('Query DSL', function () {
   })
 
   describe('Sort', function () {
-    const getNames = function (res: Hit<IBond>) {
+    const getNames = function (res: SearchHit<IBond>) {
       return res._source?.name
     }
     const expectedDesc = ['Legal', 'Construction', 'Commercial', 'Bail']
@@ -166,7 +166,7 @@ describe('Query DSL', function () {
           }
         })
 
-        expect(res?.body.aggregations?.names['buckets' as keyof Aggregate]).toEqual([
+        expect(res?.body.aggregations?.names['buckets' as keyof AggregationsAggregate]).toEqual([
           {
             doc_count: 1,
             key: 'Bail'
@@ -190,7 +190,7 @@ describe('Query DSL', function () {
 
   describe('Fuzzy search', function () {
     it('should do a fuzzy query', async function () {
-      const getNames = function (res: Hit<IBond>) {
+      const getNames = function (res: SearchHit<IBond>) {
         return res._source?.name
       }
 

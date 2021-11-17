@@ -1,4 +1,3 @@
-import { QueryContainer } from '@elastic/elasticsearch/api/types'
 import mongoose, { Schema } from 'mongoose'
 import mongoosastic from '../lib/index'
 import { MongoosasticDocument, MongoosasticModel } from '../lib/types'
@@ -261,7 +260,8 @@ describe('indexing', function () {
     it('should report errors', async function () {
       await Tweet.search({
         queriez: 'jamescarr'
-      } as QueryContainer)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any) // We used 'any' since we are testing the case of passing an incorrect queries
         .then(results => expect(results).toBeFalsy())
         .catch(error => expect(error.message).toMatch(/(SearchPhaseExecutionException|parsing_exception)/))
     })

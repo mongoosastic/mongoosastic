@@ -1,5 +1,5 @@
 import { Search } from '@elastic/elasticsearch/api/requestParams'
-import { Property, PropertyName, QueryContainer, SearchResponse } from '@elastic/elasticsearch/api/types'
+import { MappingProperty, PropertyName, QueryDslQueryContainer, SearchResponse } from '@elastic/elasticsearch/api/types'
 import { ApiResponse, RequestBody } from '@elastic/elasticsearch/lib/Transport'
 import { EventEmitter } from 'events'
 import { FilterQuery } from 'mongoose'
@@ -12,7 +12,7 @@ import { filterMappingFromMixed, getIndexName, reformatESTotalNumber } from './u
 export async function createMapping(
   this: MongoosasticModel<MongoosasticDocument>,
   body: RequestBody
-): Promise<Record<PropertyName, Property>> {
+): Promise<Record<PropertyName, MappingProperty>> {
   const options = this.esOptions()
   const client = this.esClient()
 
@@ -184,7 +184,7 @@ export async function refresh(this: MongoosasticModel<MongoosasticDocument>): Pr
 
 export async function esCount(
   this: MongoosasticModel<MongoosasticDocument>,
-  query: QueryContainer
+  query: QueryDslQueryContainer
 ): Promise<ApiResponse> {
   if (query === undefined) {
     query = {
