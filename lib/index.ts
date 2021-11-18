@@ -20,7 +20,7 @@ function mongoosastic(
 ): void {
   options = { ...defaultOptions, ...options }
 
-  const client = createEsClient(options)
+  const client = options.esClient ? options.esClient : createEsClient(options)
   const generator = new Generator()
 
   schema.method('esOptions', () => {
