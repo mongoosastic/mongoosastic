@@ -647,17 +647,13 @@ describe('MappingGenerator', function () {
       const Location = new Schema({
         name: String,
         coordinates: {
-          type: {
-            geo_point: {
-              type: String,
-              es_type: 'geo_point',
-              es_lat_lon: true
-            },
-
-            lat: { type: Number, default: 0 },
-            lon: { type: Number, default: 0 }
+          geo_point: {
+            type: String,
+            es_type: 'geo_point',
+            es_lat_lon: true
           },
-          es_type: 'geo_point'
+          lat: { type: Number, default: 0 },
+          lon: { type: Number, default: 0 },
         }
       })
 
