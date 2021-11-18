@@ -39,7 +39,7 @@ describe('Truncate', function () {
     it('should be able to truncate all documents', async function () {
 
       await Dummy.esTruncate()
-      await config.sleep(config.BULK_ACTION_TIMEOUT)
+      await config.sleep(config.INDEXING_TIMEOUT)
 
       const results = await Dummy.search({
         query_string: {
