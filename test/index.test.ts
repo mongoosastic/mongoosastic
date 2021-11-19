@@ -358,8 +358,6 @@ describe('indexing', function () {
 
   describe('Isolated Models', function () {
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore: callback type
     beforeAll(async function () {
       const talk = new Talk({
         speaker: '',
@@ -579,8 +577,6 @@ describe('indexing', function () {
 
   describe('Disable automatic indexing', function () {
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore: callback type
     it('should save but not index', async function () {
       const newDog = new Dog({ name: 'Sparky' })
 

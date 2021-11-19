@@ -62,8 +62,6 @@ describe('Filter mode', function () {
     expect(results?.body.hits.total).toEqual(1)
   })
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore: callback type
   it('should not index action genre', async function () {
 
     await config.createModelAndSave(Movie, {
