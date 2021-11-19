@@ -1,10 +1,9 @@
-import { QueryContainer } from '@elastic/elasticsearch/api/types'
 import mongoose, { Schema } from 'mongoose'
 import mongoosastic from '../lib/index'
 import { MongoosasticDocument, MongoosasticModel } from '../lib/types'
 import { config } from './config'
 
-const GeoBoundingBoxSchema = new Schema<MongoosasticDocument>({
+const GeoBoundingBoxSchema = new Schema({
   text: {
     type: String,
     es_indexed: true
@@ -137,7 +136,7 @@ describe('Geo Bounding Box Test', function () {
     }
 
     await config.sleep(config.INDEXING_TIMEOUT)
-    const res = await GeoBoundingBoxModel.search(geoQuery as QueryContainer)
+    const res = await GeoBoundingBoxModel.search(geoQuery)
 
     expect(res?.body.hits.total).toEqual(2)
   })

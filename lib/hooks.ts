@@ -1,6 +1,6 @@
 import { MongoosasticDocument } from './types'
 
-export function postSave(doc: MongoosasticDocument): void {
+export async function postSave(doc: MongoosasticDocument): Promise<void> {
   if (!doc) {
     return
   }
@@ -20,15 +20,11 @@ export function postSave(doc: MongoosasticDocument): void {
   const populate = options && options.populate
   if (doc) {
     if (populate && populate.length) {
-      populate.forEach((populateOpts) => {
-        doc.populate(populateOpts)
-      })
-      doc.execPopulate().then((popDoc) => {
-        popDoc
-          .index()
-          .then((res) => onIndex(null, res))
-          .catch((err) => onIndex(err, null))
-      })
+      const popDoc = await doc.populate(populate)
+      popDoc
+        .index()
+        .then((res) => onIndex(null, res))
+        .catch((err) => onIndex(err, null))
     } else {
       doc
         .index()

@@ -1,5 +1,5 @@
 import { ApiResponse } from '@elastic/elasticsearch'
-import { Property, PropertyName, SearchResponse, TotalHits } from '@elastic/elasticsearch/api/types'
+import { MappingProperty, PropertyName, SearchResponse, SearchTotalHits } from '@elastic/elasticsearch/api/types'
 import { isEmpty } from 'lodash'
 import {
   DeleteByIdOptions,
@@ -28,8 +28,8 @@ export function getIndexName(doc: MongoosasticDocument | MongoosasticModel<Mongo
   }
 }
 
-export function filterMappingFromMixed(props: Record<PropertyName, Property>): Record<PropertyName, Property> {
-  const filteredMapping: Record<PropertyName, Property> = {}
+export function filterMappingFromMixed(props: Record<PropertyName, MappingProperty>): Record<PropertyName, MappingProperty> {
+  const filteredMapping: Record<PropertyName, MappingProperty> = {}
   Object.keys(props).map((key) => {
     const field = props[key]
     if (field.type !== 'mixed') {
@@ -103,7 +103,7 @@ export function reformatESTotalNumber<T = unknown>(
   res: ApiResponse<SearchResponse<T>>
 ): ApiResponse<SearchResponse<T>> {
   Object.assign(res.body.hits, {
-    total: (res.body.hits.total as TotalHits).value,
+    total: (res.body.hits.total as SearchTotalHits).value,
     extTotal: res.body.hits.total,
   })
   return res
