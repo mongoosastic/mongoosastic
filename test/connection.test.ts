@@ -8,7 +8,7 @@ interface IDummy extends MongoosasticDocument {
   text: string
 }
 
-const DummySchema = new Schema<MongoosasticDocument>({
+const DummySchema = new Schema({
   text: String
 })
 

@@ -10,7 +10,7 @@ interface IComment extends MongoosasticDocument {
   title: string
 }
 
-const CommentSchema = new Schema<MongoosasticDocument>({
+const CommentSchema = new Schema({
   user: String,
   post_date: {
     type: Date,

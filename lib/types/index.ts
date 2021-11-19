@@ -3,16 +3,16 @@
 import { ApiResponse, Client, ClientOptions } from '@elastic/elasticsearch'
 import {
   CountResponse,
-  Highlight,
-  Hit,
-  HitsMetadata,
-  Property,
+  IndicesRefreshResponse,
+  MappingProperty,
+  MappingTypeMapping,
   PropertyName,
-  QueryContainer,
-  RefreshResponse,
+  QueryDslQueryContainer,
+  SearchHighlight,
+  SearchHit,
+  SearchHitsMetadata,
   SearchRequest,
   SearchResponse,
-  TypeMapping,
 } from '@elastic/elasticsearch/api/types'
 import { RequestBody } from '@elastic/elasticsearch/lib/Transport'
 import { EventEmitter } from 'events'
@@ -30,7 +30,7 @@ declare interface RoutingFn {
   (doc: Document): any;
 }
 
-declare interface GeneratedMapping extends TypeMapping {
+declare interface GeneratedMapping extends MappingTypeMapping {
   cast?(doc: any): any;
 }
 
@@ -38,7 +38,7 @@ declare interface HydratedSearchResults<TDocument = unknown> extends SearchRespo
   hits: HydratedSearchHits<TDocument>;
 }
 
-declare interface HydratedSearchHits<TDocument> extends HitsMetadata<TDocument> {
+declare interface HydratedSearchHits<TDocument> extends SearchHitsMetadata<TDocument> {
   hydrated: Array<TDocument>;
 }
 
@@ -117,7 +117,7 @@ declare type Options = {
 
 declare type EsSearchOptions = {
   aggs?: any;
-  highlight?: Highlight;
+  highlight?: SearchHighlight;
   hydrate?: boolean;
   hydrateOptions?: QueryOptions;
   hydrateWithESResults?: any;
@@ -130,7 +130,7 @@ declare type EsSearchOptions = {
 
 declare interface MongoosasticDocument<TDocument = any> extends Document<TDocument>, EventEmitter {
   _highlight?: Record<string, string[]> | undefined;
-  _esResult?: Hit<TDocument>;
+  _esResult?: SearchHit<TDocument>;
 
   esClient(): Client;
 
@@ -144,11 +144,11 @@ declare interface MongoosasticDocument<TDocument = any> extends Document<TDocume
 interface MongoosasticModel<T> extends Model<T> {
   bulkError(): EventEmitter;
 
-  createMapping(body?: RequestBody): Promise<Record<PropertyName, Property>>;
+  createMapping(body?: RequestBody): Promise<Record<PropertyName, MappingProperty>>;
 
   esClient(): Client;
 
-  esCount(query?: QueryContainer): Promise<ApiResponse<CountResponse>>;
+  esCount(query?: QueryDslQueryContainer): Promise<ApiResponse<CountResponse>>;
 
   esOptions(): Options;
 
@@ -162,9 +162,9 @@ interface MongoosasticModel<T> extends Model<T> {
 
   getMapping(): Record<string, any>;
 
-  refresh(): Promise<ApiResponse<RefreshResponse>>;
+  refresh(): Promise<ApiResponse<IndicesRefreshResponse>>;
 
-  search(query: QueryContainer, options?: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults<T>>>;
+  search(query: QueryDslQueryContainer, options?: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults<T>>>;
 
   synchronize(query?: any, options?: SynchronizeOptions): EventEmitter;
 }

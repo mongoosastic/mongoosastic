@@ -70,11 +70,7 @@ function bookTitlesArray(): Array<string> {
 
 export const config = {
   mongoUrl: 'mongodb://localhost/mongoosastic-test',
-  mongoOpts: {
-    useNewUrlParser: true,
-    useFindAndModify: false,
-    useUnifiedTopology: true
-  },
+  mongoOpts: {},
   INDEXING_TIMEOUT,
   BULK_ACTION_TIMEOUT,
   sleep,

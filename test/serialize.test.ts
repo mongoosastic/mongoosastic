@@ -26,7 +26,7 @@ interface IPerson extends MongoosasticDocument {
 }
 
 const BowlingBall = mongoose.model('BowlingBall', new Schema())
-const PersonSchema = new Schema<MongoosasticDocument>({
+const PersonSchema = new Schema({
   name: {
     first: String,
     last: String

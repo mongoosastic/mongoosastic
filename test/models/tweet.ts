@@ -1,8 +1,8 @@
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose'
 import mongoosastic from '../../lib/index'
 import { MongoosasticDocument, MongoosasticModel } from '../../lib/types'
 
-export interface ITweet extends MongoosasticDocument {
+export interface ITweet extends Document, MongoosasticDocument {
   user: string,
   userId: number,
   post_date: Date,
@@ -10,7 +10,7 @@ export interface ITweet extends MongoosasticDocument {
 }
 
 // -- simplest indexing... index all fields
-const TweetSchema = new Schema<MongoosasticDocument>({
+const TweetSchema = new Schema({
   user: String,
   userId: Number,
   post_date: Date,

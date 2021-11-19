@@ -31,7 +31,7 @@ interface IPost extends MongoosasticDocument {
   comments: IPostComment,
 }
 
-const PostSchema = new Schema<MongoosasticDocument>({
+const PostSchema = new Schema({
   body: { type: String, es_indexed: true },
   author: { type: Schema.Types.ObjectId, ref: 'User', es_schema: UserSchema, es_indexed: true },
   comments: [{ type: Schema.Types.ObjectId, ref: 'PostComment', es_schema: PostCommentSchema, es_indexed: true }]

@@ -15,7 +15,7 @@ interface ISchema extends MongoosasticDocument {
   },
 }
 
-const schema = new Schema<MongoosasticDocument>({
+const schema = new Schema({
   string: String,
   mixed_field: {
     type: mongoose.Schema.Types.Mixed
@@ -60,7 +60,7 @@ describe('MappingGenerator', function () {
     })
 
     it('maps field with simple text type', function (done) {
-      const schema = new Schema<MongoosasticDocument>({ name: String })
+      const schema = new Schema({ name: String })
       const mapping = generator.generateMapping(schema)
 
       expect(mapping.properties.name.type).toEqual('text')
@@ -68,7 +68,7 @@ describe('MappingGenerator', function () {
     })
 
     it('maps field with text type attribute', function (done) {
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         name: {
           type: String
         }
@@ -80,7 +80,7 @@ describe('MappingGenerator', function () {
     })
 
     it('converts Date type to date', function (done) {
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         graduationDate: {
           type: Date,
           es_format: 'YYYY-MM-dd'
@@ -93,7 +93,7 @@ describe('MappingGenerator', function () {
     })
 
     it('removes _id field without prefix', function (done) {
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         _id: {
           type: Schema.Types.ObjectId
         },
@@ -113,7 +113,7 @@ describe('MappingGenerator', function () {
     })
 
     it('does not remove _id field with prefix', function (done) {
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         _id: {
           type: Schema.Types.ObjectId
         },
@@ -133,7 +133,7 @@ describe('MappingGenerator', function () {
     })
 
     it('converts object id to text if not _id', function (done) {
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         oid: {
           type: Schema.Types.ObjectId
         }
@@ -145,7 +145,7 @@ describe('MappingGenerator', function () {
     })
 
     it('does not modify the original schema tree', function (done) {
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         oid: Schema.Types.ObjectId
       })
       const mapping = generator.generateMapping(schema)
@@ -156,7 +156,7 @@ describe('MappingGenerator', function () {
     })
 
     it('recognizes an object and maps it as one', function (done) {
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         contact: {
           email: {
             type: String
@@ -174,7 +174,7 @@ describe('MappingGenerator', function () {
     })
 
     it('recognizes an object and handles explict es_indexed', function (done) {
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         name: {
           type: String,
           es_indexed: true
@@ -205,7 +205,7 @@ describe('MappingGenerator', function () {
     })
 
     it('recognizes a nested schema and handles explict es_indexed', function (done) {
-      const ContactSchema = new Schema<MongoosasticDocument>({
+      const ContactSchema = new Schema({
         email: {
           type: String,
           es_indexed: true
@@ -220,7 +220,7 @@ describe('MappingGenerator', function () {
         }
       })
 
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         name: {
           type: String,
           es_indexed: true
@@ -242,7 +242,7 @@ describe('MappingGenerator', function () {
     })
 
     it('recognizes an multi_field and maps it as one', function (done) {
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         test: {
           type: String,
           es_include_in_all: false,
@@ -271,7 +271,7 @@ describe('MappingGenerator', function () {
     })
 
     it('recognizes an geo_point and maps it as one', function (done) {
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         geo: {
           type: String,
           es_type: 'geo_point'
@@ -285,7 +285,7 @@ describe('MappingGenerator', function () {
     })
 
     it('recognizes an geo_point with independent lat lon fields and maps it as one', function (done) {
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         geo_with_lat_lon: {
           geo_point: {
             type: String,
@@ -309,7 +309,7 @@ describe('MappingGenerator', function () {
     })
 
     it('recognizes an nested schema and maps it', function (done) {
-      const NameSchema = new Schema<MongoosasticDocument>({
+      const NameSchema = new Schema({
         first_name: {
           type: String
         },
@@ -318,7 +318,7 @@ describe('MappingGenerator', function () {
         }
       })
 
-      const schema = new Schema<MongoosasticDocument>({ name: [NameSchema] })
+      const schema = new Schema({ name: [NameSchema] })
       const mapping = generator.generateMapping(schema)
 
       expect(mapping.properties.name.type).toEqual('object')
@@ -328,7 +328,7 @@ describe('MappingGenerator', function () {
     })
 
     it('recognizes an es_type of nested with es_fields and maps it', function (done) {
-      const NameSchema = new Schema<MongoosasticDocument>({
+      const NameSchema = new Schema({
         first_name: {
           type: String,
           es_index: 'not_analyzed'
@@ -339,7 +339,7 @@ describe('MappingGenerator', function () {
         }
       })
 
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         name: {
           type: [NameSchema],
           es_indexed: true,
@@ -362,7 +362,7 @@ describe('MappingGenerator', function () {
     })
 
     it('recognizes a nested array with a simple type and maps it as a simple attribute', function (done) {
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         contacts: [String]
       })
 
@@ -373,7 +373,7 @@ describe('MappingGenerator', function () {
     })
 
     it('recognizes a nested array with a simple type and additional attributes and maps it as a simple attribute', function (done) {
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         contacts: [{
           type: String,
           es_index: 'not_analyzed'
@@ -388,7 +388,7 @@ describe('MappingGenerator', function () {
     })
 
     it('recognizes a nested array with a complex object and maps it', function (done) {
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         name: String,
         contacts: [{
           email: {
@@ -415,7 +415,7 @@ describe('MappingGenerator', function () {
         age: number,
       }
 
-      const PersonSchema = new Schema<MongoosasticDocument>({
+      const PersonSchema = new Schema({
         first_name: {
           type: String
         },
@@ -431,7 +431,7 @@ describe('MappingGenerator', function () {
         this.age = new Date().getFullYear() - year
       })
 
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         name: [PersonSchema]
       })
 
@@ -464,7 +464,7 @@ describe('MappingGenerator', function () {
 
   describe('elastic search fields', function () {
     it('type can be overridden', function (done) {
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         name: {
           type: String,
           es_type: 'date'
@@ -478,7 +478,7 @@ describe('MappingGenerator', function () {
     })
 
     it('adds the boost field', function (done) {
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         name: {
           type: String,
           es_boost: 2.2
@@ -492,7 +492,7 @@ describe('MappingGenerator', function () {
     })
 
     it('respects schemas with explicit es_indexes', function (done) {
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         implicit_field_1: {
           type: String
         },
@@ -528,7 +528,7 @@ describe('MappingGenerator', function () {
     })
 
     it('make sure id is mapped', function (done) {
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         name: {
           type: String
         },
@@ -551,7 +551,7 @@ describe('MappingGenerator', function () {
     })
 
     it('maps all fields when schema has no es_indexed flag', function (done) {
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         implicit_field_1: {
           type: String
         },
@@ -570,12 +570,12 @@ describe('MappingGenerator', function () {
 
   describe('ref mapping', function () {
     it('maps all fields from referenced schema', function (done) {
-      const Name = new Schema<MongoosasticDocument>({
+      const Name = new Schema({
         firstName: String,
         lastName: String
       })
 
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         name: { type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name }
       })
 
@@ -587,12 +587,12 @@ describe('MappingGenerator', function () {
     })
 
     it('maps only selected fields from referenced schema', function (done) {
-      const Name = new Schema<MongoosasticDocument>({
+      const Name = new Schema({
         firstName: String,
         lastName: String
       })
 
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         name: { type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name, es_select: 'firstName' }
       })
 
@@ -604,12 +604,12 @@ describe('MappingGenerator', function () {
     })
 
     it('maps all fields from array of referenced schema', function (done) {
-      const Name = new Schema<MongoosasticDocument>({
+      const Name = new Schema({
         firstName: String,
         lastName: String
       })
 
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         name: {
           type: [{ type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name }],
           es_type: 'object'
@@ -624,12 +624,12 @@ describe('MappingGenerator', function () {
     })
 
     it('maps only selected fields from array of referenced schema', function (done) {
-      const Name = new Schema<MongoosasticDocument>({
+      const Name = new Schema({
         firstName: String,
         lastName: String
       })
 
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         name: {
           type: [{ type: Schema.Types.ObjectId, ref: 'Name', es_schema: Name, es_select: 'firstName' }],
           es_type: 'object'
@@ -644,24 +644,20 @@ describe('MappingGenerator', function () {
     })
 
     it('maps a geo_point field of an nested referenced schema as a geo_point', function (done) {
-      const Location = new Schema<MongoosasticDocument>({
+      const Location = new Schema({
         name: String,
         coordinates: {
-          type: {
-            geo_point: {
-              type: String,
-              es_type: 'geo_point',
-              es_lat_lon: true
-            },
-
-            lat: { type: Number, default: 0 },
-            lon: { type: Number, default: 0 }
+          geo_point: {
+            type: String,
+            es_type: 'geo_point',
+            es_lat_lon: true
           },
-          es_type: 'geo_point'
+          lat: { type: Number, default: 0 },
+          lon: { type: Number, default: 0 },
         }
       })
 
-      const schema = new Schema<MongoosasticDocument>({
+      const schema = new Schema({
         locations: {
           type: [{ type: Schema.Types.ObjectId, ref: 'Location', es_schema: Location }],
           es_type: 'object'
