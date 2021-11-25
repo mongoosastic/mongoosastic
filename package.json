@@ -42,7 +42,7 @@
     "lint": "eslint lib test",
     "jest": "jest --detectOpenHandles --runInBand",
     "test": "npm run lint && npm run jest",
-    "coverage": "npm run test -- --coverage",
+    "coverage": "npm run test -- -- --coverage",
     "report": "cat coverage/lcov.info | coveralls",
     "changelog": "changelog mongoosastic/mongoosastic latest -m"
   },

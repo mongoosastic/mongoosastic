@@ -1,13 +1,11 @@
-import { Search } from '@elastic/elasticsearch/api/requestParams'
-import { MappingProperty, PropertyName, QueryDslQueryContainer, SearchResponse } from '@elastic/elasticsearch/api/types'
+import { MappingProperty, PropertyName, QueryDslQueryContainer } from '@elastic/elasticsearch/api/types'
 import { ApiResponse, RequestBody } from '@elastic/elasticsearch/lib/Transport'
 import { EventEmitter } from 'events'
 import { FilterQuery } from 'mongoose'
-import { bulkDelete } from './bulking'
 import { postSave } from './hooks'
 import Generator from './mapping'
 import { MongoosasticDocument, MongoosasticModel, SynchronizeOptions } from './types'
-import { filterMappingFromMixed, getIndexName, reformatESTotalNumber } from './utils'
+import { filterMappingFromMixed, getIndexName } from './utils'
 
 export async function createMapping(
   this: MongoosasticModel<MongoosasticDocument>,
@@ -129,51 +127,27 @@ export function synchronize(
 }
 
 export async function esTruncate(this: MongoosasticModel<MongoosasticDocument>): Promise<void> {
-  const options = this.esOptions()
+
   const client = this.esClient()
 
   const indexName = getIndexName(this)
 
-  const esQuery: Search = {
-    index: indexName,
-    body: {
-      query: {
-        match_all: {},
-      },
-    },
-  }
+  const settings = await client.indices.getSettings({
+    index: indexName
+  })
 
-  // Set indexing to be bulk when synchronizing to make synchronizing faster
-  // Set default values when not present
-  const bulkOptions = options.bulk
-  options.bulk = {
-    delay: (options.bulk && options.bulk.delay) || 1000,
-    size: (options.bulk && options.bulk.size) || 1000,
-    batch: (options.bulk && options.bulk.batch) || 50,
-  }
+  const body = settings.body[indexName]
+  
+  delete body.settings.index.creation_date
+  delete body.settings.index.provided_name
+  delete body.settings.index.uuid
+  delete body.settings.index.version
 
-  let res: ApiResponse<SearchResponse<MongoosasticDocument>> = await client.search(esQuery)
+  await client.indices.delete({
+    index: indexName
+  })
 
-  res = reformatESTotalNumber(res)
-  if (res.body.hits.total) {
-    for (const doc of res.body.hits.hits) {
-      const opts = {
-        index: indexName,
-        id: doc._id,
-        bulk: options.bulk,
-        routing: undefined,
-        model: this,
-      }
-
-      if (options.routing && doc._source != null) {
-        doc._source._id = doc._id
-        opts.routing = options.routing(doc._source)
-      }
-
-      await bulkDelete(opts)
-    }
-  }
-  options.bulk = bulkOptions
+  await this.createMapping(body)
 }
 
 export async function refresh(this: MongoosasticModel<MongoosasticDocument>): Promise<ApiResponse> {
