@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ApiResponse, Client, ClientOptions } from '@elastic/elasticsearch'
 import {
@@ -99,6 +98,7 @@ declare interface DeleteByIdOptions {
 }
 
 declare type Options = {
+  esClient?: Client;
   alwaysHydrate?: boolean;
   bulk?: BulkOptions;
   clientOptions?: ClientOptions;
