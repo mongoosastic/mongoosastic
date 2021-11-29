@@ -1,17 +1,17 @@
 import express from 'express'
 import errorhandler from 'errorhandler'
 import mongoose, { Document, Schema } from 'mongoose'
-import mongoosastic, { MongoosasticModel, MongoosasticDocument } from '../../'
+import mongoosastic, { MongoosasticModel, MongoosasticDocument } from '../../..'
 
 const app = module.exports = express()
 
 // Configuration
-app.set('views', __dirname + '/views')
+app.set('views', __dirname + '/../views')
 app.set('view engine', 'jade')
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
-app.use(express.static(__dirname + '/public'))
+app.use(express.static(__dirname + '/../public'))
 
 app.use(errorhandler())
 

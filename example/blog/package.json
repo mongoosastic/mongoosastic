@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "ts-node app.ts"
+    "start-js": "node javascript/",
+    "start-ts": "ts-node typescript/"
   },
   "dependencies": {
     "errorhandler": "1.5.1",
