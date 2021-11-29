@@ -1,6 +1,7 @@
+import { Client } from '@elastic/elasticsearch'
 import mongoose, { Schema } from 'mongoose'
 import mongoosastic from '../lib/index'
-import { MongoosasticDocument, MongoosasticModel } from '../lib/types'
+import { MongoosasticDocument, MongoosasticModel, Options } from '../lib/types'
 import { config } from './config'
 import { Tweet } from './models/tweet'
 
@@ -64,5 +65,22 @@ describe('Elasticsearch Connection', function () {
     const Dummy3 = mongoose.model<IDummy, MongoosasticModel<IDummy>>('Dummy3', DummySchema, 'dummys')
 
     await tryDummySearch(Dummy3)
+  })
+
+  it('should be able to connect with an existing elasticsearch client', async function () {
+
+    const esClient = new Client({ node: 'http://localhost:9200' })
+
+    const { body } = await esClient.ping()
+
+    expect(body).toEqual(true)
+
+    DummySchema.plugin(mongoosastic, {
+      esClient: esClient
+    } as Options)
+
+    const Dummy4 = mongoose.model<IDummy, MongoosasticModel<IDummy>>('Dummy4', DummySchema, 'dummys')
+
+    await tryDummySearch(Dummy4)
   })
 })
