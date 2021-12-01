@@ -43,14 +43,9 @@ npm install -S mongoosastic
 Options are:
 
 * `index` - the index in Elasticsearch to use. Defaults to the pluralization of the model name.
-* `type`  - the type this model represents in Elasticsearch. Defaults to the model name.
 * `esClient` - an existing Elasticsearch `Client` instance.
-* `hosts` - an array hosts Elasticsearch is running on.
-* `host` - the host Elasticsearch is running on
-* `port` - the port Elasticsearch is running on
-* `auth` - the authentication needed to reach Elasticsearch server. In the standard format of 'username:password'
-* `protocol` - the protocol the Elasticsearch server uses. Defaults to http
-* `hydrate` - whether or not to lookup results in mongodb before
+* `clientOptions` - Connection configuration to pass to Elasticsearch client. you can find the possible options in the [client configuration](https://www.elastic.co/guide/en/elasticsearch/client/javascript-api/current/client-configuration.html) page.
+* `alwaysHydrate` - whether or not to lookup results in mongodb before
 * `hydrateOptions` - options to pass into hydrate function
 * `bulk` - size and delay options for bulk indexing
 * `filter` - the function used for filtered indexing
@@ -64,23 +59,46 @@ Options are:
 To have a model indexed into Elasticsearch simply add the plugin.
 
 ```javascript
-var mongoose     = require('mongoose')
-  , mongoosastic = require('mongoosastic')
-  , Schema       = mongoose.Schema
+const mongoose = require('mongoose')
+const mongoosastic = require('mongoosastic')
+const Schema = mongoose.Schema
 
-var User = new Schema({
-    name: String
-  , email: String
-  , city: String
+const UserSchema = new Schema({
+    name: String,
+    email: String,
+    city: String
 })
 
-User.plugin(mongoosastic)
+UserSchema.plugin(mongoosastic)
+```
+
+or in Typescript:
+
+```typescript
+import mongoose, { Schema, Document } from 'mongoose'
+import mongoosastic, { MongoosasticModel, MongoosasticDocument } from 'mongoosastic'
+
+interface IUser extends Document, MongoosasticDocument {
+    name: string,
+    email: string,
+    city: string,
+}
+
+var UserSchema = new Schema({
+    name: String,
+    email: String,
+    city: String
+})
+
+UserSchema.plugin(mongoosastic)
+
+const User = mongoose.model<IUser, MongoosasticModel<IUser>>('User', UserSchema)
 ```
 
 This will by default simply use the pluralization of the model name as the index
 while using the model name itself as the type. So if you create a new
 User object and save it, you can see it by navigating to
-http://localhost:9200/users/user/_search (this assumes Elasticsearch is
+http://localhost:9200/users/_search (this assumes Elasticsearch is
 running locally on port 9200).
 
 The default behavior is all fields get indexed into Elasticsearch. This can be a little wasteful especially considering that
@@ -90,48 +108,50 @@ fields you want to store:
 
 
 ```javascript
-var User = new Schema({
-    name: {type:String, es_indexed:true}
-  , email: String
-  , city: String
+var UserSchema = new Schema({
+    name: { type: String, es_indexed: true },
+    email: String,
+    city: String
 })
 
-User.plugin(mongoosastic)
+UserSchema.plugin(mongoosastic)
 ```
 
-In this case only the name field will be indexed for searching.
+In this case only the `name` field will be indexed for searching.
 
 Now, by adding the plugin, the model will have a new method called
 `search` which can be used to make simple to complex searches. The `search`
 method accepts [standard Elasticsearch query DSL](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-queries.html)
 
 ```javascript
-User.search({
+const results = await User.search({
   query_string: {
     query: "john"
   }
-}, function(err, results) {
-  // results here
 });
-
 ```
 
 To connect to more than one host, you can use an array of hosts.
 
 ```javascript
-MyModel.plugin(mongoosastic, {
-  hosts: [
-    'localhost:9200',
-    'anotherhost:9200'
-  ]
+MySchema.plugin(mongoosastic, {
+  clientOptions: {
+    nodes: [
+      'localhost:9200',
+      'anotherhost:9200'
+    ]
+  }
 })
 ```
 
 Also, you can re-use an existing Elasticsearch `Client` instance
 
 ```javascript
-var esClient = new elasticsearch.Client({host: 'localhost:9200'});
-MyModel.plugin(mongoosastic, {
+import { Client } from '@elastic/elasticsearch'
+
+const esClient = new Client({ node: 'http://localhost:9200' })
+
+MySchema.plugin(mongoosastic, {
   esClient: esClient
 })
 ```
@@ -182,17 +202,17 @@ In order to index nested models you can refer following example.
 
 ```javascript
 var Comment = new Schema({
-    title: String
-  , body: String
-  , author: String
+    title: String,
+    body: String,
+    author: String
 })
 
 
 var User = new Schema({
-    name: {type:String, es_indexed:true}
-  , email: String
-  , city: String
-  , comments: {type:[Comment], es_indexed:true}
+    name: { type: String, es_indexed: true },
+    email: String,
+    city: String,
+    comments: { type: [Comment], es_indexed: true }
 })
 
 User.plugin(mongoosastic)
@@ -201,28 +221,28 @@ User.plugin(mongoosastic)
 ### Elasticsearch [Nested datatype](https://www.elastic.co/guide/en/elasticsearch/reference/current/nested.html)
 Since the default in Elasticsearch is to take arrays and flatten them into objects,
 it can make it hard to write queries where you need to maintain the relationships
-between objects in the array, per .
+between objects in the array.
 The way to change this behavior is by changing the Elasticsearch type from `object`
 (the mongoosastic default) to `nested`
 
 ```javascript
 var Comment = new Schema({
-    title: String
-  , body: String
-  , author: String
+    title: String,
+    body: String,
+    author: String
 })
 
 
 var User = new Schema({
-    name: {type: String, es_indexed: true}
-  , email: String
-  , city: String
-  , comments: {
+    name: { type: String, es_indexed: true },
+    email: String,
+    city: String,
+    comments: {
       type:[Comment],
       es_indexed: true,
       es_type: 'nested',
       es_include_in_parent: true
-  }
+    }
 })
 
 User.plugin(mongoosastic)
@@ -233,23 +253,28 @@ In order to index mongoose references you can refer following example.
 
 ```javascript
 var Comment = new Schema({
-    title: String
-  , body: String
-  , author: String
+    title: String,
+    body: String,
+    author: String
 });
 
 
 var User = new Schema({
-    name: {type:String, es_indexed:true}
-  , email: String
-  , city: String
-  , comments: {type: Schema.Types.ObjectId, ref: 'Comment',
-    es_schema: Comment, es_indexed:true, es_select: 'title body'}
+    name: { type: String, es_indexed: true },
+    email: String,
+    city: String,
+    comments: { 
+      type: Schema.Types.ObjectId,
+      ref: 'Comment',
+      es_schema: Comment,
+      es_indexed:true,
+      es_select: 'title body'
+    }
 })
 
 User.plugin(mongoosastic, {
   populate: [
-    {path: 'comments', select: 'title body'}
+    { path: 'comments', select: 'title body' }
   ]
 })
 ```
@@ -266,21 +291,22 @@ open a mongoose stream and start indexing documents individually.
 
 ```javascript
 var BookSchema = new Schema({
-  title: String
+    title: String
 });
 BookSchema.plugin(mongoosastic);
 
-var Book = mongoose.model('Book', BookSchema)
-  , stream = Book.synchronize()
-  , count = 0;
+const Book = mongoose.model('Book', BookSchema)
 
-stream.on('data', function(err, doc){
+const stream = Book.synchronize();
+const count = 0;
+
+stream.on('data', function(err, doc) {
   count++;
 });
-stream.on('close', function(){
+stream.on('close', function() {
   console.log('indexed ' + count + ' documents!');
 });
-stream.on('error', function(err){
+stream.on('error', function(err) {
   console.log(err);
 });
 ```
@@ -288,18 +314,18 @@ stream.on('error', function(err){
 You can also synchronize a subset of documents based on a query!
 
 ```javascript
-var stream = Book.synchronize({author: 'Arthur C. Clarke'})
+var stream = Book.synchronize({ author: 'Arthur C. Clarke' })
 ```
 
 As well as specifying synchronization options
 
 ```javascript
-var stream = Book.synchronize({}, {saveOnSynchronize: true})
+var stream = Book.synchronize({}, { saveOnSynchronize: true })
 ```
 
 Options are:
 
- * `saveOnSynchronize` - triggers Mongoose save (and pre-save) method when synchronizing a collection/index. Defaults to global `saveOnSynchronize` option
+ * `saveOnSynchronize` - triggers Mongoose save (and pre-save) method when synchronizing a collection/index. Defaults to global `saveOnSynchronize` option.
 
 
 ### Bulk Indexing
@@ -325,8 +351,8 @@ Filtering function must return True for conditions that will ignore indexing to 
 
 ```javascript
 var MovieSchema = new Schema({
-  title: {type: String},
-  genre: {type: String, enum: ['horror', 'action', 'adventure', 'other']}
+  title: { type: String },
+  genre: { type: String, enum: ['horror', 'action', 'adventure', 'other'] }
 });
 
 MovieSchema.plugin(mongoosastic, {
@@ -343,47 +369,33 @@ Instances of Movie model having 'action' as their genre will not be indexed to E
 You can do on-demand indexes using the `index` function
 
 ```javascript
-Dude.findOne({name:'Jeffrey Lebowski', function(err, dude){
-  dude.awesome = true;
-  dude.index(function(err, res){
-    console.log("egads! I've been indexed!");
-  });
-});
+const dude = await Dude.findOne({ name:'Jeffrey Lebowski' });
+
+dude.awesome = true;
+await dude.index();
 ```
 
-The index method takes 2 arguments:
+The index method takes as arguments:
 
-* `options` (optional) - {index, type} - the index and type to publish to. Defaults to the standard index and type that
+* `options` (optional) - { index: string } - the index to publish to. Defaults to the standard index that
   the model was setup with.
-* `callback` - callback function to be invoked when document has been
-  indexed.
 
 Note that indexing a model does not mean it will be persisted to
-mongodb. Use save for that.
+mongodb. Use `save()` for that.
 
 ### Unindexing on demand
 You can remove a document from the Elasticsearch cluster by using the `unIndex` function.
 
 ```javascript
-doc.unIndex(function(err) {
-  console.log("I've been removed from the cluster :(");
-});
+await doc.unIndex();
 ```
-
-The unIndex method takes 2 arguments:
-
-* `options` (optional) - {index, type} - the index and type to publish to. Defaults to the standard index and type that
-  the model was setup with.
-* `callback` - callback function to be invoked when model has been
-  unindexed.
-
 
 ### Truncating an index
 
 The static method `esTruncate` will delete all documents from the associated index. This method combined with `synchronize()` can be useful in case of integration tests for example when each test case needs a cleaned up index in Elasticsearch.
 
 ```javascript
-GarbageModel.esTruncate(function(err){...});
+await GarbageModel.esTruncate();
 ```
 
 ### Restrictions
@@ -392,7 +404,7 @@ GarbageModel.esTruncate(function(err){...});
 
 Mongoosastic try to auto index documents in favor of mongoose's [middleware](http://mongoosejs.com/docs/middleware.html) feature.
 
-Mongoosastic will auto index when `document.save`/`Model.findOneAndUpdate`/`Model.insertMany`/`document.remove`/`Model.findOneAndRemove`, but not include `Model.remove`/`Model.update`.
+Mongoosastic will auto index when `document.save` / `Model.findOneAndUpdate` / `Model.insertMany` / `document.remove` / `Model.findOneAndRemove`, but not include `Model.remove` / `Model.update`.
 
 And you should have `new: true` options when `findOneAndUpdate` so that mongoosastic can get new values in post hook.
 
@@ -413,9 +425,9 @@ define it as follows:
 
 ```javascript
 var BookSchema = new Schema({
-    title: {type:String, es_boost:2.0}
-  , author: {type:String, es_null_value:"Unknown Author"}
-  , publicationDate: {type:Date, es_type:'date'}
+    title: { type: String, es_boost: 2.0 },
+    author: { type: String, es_null_value: "Unknown Author" },
+    publicationDate: { type: Date, es_type: 'date' }
 });
 
 ```
@@ -423,7 +435,7 @@ This example uses a few other mapping fields... such as null_value and
 type (which overrides whatever value the schema type is, useful if you
 want stronger typing such as float).
 
-There are various mapping options that can be defined in Elasticsearch. Check out [https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html) for more information. Here are examples to the currently possible definitions in mongoosastic:
+There are various mapping options that can be defined in Elasticsearch. Check out [Mapping](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html) for more information. Here are examples to the currently possible definitions in mongoosastic:
 
 ```javascript
 var ExampleSchema = new Schema({
@@ -533,28 +545,28 @@ var geo = new GeoModel({
 });
 ```
 
-Mapping, indexing and searching example for geo shape can be found in test/geo-test.js
+Mapping, indexing and searching example for geo shape can be found in `test/geo.test.ts`
 
 For example, one can retrieve the list of document where the shape contain a specific
 point (or polygon...)
 
 ```javascript
 var geoQuery = {
-      "match_all": {}
-    }
+  "match_all": {}
+}
 
 var geoFilter = {
-      geo_shape: {
-        geo_shape: {
-          shape: {
-            type: "point",
-            coordinates: [3,1]
-          }
-        }
+  geo_shape: {
+    geo_shape: {
+      shape: {
+        type: "point",
+        coordinates: [3,1]
       }
     }
+  }
+}
 
-GeoModel.search(geoQuery, {filter: geoFilter}, function(err, res) { /* ... */ })
+const results = await GeoModel.search(geoQuery, { filter: geoFilter })
 ```
 
 ### Creating Mappings On Demand
@@ -564,13 +576,16 @@ A BookSchema as an example:
 
 ```javascript
 var BookSchema = new Schema({
-    title: {type:String, es_boost:2.0}
-  , author: {type:String, es_null_value:"Unknown Author"}
-  , publicationDate: {type:Date, es_type:'date'}
+    title: { type:String, es_boost:2.0 },
+    author: { type: String, es_null_value: "Unknown Author" },
+    publicationDate: { type: Date, es_type: 'date'}
+})
 
 BookSchema.plugin(mongoosastic);
+
 var Book = mongoose.model('Book', BookSchema);
-Book.createMapping({
+
+const mapping = await Book.createMapping({
   "analysis" : {
     "analyzer":{
       "content":{
@@ -579,16 +594,12 @@ Book.createMapping({
       }
     }
   }
-},function(err, mapping){
-  // do neat things here
 });
-
 ```
 This feature is still a work in progress. As of this writing you'll have
 to manage whether or not you need to create the mapping, mongoosastic
 will make no assumptions and simply attempt to create the mapping. If
-the mapping already exists, an Exception detailing such will be
-populated in the `err` argument.
+the mapping already exists, an Exception detailing such will be thrown.
 
 
 ## Queries
@@ -597,32 +608,27 @@ method. For example, if you wanted to find all people between ages 21
 and 30:
 
 ```javascript
-Person.search({
+const people = await Person.search({
   range: {
     age:{
-      from:21
-    , to: 30
+      from:21,
+      to: 30
     }
   }
-}, function(err, people){
-   // all the people who fit the age group are here!
 });
-
 ```
 See the Elasticsearch [Query DSL](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html) docs for more information.
 
 You can also specify query options like [sorts](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-sort.html#search-request-sort)
 
 ```javascript
-Person.search({/* ... */}, {sort: "age:asc"}, function(err, people){
-  //sorted results
-});
+const sortedPeople = await Person.search({/* ... */}, { sort: "age:asc" });
 ```
 
 And also [aggregations](https://www.elastic.co/guide/en/elasticsearch/reference/current/search-aggregations.html):
 
 ```javascript
-Person.search({/* ... */}, {
+const results = await Person.search({/* ... */}, {
   aggs: {
     'names': {
       'terms': {
@@ -630,8 +636,6 @@ Person.search({/* ... */}, {
       }
     }
   }
-}, function(err, results){
-  // results.aggregations holds the aggregations
 });
 ```
 
@@ -649,13 +653,14 @@ var rawQuery = {
     query: /* query object as in .search() */
 };
 
-Model.esSearch(rawQuery, options, cb);
+await Model.esSearch(rawQuery, options);
 ```
 
 For example:
 
 ```javascript
-Person.esSearch({
+// only the 61st to 80th ranked people who fit the age group are here!
+const people = await Person.esSearch({
   from: 60,
   size: 20,
   query: {
@@ -666,8 +671,6 @@ Person.esSearch({
       }
     }
   }
-}, function(err, people){
-   // only the 61st to 80th ranked people who fit the age group are here!
 });
 ```
 
@@ -678,63 +681,68 @@ indexed needs to be displayed (think a list of results) while the actual
 mongoose object contains the full data when viewing one of the results.
 
 However, if you want the results to be actual mongoose objects you can
-provide {hydrate:true} as the second argument to a search call.
+provide `{ hydrate: true }` as the second argument to a search call.
+
+The hydrated results will be accessible through `.hydrated` property.
 
 ```javascript
+const results = await User.search(
+  {
+    query_string: {
+      query: 'john'
+    }
+  },
+  { hydrate: true }
+);
 
-User.search(
-  {query_string: {query: 'john'}},
-  {hydrate: true},
-  function(err, results) {
-    // results here
-});
-
+console.log(results.body.hits.hits) // will be empty: []
+console.log(results.body.hits.hydrated)
 ```
 
 You can also pass in a `hydrateOptions` object with information on
 how to query for the mongoose object.
 
 ```javascript
-
-User.search(
-  {query_string: {query: 'john'}},
+const results = await User.search(
+  {
+    query_string: {
+      query: 'john'
+    }
+  },
   {
     hydrate: true,
-    hydrateOptions: {select: 'name age'}
+    hydrateOptions: { select: 'name age' }
   },
-  function(err, results) {
-    // results here
-});
-
+);
 ```
 
 Original ElasticSearch result data can be kept with `hydrateWithESResults` option. Documents are then enhanced with a
 `_esResult` property
 
 ```javascript
-
-User.search(
-  {query_string: {query: 'john'}},
+const results = await User.search(
+  {
+    query_string: {
+      query: 'john'
+    }
+  },
   {
     hydrate: true,
     hydrateWithESResults: true,
-    hydrateOptions: {select: 'name age'}
-  },
-  function(err, results) {
-    // results here
-    results.hits.hits.forEach(function(result) {
-      console.log(
-        'score',
-        result._id,
-        result._esResult._score
-      );
-    });
-});
+    hydrateOptions: { select: 'name age' }
+  }
+);
 
+results.body.hits.hydrated.forEach(function(result) {
+  console.log(
+    'score',
+    result._id,
+    result._esResult._score
+  );
+});
 ```
 
-By default the `_esResult._source` document is skipped. It can be added with the option `hydrateWithESResults: {source: false}`.
-
+By default the `_esResult._source` document is skipped. It can be added with the option `hydrateWithESResults: { source: false }`.
 
 
 Note using hydrate will be a degree slower as it will perform an Elasticsearch
@@ -747,10 +755,15 @@ plugin option (as well as setting default hydrate options):
 
 ```javascript
 var User = new Schema({
-    name: {type:String, es_indexed:true}
-  , email: String
-  , city: String
+    name: { type: String, es_indexed: true },
+    email: String,
+    city: String
 })
 
-User.plugin(mongoosastic, {hydrate:true, hydrateOptions: {lean: true}})
+User.plugin(mongoosastic, {
+  alwaysHydrate: true,
+  hydrateOptions: {
+    lean: true
+  }
+})
 ```
