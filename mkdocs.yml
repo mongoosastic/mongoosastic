@@ -1,0 +1,37 @@
+site_name: Mongoosastic
+
+use_directory_urls: false
+
+plugins:
+    - search
+
+markdown_extensions:
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - scheme: default
+      primary: teal
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: teal
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.top
+    - search.suggest
+    - search.highlight
+
+repo_url: https://github.com/mongoosastic/mongoosastic
+repo_name: mongoosastic/mongoosastic
+
+extra:
+  generator: false
