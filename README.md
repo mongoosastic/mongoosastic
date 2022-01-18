@@ -53,7 +53,7 @@ curl http://localhost:9200/users/user/_search
 
 ## Documentation
 
-[View docs](docs/README.md)
+[View docs](https://mongoosastic.github.io/mongoosastic/)
 
 
 
