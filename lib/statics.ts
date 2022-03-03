@@ -1,5 +1,5 @@
-import { MappingProperty, PropertyName, QueryDslQueryContainer } from '@elastic/elasticsearch/api/types'
-import { ApiResponse, RequestBody } from '@elastic/elasticsearch/lib/Transport'
+import { IndicesCreateRequest, MappingProperty, PropertyName, QueryDslQueryContainer } from '@elastic/elasticsearch/api/types'
+import { ApiResponse } from '@elastic/elasticsearch/lib/Transport'
 import { EventEmitter } from 'events'
 import { FilterQuery } from 'mongoose'
 import { postSave } from './hooks'
@@ -9,7 +9,7 @@ import { filterMappingFromMixed, getIndexName } from './utils'
 
 export async function createMapping(
   this: MongoosasticModel<MongoosasticDocument>,
-  body: RequestBody
+  body: IndicesCreateRequest['body']
 ): Promise<Record<PropertyName, MappingProperty>> {
   const options = this.esOptions()
   const client = this.esClient()
@@ -44,14 +44,11 @@ export async function createMapping(
 
   await client.indices.create({
     index: indexName,
-    body: body,
+    body: {
+      mappings: completeMapping,
+      ...body
+    },
   })
-
-  await client.indices.putMapping({
-    index: indexName,
-    body: completeMapping,
-  })
-
   return completeMapping
 }
 

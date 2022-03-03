@@ -122,20 +122,17 @@ describe('indexing', function () {
   })
 
   describe('Creating Index', function () {
-    it('should create index if none exists', async function () {
-      const response = await Tweet.createMapping()
-
-      expect(response).toBeTruthy()
-      expect(response).not.toHaveProperty('error')
-    })
-
     it('should create index with settings if none exists', async function () {
       const response = await Tweet.createMapping({
-        analysis: {
-          analyzer: {
-            stem: {
-              tokenizer: 'standard',
-              filter: ['standard', 'lowercase', 'stop', 'porter_stem']
+        settings: {
+          index: {
+            analysis: {
+              analyzer: {
+                stem: {
+                  tokenizer: 'standard',
+                  filter: ['lowercase']
+                }
+              }
             }
           }
         }
@@ -241,7 +238,7 @@ describe('indexing', function () {
       }]
 
       await Tweet.insertMany(tweets)
-      await config.sleep(config.INDEXING_TIMEOUT)
+      await config.sleep(config.BULK_ACTION_TIMEOUT)
 
       const results = await Tweet.search({
         query_string: {
