@@ -2,6 +2,7 @@
 import { ApiResponse, Client, ClientOptions } from '@elastic/elasticsearch'
 import {
   CountResponse,
+  IndicesCreateRequest,
   IndicesRefreshResponse,
   MappingProperty,
   MappingTypeMapping,
@@ -13,7 +14,6 @@ import {
   SearchRequest,
   SearchResponse,
 } from '@elastic/elasticsearch/api/types'
-import { RequestBody } from '@elastic/elasticsearch/lib/Transport'
 import { EventEmitter } from 'events'
 import { Document, Model, PopulateOptions, QueryOptions } from 'mongoose'
 
@@ -144,7 +144,7 @@ declare interface MongoosasticDocument<TDocument = any> extends Document<TDocume
 interface MongoosasticModel<T> extends Model<T> {
   bulkError(): EventEmitter;
 
-  createMapping(body?: RequestBody): Promise<Record<PropertyName, MappingProperty>>;
+  createMapping(body?: IndicesCreateRequest['body']): Promise<Record<PropertyName, MappingProperty>>;
 
   esClient(): Client;
 

@@ -16,6 +16,7 @@ const TweetSchema = new Schema({
   },
   title: {
     type: String,
+    // Should comment the next option to work with ES v8.X
     es_boost: 2.0
   }
 })
@@ -48,6 +49,7 @@ describe('Add Boost Option Per Field', function () {
     const props = mapping.body.blogposts.mappings.properties
 
     expect(props.title.type).toEqual('text')
+    // Should comment the next line to work with ES v8.X
     expect(props.title.boost).toEqual(2.0)
   })
 })

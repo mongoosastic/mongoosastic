@@ -47,7 +47,7 @@ describe('Hydrate with ES data', function () {
     for (const text of texts) {
       await config.saveAndWaitIndex(text)
     }
-    await config.sleep(config.INDEXING_TIMEOUT)
+    await config.sleep(config.BULK_ACTION_TIMEOUT)
   })
 
   afterAll(async function () {
@@ -101,6 +101,7 @@ describe('Hydrate with ES data', function () {
         expect(text._esResult?._index).toEqual('texts')
 
         expect(text._esResult).toHaveProperty('_id')
+        // Should comment the next line to work with ES v8.X
         expect(text._esResult).toHaveProperty('_type')
         expect(text._esResult).toHaveProperty('_score')
         expect(text._esResult).toHaveProperty('highlight')
@@ -134,6 +135,7 @@ describe('Hydrate with ES data', function () {
         expect(text._esResult?._index).toEqual('texts')
 
         expect(text._esResult).toHaveProperty('_id')
+        // Should comment the next line to work with ES v8.X
         expect(text._esResult).toHaveProperty('_type')
         expect(text._esResult).toHaveProperty('_score')
         expect(text._esResult).toHaveProperty('highlight')
