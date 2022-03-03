@@ -24,6 +24,7 @@ const GeoSchema = new Schema({
     geo_shape: {
       type: String,
       es_type: 'geo_shape',
+      // Should comment the next three options to work with ES v8.X
       es_tree: 'quadtree',
       es_precision: '1km',
       es_distance_error_pct: '0.001'

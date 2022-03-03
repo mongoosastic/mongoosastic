@@ -6,7 +6,7 @@ import { MongoosasticDocument, MongoosasticModel } from '../lib/types'
 const esClient = new Client({ node: 'http://localhost:9200' })
 
 const INDEXING_TIMEOUT: number = toInteger(process.env.INDEXING_TIMEOUT) || 2000
-const BULK_ACTION_TIMEOUT: number = toInteger(process.env.BULK_ACTION_TIMEOUT) || 4000
+const BULK_ACTION_TIMEOUT: number = toInteger(process.env.BULK_ACTION_TIMEOUT) || 5000
 
 function sleep(time: number): Promise<unknown> {
   return new Promise((resolve) => setTimeout(resolve, time))
