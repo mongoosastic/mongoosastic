@@ -67,7 +67,7 @@ describe('Geo Bounding Box Test', function () {
     for (const point of points) {
       await point.save()
     }
-    await config.sleep(config.INDEXING_TIMEOUT)
+    await config.sleep(config.BULK_ACTION_TIMEOUT)
 
     const res = await GeoBoundingBoxModel.find({})
     expect(res.length).toEqual(3)
