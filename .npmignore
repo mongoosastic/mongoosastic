@@ -1,0 +1,22 @@
+# Configs files
+.editorconfig
+mkdocs.yml
+jest.config.ts
+
+# Actions
+.github
+.travis.yml
+
+# Documents
+CONTRIBUTING.md
+
+# folders
+docs
+example
+lib
+scripts
+site
+test
+
+# Others
+.DS_Store
