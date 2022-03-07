@@ -36,7 +36,7 @@
   },
   "scripts": {
     "authors": "./scripts/update_authors.sh",
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
     "build": "rm -rf dist && tsc -p . ",
     "lint-fix": "npm run lint -- --fix",
     "lint": "eslint lib test",
