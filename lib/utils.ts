@@ -74,7 +74,7 @@ export function serialize<T extends MongoosasticDocument>(model: T, mapping: Gen
   const outModel = mapping.cast ? mapping.cast(model) : model
   if (typeof outModel === 'object' && outModel !== null) {
     name = outModel.constructor.name
-    if (name === 'ObjectID') {
+    if (name === 'ObjectId') {
       return outModel.toString()
     }
 

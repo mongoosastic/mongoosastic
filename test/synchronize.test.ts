@@ -1,3 +1,4 @@
+import events from 'events'
 import mongoose, { Schema } from 'mongoose'
 import mongoosastic from '../lib/index'
 import { MongoosasticDocument, MongoosasticModel } from '../lib/types'
@@ -158,6 +159,33 @@ describe('Synchronize', () => {
         expect(results?.body.hits.total).toEqual(2)
         done()
       })
+    })
+
+    it('should throw the stream error if exist', done => {
+
+      const syncErrEm = new events.EventEmitter()
+      const errorMessage = 'Some sync error!'
+
+      Book.find = jest.fn().mockImplementation(() => {
+        return {
+          batchSize: () => {
+            return {
+              cursor: () => {
+                return syncErrEm
+              }
+            }
+          }
+        }
+      })
+      
+      const stream = Book.synchronize()
+
+      stream.on('error', (error: Error) => {
+        expect(error.message).toEqual(errorMessage)
+        done()
+      })
+
+      syncErrEm.emit('error', new Error(errorMessage))
     })
   })
 })

@@ -163,6 +163,9 @@ describe('MappingGenerator', function () {
           },
           telephone: {
             type: String
+          },
+          active: {
+            type: Boolean
           }
         }
       })

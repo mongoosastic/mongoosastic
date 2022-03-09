@@ -96,9 +96,7 @@ export function synchronize(
     if (saveOnSynchronize) {
       doc.save((err: unknown) => {
         if (err) {
-          counter--
-          em.emit('error', err)
-          return stream.resume()
+          onIndex(err, doc)
         }
       })
     } else {

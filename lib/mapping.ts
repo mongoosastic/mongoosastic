@@ -49,68 +49,67 @@ function getMapping(cleanTree: Record<string, any>, inPrefix: string) {
   const prefix = inPrefix !== '' ? `${inPrefix}.` : inPrefix
 
   for (field in cleanTree) {
-    if (!cleanTree.hasOwnProperty(field)) {
-      continue
-    }
-    value = cleanTree[field]
-    mapping[field] = {}
-    mapping[field].type = value.type
+    if (cleanTree.hasOwnProperty(field)) {
+      value = cleanTree[field]
+      mapping[field] = {}
+      mapping[field].type = value.type
 
-    // Check if field was explicity indexed, if not keep track implicitly
-    if (value.es_indexed) {
-      hasEsIndex = true
-    } else if (value.type) {
-      implicitFields.push(field)
-    }
+      // Check if field was explicity indexed, if not keep track implicitly
+      if (value.es_indexed) {
+        hasEsIndex = true
+      } else if (value.type) {
+        implicitFields.push(field)
+      }
 
-    // If there is no type, then it's an object with subfields.
-    if (typeof value === 'object' && !value.type) {
-      mapping[field].type = 'object'
-      mapping[field].properties = getMapping(value, prefix + field)
-    }
-
-    // If it is a objectid make it a string.
-    if (value.type === 'objectid') {
-      if (value.ref && value.es_schema) {
+      // If there is no type, then it's an object with subfields.
+      if (typeof value === 'object' && !value.type) {
         mapping[field].type = 'object'
         mapping[field].properties = getMapping(value, prefix + field)
+      }
+
+      // If it is a objectid make it a string.
+      if (value.type === 'objectid') {
+        if (value.ref && value.es_schema) {
+          mapping[field].type = 'object'
+          mapping[field].properties = getMapping(value, prefix + field)
+          continue
+        }
+        // do not continue here so we can handle other es_ options
+        mapping[field].type = 'string'
+      }
+
+      // If indexing a number, and no es_type specified, default to long
+      if (value.type === 'number' && value.es_type === undefined) {
+        mapping[field].type = 'long'
         continue
       }
-      // do not continue here so we can handle other es_ options
-      mapping[field].type = 'string'
-    }
 
-    // If indexing a number, and no es_type specified, default to long
-    if (value.type === 'number' && value.es_type === undefined) {
-      mapping[field].type = 'long'
-      continue
-    }
-
-    // Else, it has a type and we want to map that!
-    for (prop in value) {
+      // Else, it has a type and we want to map that!
+      for (prop in value) {
       // Map to field if it's an Elasticsearch option
-      if (value.hasOwnProperty(prop) && prop.indexOf('es_') === 0 && prop !== 'es_indexed') {
-        mapping[field][prop.replace(/^es_/, '')] = value[prop]
+        if (value.hasOwnProperty(prop) && prop.indexOf('es_') === 0 && prop !== 'es_indexed') {
+          mapping[field][prop.replace(/^es_/, '')] = value[prop]
+        }
       }
-    }
 
-    // if type is never mapped, delete mapping
-    if (mapping[field].type === undefined) {
-      delete mapping[field]
-    }
+      // if type is never mapped, delete mapping
+      if (mapping[field].type === undefined) {
+        delete mapping[field]
+      }
 
-    // Set default string type
-    if (mapping[field] && mapping[field].type === 'string') {
-      const textType = {
-        type: 'text',
-        fields: {
-          keyword: {
-            type: 'keyword',
-            ignore_above: 256,
+      // Set default string type
+      if (mapping[field] && mapping[field].type === 'string') {
+        const textType = {
+          type: 'text',
+          fields: {
+            keyword: {
+              type: 'keyword',
+              ignore_above: 256,
+            },
           },
-        },
+        }
+        mapping[field] = Object.assign(mapping[field], textType)
       }
-      mapping[field] = Object.assign(mapping[field], textType)
     }
   }
 
@@ -186,10 +185,7 @@ function getCleanTree(tree: Record<string, any>, paths: Record<string, any>, inP
         subTree = paths[field].options.es_schema.tree
         if (paths[field].options.es_select) {
           for (treeNode in subTree) {
-            if (!subTree.hasOwnProperty(treeNode)) {
-              continue
-            }
-            if (paths[field].options.es_select.split(' ').indexOf(treeNode) === -1) {
+            if (subTree.hasOwnProperty(treeNode) && paths[field].options.es_select.split(' ').indexOf(treeNode) === -1) {
               delete subTree[treeNode]
             }
           }
@@ -265,6 +261,10 @@ function nestedSchema(
 ) {
   let treeNode
   let subTree
+
+  cleanTree[field] = {
+    type: 'object',
+  }
   // A nested array can contain complex objects
   if (
     paths[prefix + field] &&
@@ -284,10 +284,7 @@ function nestedSchema(
     subTree = paths[field].options.type[0].es_schema.tree
     if (paths[field].options.type[0].es_select) {
       for (treeNode in subTree) {
-        if (!subTree.hasOwnProperty(treeNode)) {
-          continue
-        }
-        if (paths[field].options.type[0].es_select.split(' ').indexOf(treeNode) === -1) {
+        if (subTree.hasOwnProperty(treeNode) && paths[field].options.type[0].es_select.split(' ').indexOf(treeNode) === -1) {
           delete subTree[treeNode]
         }
       }
@@ -295,12 +292,12 @@ function nestedSchema(
     cleanTree[field] = getCleanTree(subTree, paths[prefix + field].options.type[0].es_schema.paths, '')
   } else if (paths[prefix + field] && paths[prefix + field].caster && paths[prefix + field].caster.instance) {
     // Even for simple types the value can be an object if there is other attributes than type
+    
+    cleanTree[field] = {}
     if (typeof value[0] === 'object') {
       cleanTree[field] = value[0]
     } else if (typeof value === 'object') {
       cleanTree[field] = value
-    } else {
-      cleanTree[field] = {}
     }
 
     cleanTree[field].type = paths[prefix + field].caster.instance.toLowerCase()
@@ -309,10 +306,6 @@ function nestedSchema(
       cleanTree[field] = {
         type: paths[prefix + field].caster.instance.toLowerCase(),
       }
-    }
-  } else {
-    cleanTree[field] = {
-      type: 'object',
     }
   }
 }

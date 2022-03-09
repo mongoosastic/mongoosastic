@@ -73,6 +73,20 @@ describe('Hydrate with ES data', function () {
         expect(text).not.toHaveProperty('_esResult')
       })
     })
+
+    it('should return an empty response if not exist', async function () {
+
+      const res = await Text.search({
+        match_phrase: {
+          quote: 'A non existing quote!'
+        }
+      }, {
+        hydrate: true
+      })
+
+      expect(res?.body.hits.total).toEqual(0)
+      expect(res?.body.hits.hydrated).toEqual([])
+    })
   })
 
   describe('Hydrate and add ES data', function () {

@@ -147,6 +147,20 @@ describe('indexing', function () {
       expect(response).not.toHaveProperty('error')
     })
 
+    it('should get the generated mapping', async function () {
+      const mapping = await Tweet.getMapping()
+
+      expect(mapping).toBeTruthy()
+      expect(mapping).not.toHaveProperty('error')
+    })
+
+    it('should get the generated clean tree', async function () {
+      const cleanTree = await Tweet.getCleanTree()
+
+      expect(cleanTree).toBeTruthy()
+      expect(cleanTree).not.toHaveProperty('error')
+    })
+
     afterAll(async function () {
       await config.deleteIndexIfExists(['tweets', 'talks', 'people'])
     })
@@ -252,6 +266,22 @@ describe('indexing', function () {
       const searched = results?.body.hits.hits.map((doc) => doc._source?.message)
 
       expect(expected.sort()).toEqual(searched?.sort())
+    })
+
+    it('should report errors if the document is not indexed', async function () {
+      const errorMessage = 'Some index error!'
+
+      const tweet = new Tweet({
+        message: 'Some tweet'
+      })
+
+      tweet.index = jest.fn().mockRejectedValue(new Error(errorMessage))
+
+      tweet.on('es-indexed', function (err: Error) {
+        expect(err.message).toEqual(errorMessage)
+      })
+
+      await tweet.save()
     })
 
     it('should report errors', async function () {

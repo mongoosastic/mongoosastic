@@ -40,6 +40,8 @@ describe('Custom Properties for Mapping', function () {
     await mongoose.connect(config.mongoUrl, config.mongoOpts)
     await Phone.deleteMany()
     await config.deleteIndexIfExists(['phones'])
+
+    await Phone.createMapping()
   })
 
   afterEach(async function () {
