@@ -1,4 +1,4 @@
-name: Publish package
+name: Publish package NPM
 on:
   release:
   types: [published]
@@ -17,3 +17,4 @@ jobs:
           token: ${{ secrets.NPM_TOKEN }}
           tag: next
           dry-run: true
+
