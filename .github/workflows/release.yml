@@ -1,13 +1,27 @@
-name: Publish to NPM
+name: Release to NPM
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'v*'
+      - '!v*-rc.*'
+
 jobs:
-  publish-next:
+  release:
+    name: Create Release
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v2
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
@@ -19,3 +33,4 @@ jobs:
         run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
