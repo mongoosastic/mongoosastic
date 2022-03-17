@@ -1,0 +1,25 @@
+# NOTE: This file is used to setup local test environment
+version: '3.7'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.0
+    container_name: elasticsearch
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - 27017:27017
+
+volumes:
+  elasticsearch-data:
+    driver: local
