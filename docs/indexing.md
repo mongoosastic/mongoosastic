@@ -137,7 +137,7 @@ BookSchema.plugin(mongoosastic);
 const Book = mongoose.model('Book', BookSchema)
 
 const stream = Book.synchronize();
-const count = 0;
+let count = 0;
 
 stream.on('data', function(err, doc) {
   count++;
