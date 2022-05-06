@@ -32,7 +32,7 @@ Options are:
 * `transform` - the function used to transform serialized document before indexing
 * `populate` - an Array of Mongoose populate options objects
 * `indexAutomatically` - allows indexing after model save to be disabled for when you need finer control over when documents are indexed. Defaults to true
-* `customProperties` - an object detailing additional properties which will be merged onto the type's default mapping when `createMapping` is called.
+* `properties` - an object detailing additional properties which will be merged onto the type's default mapping when `createMapping` is called (note: [`createMapping`](/mapping#creating-mappings-on-demand) is not called automatically, you must explicitly call it).
 * `saveOnSynchronize` - triggers Mongoose save (and pre-save) method when synchronizing a collection/index. Defaults to true
 
 
