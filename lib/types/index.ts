@@ -22,7 +22,7 @@ declare interface FilterFn {
 }
 
 declare interface TransformFn {
-  (body: Record<string, unknown>, doc: Document): any;
+  (body: Record<string, unknown>, doc: Document): Record<string, unknown> | Promise<Record<string, unknown>>;
 }
 
 declare interface RoutingFn {
