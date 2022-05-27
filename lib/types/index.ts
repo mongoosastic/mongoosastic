@@ -167,6 +167,8 @@ interface MongoosasticModel<T> extends Model<T> {
   search(query: QueryDslQueryContainer, options?: EsSearchOptions): Promise<ApiResponse<HydratedSearchResults<T>>>;
 
   synchronize(query?: any, options?: SynchronizeOptions): EventEmitter;
+
+  bulkAdd(opts: BulkIndexOptions): Promise<void>
 }
 
 export {
