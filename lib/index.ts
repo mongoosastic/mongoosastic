@@ -1,6 +1,6 @@
 import events from 'events'
 import { Schema } from 'mongoose'
-import { flush } from './bulking'
+import { flush, bulkAdd } from './bulking'
 import { createEsClient } from './esClient'
 import { postRemove, postSave } from './hooks'
 import Generator from './mapping'
@@ -40,6 +40,7 @@ function mongoosastic(
   schema.method('index', index)
   schema.method('unIndex', unIndex)
 
+  schema.static('bulkAdd', bulkAdd)
   schema.static('synchronize', synchronize)
   schema.static('esTruncate', esTruncate)
 
