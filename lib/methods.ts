@@ -33,7 +33,7 @@ export async function index(
   }
 
   if (options.transform) {
-    body = options.transform(body, this)
+    body = await options.transform(body, this)
   }
 
   const opt = {
