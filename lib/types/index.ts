@@ -15,7 +15,7 @@ import {
   SearchResponse,
 } from '@elastic/elasticsearch/api/types'
 import { EventEmitter } from 'events'
-import { Document, Model, PopulateOptions, QueryOptions } from 'mongoose'
+import { Document, HydratedDocument, Model, PopulateOptions, QueryOptions } from 'mongoose'
 
 declare interface FilterFn {
   (doc: Document): boolean;
@@ -109,7 +109,11 @@ declare type Options = {
   index?: string;
   indexAutomatically?: boolean;
   populate?: PopulateOptions[];
-  properties?: any;
+  properties?: {[key: string]: any};
+  /**
+   * @property {never}  customProperties - The docs incorrectly stated that this option was called "customProperties", use "properties" instead.
+   */
+  customProperties?: never;
   routing?: RoutingFn;
   saveOnSynchronize?: boolean;
   transform?: TransformFn;
