@@ -33,8 +33,11 @@ async function createModelAndEnsureIndex<T extends MongoosasticDocument>(Model: 
   const doc = new Model(obj)
   await doc.save()
 
-  return new Promise((resolve) => {
-    doc.on('es-indexed', async function () {
+  return new Promise((resolve, reject) => {
+    doc.on('es-indexed', async function (err) {
+      if (err) {
+        return reject(err)
+      }
       await sleep(INDEXING_TIMEOUT)
       resolve(doc)
     })

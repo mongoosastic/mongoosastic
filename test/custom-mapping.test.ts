@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema, HydratedDocument } from 'mongoose'
 import mongoosastic from '../lib/index'
 import { MongoosasticDocument, MongoosasticModel, Options } from '../lib/types'
 import { config } from './config'
@@ -17,11 +17,15 @@ const PhoneSchema = new Schema({
 })
 
 PhoneSchema.plugin(mongoosastic, {
-  transform: function (data, phone) {
-    data.created = new Date(phone._id.generationTime * 1000)
+  transform: function (data: Record<string, unknown>, phone: HydratedDocument<IPhone>) {
+    if (phone.name === 'Nokia 3310') {
+      data.created = 'invalid value'
+    } else {
+      data.created = new Date(phone._id.generationTime * 1000)
+    }
     return data
   },
-  customProperties: {
+  properties: {
     created: {
       type: 'date'
     }
@@ -32,19 +36,21 @@ const Phone = mongoose.model<IPhone, MongoosasticModel<IPhone>>('Phone', PhoneSc
 
 describe('Custom Properties for Mapping', function () {
 
-  beforeAll(async function () {
+  beforeEach(async function () {
     await mongoose.connect(config.mongoUrl, config.mongoOpts)
     await Phone.deleteMany()
     await config.deleteIndexIfExists(['phones'])
   })
 
-  afterAll(async function () {
+  afterEach(async function () {
     await Phone.deleteMany()
     await config.deleteIndexIfExists(['phones'])
     await mongoose.disconnect()
   })
 
   it('should index with field "created"', async function () {
+
+    await Phone.createMapping()
 
     await config.createModelAndEnsureIndex(Phone, {
       name: 'iPhone'
@@ -62,5 +68,16 @@ describe('Custom Properties for Mapping', function () {
 
     expect(results?.body.hits.total).toEqual(1)
     expect(hit?.created).toBeDefined()
+  })
+
+  it('should fail index if value for field "created" is the wrong type', async function () {
+
+    await Phone.createMapping()
+
+    await expect(
+      config.createModelAndEnsureIndex(Phone, {
+        name: 'Nokia 3310'
+      })
+    ).rejects.toThrow('Reason: failed to parse field [created] of type [date]')
   })
 })
