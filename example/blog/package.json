@@ -10,7 +10,7 @@
     "errorhandler": "1.5.1",
     "express": "4.17.1",
     "jade": "1.11.0",
-    "mongoose": "6.0.13"
+    "mongoose": "6.4.6"
   },
   "devDependencies": {
     "@types/errorhandler": "^1.5.0",
