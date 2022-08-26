@@ -19,7 +19,7 @@
   "dependencies": {
     "@elastic/elasticsearch": "7.15.0",
     "lodash": "4.17.21",
-    "mongoose": "6.0.13"
+    "mongoose": "6.4.6"
   },
   "devDependencies": {
     "@types/jest": "27.0.2",
