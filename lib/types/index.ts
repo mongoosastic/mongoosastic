@@ -21,8 +21,8 @@ declare interface FilterFn {
   (doc: Document): boolean;
 }
 
-declare interface TransformFn {
-  (body: Record<string, unknown>, doc: Document): Record<string, unknown> | Promise<Record<string, unknown>>;
+declare interface TransformFn<T = any> {
+  (body: Record<string, unknown>, doc: HydratedDocument<T>): Record<string, unknown> | Promise<Record<string, unknown>>;
 }
 
 declare interface RoutingFn {
