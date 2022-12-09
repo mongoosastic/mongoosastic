@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "errorhandler": "1.5.1",
-    "express": "4.17.1",
+    "express": "4.18.2",
     "jade": "1.11.0",
     "mongoose": "6.0.13"
   },
