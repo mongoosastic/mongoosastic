@@ -66,9 +66,9 @@ export async function flush(this: MongoosasticModel<MongoosasticDocument>): Prom
       body: bulkBuffer,
     })
     .then((res) => {
-      if (res.body.items && res.body.items.length) {
-        for (let i = 0; i < res.body.items.length; i++) {
-          const info = res.body.items[i]
+      if (res.items && res.items.length) {
+        for (let i = 0; i < res.items.length; i++) {
+          const info = res.items[i]
           if (info && info.index && info.index.error) {
             this.bulkError().emit('error', null, info.index)
           }
