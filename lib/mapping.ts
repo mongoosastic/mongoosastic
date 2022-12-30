@@ -66,14 +66,28 @@ function getMapping(cleanTree: Record<string, any>, inPrefix: string) {
     // If there is no type, then it's an object with subfields.
     if (typeof value === 'object' && !value.type) {
       mapping[field].type = 'object'
-      mapping[field].properties = getMapping(value, prefix + field)
+
+      const _submapping = getMapping(value, prefix + field) as any
+
+      mapping[field].properties = _submapping.mapping
+
+      if (_submapping.hasEsIndex) {
+        hasEsIndex = _submapping.hasEsIndex
+      }
+
+      // Consider has an explicit field if there is there is no hasEsIndex in the subdocument
+      if (hasEsIndex && !_submapping.hasEsIndex && !value.es_indexed && !_submapping.mapping.__v) {
+        implicitFields.push(field)
+      }
+
     }
 
     // If it is a objectid make it a string.
     if (value.type === 'objectid') {
       if (value.ref && value.es_schema) {
         mapping[field].type = 'object'
-        mapping[field].properties = getMapping(value, prefix + field)
+        mapping[field].properties = getMapping(value, prefix + field).mapping
+
         continue
       }
       // do not continue here so we can handle other es_ options
@@ -121,7 +135,10 @@ function getMapping(cleanTree: Record<string, any>, inPrefix: string) {
     })
   }
 
-  return mapping
+  return {
+    mapping,
+    hasEsIndex
+  }
 }
 
 //
@@ -323,7 +340,7 @@ export default class Generator {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     delete cleanTree[schema.get('versionKey')]
-    const mapping = getMapping(cleanTree, '')
+    const mapping = getMapping(cleanTree, '').mapping
     return { properties: mapping }
   }
 

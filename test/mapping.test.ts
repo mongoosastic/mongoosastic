@@ -187,6 +187,10 @@ describe('MappingGenerator', function () {
           telephone: {
             type: String
           },
+          social: {
+            messenger : String,
+            instagram: String
+          },
           keys: [String],
           tags: {
             type: [String],
@@ -201,6 +205,7 @@ describe('MappingGenerator', function () {
       expect(mapping.properties.contact.properties.tags.type).toEqual('text')
       expect(mapping.properties.contact.properties).not.toHaveProperty('telephone')
       expect(mapping.properties.contact.properties).not.toHaveProperty('keys')
+      expect(mapping.properties.contact.properties).not.toHaveProperty('social')
       done()
     })
 
