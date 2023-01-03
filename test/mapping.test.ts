@@ -674,6 +674,37 @@ describe('MappingGenerator', function () {
       expect(mapping.properties.locations.properties.coordinates.type).toEqual('geo_point')
       done()
     })
-  })
 
+    describe('generator caching', function () {
+      it('generaterd mappings should not be cached', function (done) {
+        const schema = new Schema({
+          name: {
+            type: String,
+            es_type: 'date'
+          }
+        })
+
+        const mapping_a = generator.generateMapping(schema)
+        const mapping_b = generator.generateMapping(schema)
+
+        expect(mapping_a === mapping_b).toEqual(false)
+        done()
+      })
+
+      it('generaterd mappings should be cached', function (done) {
+        const schema = new Schema({
+          name: {
+            type: String,
+            es_type: 'date'
+          }
+        })
+
+        const mapping_a = generator.generateMapping(schema, true)
+        const mapping_b = generator.generateMapping(schema, true)
+
+        expect(mapping_a === mapping_b).toEqual(true)
+        done()
+      })
+    })
+  })
 })

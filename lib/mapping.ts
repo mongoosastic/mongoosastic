@@ -335,13 +335,34 @@ function nestedSchema(
 }
 
 export default class Generator {
-  generateMapping(schema: Schema<MongoosasticDocument, MongoosasticModel<MongoosasticDocument>>): Record<string, any> {
+  cache: Record<string, Record<string, any>> = {}
+
+  generateMapping(schema: Schema<MongoosasticDocument, MongoosasticModel<MongoosasticDocument>>, useCache?: boolean): Record<string, any> {
+    // Use cached version if any
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if (useCache && this.cache[schema]) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      return this.cache[schema]
+    }
+
     const cleanTree = getCleanTree(schema['tree' as keyof Schema], schema.paths, '', true)
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     delete cleanTree[schema.get('versionKey')]
+
     const mapping = getMapping(cleanTree, '').mapping
-    return { properties: mapping }
+
+    const _cachedMapping = { properties: mapping }
+
+    if (useCache) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      this.cache[schema] = _cachedMapping
+    }
+
+    return _cachedMapping
   }
 
   getCleanTree(schema: Schema<MongoosasticDocument, MongoosasticModel<MongoosasticDocument>>): Record<string, any> {

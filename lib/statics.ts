@@ -19,7 +19,7 @@ export async function createMapping(
   const generator = new Generator()
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-  const completeMapping = generator.generateMapping(this.schema)
+  const completeMapping = generator.generateMapping(this.schema, true)
 
   completeMapping.properties = filterMappingFromMixed(completeMapping.properties)
 
