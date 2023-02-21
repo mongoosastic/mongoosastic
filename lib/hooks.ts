@@ -1,4 +1,5 @@
 import { MongoosasticDocument } from './types'
+import { cloneDeep } from 'lodash'
 
 export async function postSave(doc: MongoosasticDocument): Promise<void> {
   if (!doc) {
@@ -20,7 +21,7 @@ export async function postSave(doc: MongoosasticDocument): Promise<void> {
   const populate = options && options.populate
   if (doc) {
     if (populate && populate.length) {
-      const popDoc = await doc.populate(populate)
+      const popDoc = await cloneDeep(doc).populate(populate)
       popDoc
         .index()
         .then((res) => onIndex(null, res))

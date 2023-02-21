@@ -28,7 +28,7 @@ const PostComment = mongoose.model('PostComment', PostCommentSchema)
 interface IPost extends MongoosasticDocument {
   body: string,
   author: IUser,
-  comments: IPostComment,
+  comments: IPostComment[],
 }
 
 const PostSchema = new Schema({
@@ -114,6 +114,20 @@ describe('references', function () {
       expect(results?.body.hits.hits[0]._source?.body).toEqual('A very short post')
     })
 
+    it('should not have side effect with no populate', async function () {
+
+      const doc = await Post.findOneAndUpdate({}, {})
+
+      expect(doc?.populated('comments')).toEqual(undefined)
+    })
+
+    it('should not have side effect with populate', async function () {
+
+      const doc = await Post.findOneAndUpdate({}, {}).populate('comments')
+
+      expect(doc?.populated('comments')).not.toEqual(undefined)
+      expect(doc?.comments?.[0]?.author).not.toEqual(undefined)
+    })
 
     describe('arrays of references', function () {
 
